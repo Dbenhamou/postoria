@@ -22,7 +22,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method !== 'POST') return res.status(405).end()
 
   const { profile } = req.body
-
   const news = await fetchCyberNews()
 
   const systemPrompt = `Tu es un expert en personal branding LinkedIn spécialisé en cybersécurité B2B.
@@ -30,21 +29,24 @@ Utilisateur : ${profile?.role || 'Account Executive'} chez ${profile?.company ||
 Secteur : ${profile?.sector || 'Cybersécurité B2B – partenaires MSP'}.
 Audience : ${profile?.audience || 'Professionnels MSP, DSI, RSSI – France'}.
 Stack : ${profile?.tech_stack || 'Microsoft, Azure, Entra ID'}.
+${profile?.domain ? `Domaine entreprise : ${profile.domain}.` : ''}
 Langue : Français.`
 
   const userPrompt = `${news ? `Actualités cybersécurité du jour :\n${news}\n\n` : ''}
-Génère exactement 5 idées de posts LinkedIn pour aujourd'hui.
+Génère exactement 10 idées de posts LinkedIn pour aujourd'hui.
 Couvre : actualité récente, conseil Zero Trust/MFA, CVE Microsoft/Azure, ransomware terrain, tendance MSP France.
+Les 2 premières idées doivent être les plus pertinentes et percutantes du moment.
 
-Format JSON strict (tableau de 5 objets) :
-[{"topic":"étiquette courte","title":"titre accrocheur max 12 mots","hook":"première phrase percutante max 25 mots"}]
+Format JSON strict (tableau de 10 objets) :
+[{"topic":"étiquette courte","title":"titre accrocheur max 12 mots","hook":"première phrase percutante max 25 mots","recommended":true}]
 
+Les 2 premiers objets ont "recommended":true, les 8 suivants ont "recommended":false.
 Réponds UNIQUEMENT avec le JSON valide.`
 
   try {
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1000,
+      max_tokens: 2000,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
     })
