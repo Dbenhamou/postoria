@@ -56,7 +56,7 @@ const PATTERNS: Record<string,string> = {
   circles: `<pattern id="pat" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse"><circle cx="30" cy="30" r="25" fill="none" stroke="currentColor" stroke-width="0.5" opacity=".07"/></pattern><rect width="100%" height="100%" fill="url(#pat)"/>`,
 }
 
-const DEFAULT: VizSettings = {
+const DEFAULT = {
   tpl:'quote', fmt:'square',
   colors:{ bg:'#F8F6F2', text:'#232323', accent:'#4F6754' },
   font:'playfair', textSize:'L', align:'left',
