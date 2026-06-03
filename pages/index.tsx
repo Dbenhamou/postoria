@@ -447,19 +447,31 @@ export default function Home() {
     try { return JSON.parse(ws) } catch { return ws ? [ws] : [] }
   }
 
-  const addRefPost = () => {
+  const addRefPost = async () => {
     if (!newRefPost.trim()) return
     const posts = getRefPosts()
     if (posts.length >= 5) { showToast('Maximum 5 posts référents'); return }
     const updated = [...posts, newRefPost.trim()]
-    setProfile((p: any) => ({ ...p, writing_style: JSON.stringify(updated) }))
+    const updatedProfile = { ...profile, writing_style: JSON.stringify(updated) } as any
+    setProfile(updatedProfile)
     setNewRefPost('')
     setShowAddRef(false)
+    if (userId) {
+      const { error } = await supabase.from('profiles').update({ writing_style: JSON.stringify(updated) }).eq('id', userId)
+      if (!error) showToast('Post référent ajouté ✓')
+      else showToast('Erreur lors de la sauvegarde')
+    }
   }
 
-  const removeRefPost = (idx: number) => {
+  const removeRefPost = async (idx: number) => {
     const posts = getRefPosts().filter((_: string, i: number) => i !== idx)
-    setProfile((p: any) => ({ ...p, writing_style: JSON.stringify(posts) }))
+    const updatedProfile = { ...profile, writing_style: JSON.stringify(posts) } as any
+    setProfile(updatedProfile)
+    if (userId) {
+      const { error } = await supabase.from('profiles').update({ writing_style: JSON.stringify(posts) }).eq('id', userId)
+      if (!error) showToast('Post référent supprimé')
+      else showToast('Erreur lors de la suppression')
+    }
   }
 
   const completeOnboarding = async () => {
