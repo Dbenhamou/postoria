@@ -511,6 +511,17 @@ export default function Home() {
     <>
       <Head><title>Postoria</title></Head>
       <div className="app">
+        {/* Mobile header */}
+        <div className="mobile-header">
+          <div className="mobile-header-logo">
+            <div className="logo-icon" style={{width:26,height:26,borderRadius:7}}><svg viewBox="0 0 24 24" fill="none"><path d="M6 4h8a4 4 0 0 1 0 8H6V4Z" fill="white" opacity=".9"/><path d="M6 12h5l4 8H6v-8Z" fill="white" opacity=".5"/></svg></div>
+            <span style={{fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:600,color:'var(--text1)',letterSpacing:'.05em'}}>POSTORIA</span>
+          </div>
+          <div className="mobile-header-avatar" onClick={()=>setPage('profil')}>
+            {profile.name?profile.name.slice(0,2).toUpperCase():'??'}
+          </div>
+        </div>
+
         <aside className="sidebar">
           <div className="sidebar-logo"><div className="logo-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M6 4h8a4 4 0 0 1 0 8H6V4Z" fill="white" opacity=".9"/><path d="M6 12h5l4 8H6v-8Z" fill="white" opacity=".5"/></svg></div><span className="logo-name">POSTORIA</span></div>
           <nav className="sidebar-nav">{navItems.map(item=>(<button key={item.id} className={`nav-link ${page===item.id?'active':''}`} onClick={()=>setPage(item.id)}>{item.icon}{item.label}</button>))}</nav>
@@ -689,6 +700,22 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Mobile bottom nav */}
+      <nav className="mobile-nav">
+        {[
+          {id:'apercu',label:'Accueil',icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>},
+          {id:'idees',label:'Idées',icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6L15 20H9l-.7-5C6.3 13.7 5 11.5 5 9a7 7 0 0 1 7-7Z"/><path d="M9 21h6"/></svg>},
+          {id:'rediger',label:'Rédiger',icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>},
+          {id:'bibliotheque',label:'Biblio',icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>},
+          {id:'profil',label:'Profil',icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>},
+        ].map(item=>(
+          <button key={item.id} className={`mobile-nav-item ${page===item.id?'active':''}`} onClick={()=>setPage(item.id)}>
+            {item.icon}
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
 
       {showOnboarding&&(
         <div style={{position:'fixed',inset:0,zIndex:600,background:'rgba(0,0,0,0.6)',display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(6px)',padding:20}}>
