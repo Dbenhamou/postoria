@@ -480,6 +480,16 @@ export default function Home() {
     showToast('Bienvenue sur Postoria !')
   }
 
+  const saveLang = async (l: string) => {
+    setProfile(p => ({ ...p, lang: l }))
+    if (userId) await supabase.from('profiles').update({ lang: l }).eq('id', userId)
+  }
+
+  const saveLang = async (l: string) => {
+    setProfile(p => ({ ...p, lang: l }))
+    if (userId) await supabase.from('profiles').update({ lang: l }).eq('id', userId)
+  }
+
   const connectLinkedIn = () => {
     window.location.href = `/api/linkedin/auth?userId=${userId}`
   }
@@ -601,7 +611,7 @@ export default function Home() {
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             <div style={{display:'flex',gap:3}}>
               {['fr','en'].map(l=>(
-                <button key={l} onClick={()=>setProfile(p=>({...p,lang:l}))} style={{padding:'3px 7px',borderRadius:6,border:`1px solid ${profile.lang===l?'var(--forest)':'var(--border)'}`,background:profile.lang===l?'var(--forest)':'transparent',color:profile.lang===l?'white':'var(--text3)',fontSize:10,cursor:'pointer',fontFamily:'inherit',fontWeight:500}}>
+                <button key={l} onClick={()=>saveLang(l)} style={{padding:'3px 7px',borderRadius:6,border:`1px solid ${profile.lang===l?'var(--forest)':'var(--border)'}`,background:profile.lang===l?'var(--forest)':'transparent',color:profile.lang===l?'white':'var(--text3)',fontSize:10,cursor:'pointer',fontFamily:'inherit',fontWeight:500}}>
                   {l==='fr'?'🇫🇷':'🇬🇧'}
                 </button>
               ))}
@@ -625,17 +635,12 @@ export default function Home() {
               <span>{T('language')}</span>
               <div style={{display:'flex',gap:4}}>
                 {['fr','en'].map(l=>(
-                  <button key={l} onClick={()=>setProfile(p=>({...p,lang:l}))} style={{padding:'2px 8px',borderRadius:6,border:`1px solid ${profile.lang===l?'var(--forest)':'var(--border)'}`,background:profile.lang===l?'var(--forest)':'transparent',color:profile.lang===l?'white':'var(--text3)',fontSize:10,fontWeight:500,cursor:'pointer',fontFamily:'inherit'}}>
+                  <button key={l} onClick={()=>saveLang(l)} style={{padding:'2px 8px',borderRadius:6,border:`1px solid ${profile.lang===l?'var(--forest)':'var(--border)'}`,background:profile.lang===l?'var(--forest)':'transparent',color:profile.lang===l?'white':'var(--text3)',fontSize:10,fontWeight:500,cursor:'pointer',fontFamily:'inherit'}}>
                     {l==='fr'?'🇫🇷 FR':'🇬🇧 EN'}
                   </button>
                 ))}
               </div>
             </div>
-            {!linkedinConnected && (
-              <div style={{margin:'0 10px 4px',padding:'8px 10px',background:'rgba(0,119,181,0.08)',border:'1px solid rgba(0,119,181,0.2)',borderRadius:8,fontSize:11,color:'#0077B5',cursor:'pointer'}} onClick={connectLinkedIn}>
-                🔗 Connecter LinkedIn pour publier
-              </div>
-            )}
             {!linkedinConnected && (
               <div style={{margin:'0 10px 4px',padding:'8px 10px',background:'rgba(0,119,181,0.08)',border:'1px solid rgba(0,119,181,0.2)',borderRadius:8,fontSize:11,color:'#0077B5',cursor:'pointer'}} onClick={connectLinkedIn}>
                 🔗 Connecter LinkedIn pour publier
