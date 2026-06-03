@@ -517,8 +517,17 @@ export default function Home() {
             <div className="logo-icon" style={{width:26,height:26,borderRadius:7}}><svg viewBox="0 0 24 24" fill="none"><path d="M6 4h8a4 4 0 0 1 0 8H6V4Z" fill="white" opacity=".9"/><path d="M6 12h5l4 8H6v-8Z" fill="white" opacity=".5"/></svg></div>
             <span style={{fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:600,color:'var(--text1)',letterSpacing:'.05em'}}>POSTORIA</span>
           </div>
-          <div className="mobile-header-avatar" onClick={()=>setPage('profil')}>
-            {profile.name?profile.name.slice(0,2).toUpperCase():'??'}
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <div style={{display:'flex',gap:3}}>
+              {['fr','en'].map(l=>(
+                <button key={l} onClick={()=>setProfile(p=>({...p,lang:l}))} style={{padding:'3px 7px',borderRadius:6,border:`1px solid ${profile.lang===l?'var(--forest)':'var(--border)'}`,background:profile.lang===l?'var(--forest)':'transparent',color:profile.lang===l?'white':'var(--text3)',fontSize:10,cursor:'pointer',fontFamily:'inherit',fontWeight:500}}>
+                  {l==='fr'?'🇫🇷':'🇬🇧'}
+                </button>
+              ))}
+            </div>
+            <div className="mobile-header-avatar" onClick={()=>setPage('profil')}>
+              {profile.name?profile.name.slice(0,2).toUpperCase():'??'}
+            </div>
           </div>
         </div>
 
@@ -531,6 +540,16 @@ export default function Home() {
               <div><div className="user-name">{profile.name||'Mon compte'}</div><div className="user-role">{profile.role?`${profile.role.split(' ')[0]} · ${profile.company}`:'Compléter le profil'}</div></div>
             </div>
             <div className="theme-row"><span>Mode sombre</span><div className={`toggle ${dark?'on':''}`} onClick={toggleDark}><div className="toggle-dot"/></div></div>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 10px 0',fontSize:11,color:'var(--text3)'}}>
+              <span>Langue</span>
+              <div style={{display:'flex',gap:4}}>
+                {['fr','en'].map(l=>(
+                  <button key={l} onClick={()=>setProfile(p=>({...p,lang:l}))} style={{padding:'2px 8px',borderRadius:6,border:`1px solid ${profile.lang===l?'var(--forest)':'var(--border)'}`,background:profile.lang===l?'var(--forest)':'transparent',color:profile.lang===l?'white':'var(--text3)',fontSize:10,fontWeight:500,cursor:'pointer',fontFamily:'inherit'}}>
+                    {l==='fr'?'🇫🇷 FR':'🇬🇧 EN'}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div style={{padding:'4px 10px'}}><button className="btn btn-ghost" style={{width:'100%',justifyContent:'center',fontSize:11,color:'var(--text3)'}} onClick={signOut}>↩ Se déconnecter</button></div>
           </div>
         </aside>
@@ -558,43 +577,77 @@ export default function Home() {
           </div>
 
           {/* RÉDIGER */}
-          <div className={`page ${page==='rediger'?'active':''}`}>
-            <div className="eyebrow">Création</div><div className="page-title">Rédiger un post</div><div className="copper-rule"/>
-            <div className="page-sub">Décrivez votre idée. Postoria s'occupe du reste.</div>
-            <div className="grid2">
-              <div className="card">
-                <div className="section-label">Votre sujet</div>
-                <div className="form-group"><textarea className="post-editor" style={{minHeight:80}} value={postTopic} onChange={e=>setPostTopic(e.target.value)} placeholder="Ex : Les MSP face aux ransomwares en 2025…"/></div>
-                <div className="form-group"><label className="form-label">Format</label><select className="form-input" value={postFormat} onChange={e=>setPostFormat(e.target.value)}><option value="educational">Conseil & astuce pratique</option><option value="alert">Alerte — CVE ou menace récente</option><option value="opinion">Prise de position</option><option value="story">Storytelling</option><option value="list">Liste numérotée</option></select></div>
-                <div className="form-group"><label className="form-label">Longueur</label><select className="form-input" value={postLength} onChange={e=>setPostLength(e.target.value)}><option value="short">Court</option><option value="medium">Moyen</option><option value="long">Long</option></select></div>
-                <div className="form-group"><label className="form-label">Ton</label><div style={{marginTop:4}}>{['expert','accessible','direct','storyteller'].map(t=>(<span key={t} className={`chip ${postTone===t?'on':''}`} onClick={()=>setPostTone(t)}>{t.charAt(0).toUpperCase()+t.slice(1)}</span>))}</div></div>
+          <div className={`page ${page==='rediger'?'active':''}`} style={{maxWidth:'100%',padding:'20px 24px'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16,flexWrap:'wrap' as const,gap:8}}>
+              <div>
+                <div className="eyebrow">Création</div>
+                <div className="page-title" style={{fontSize:22,marginBottom:0}}>Rédiger un post</div>
+              </div>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'340px 1fr',gap:16,alignItems:'start'}} className="rediger-grid">
+              {/* LEFT: Formulaire */}
+              <div className="card" style={{padding:'16px 18px'}}>
+                <div className="form-group" style={{marginBottom:10}}>
+                  <label className="form-label">Sujet</label>
+                  <textarea className="post-editor" style={{minHeight:70,fontSize:13}} value={postTopic} onChange={e=>setPostTopic(e.target.value)} placeholder="Ex : Les MSP face aux ransomwares en 2025…"/>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
+                  <div className="form-group" style={{marginBottom:0}}>
+                    <label className="form-label">Format</label>
+                    <select className="form-input" style={{fontSize:12}} value={postFormat} onChange={e=>setPostFormat(e.target.value)}>
+                      <option value="educational">Conseil</option>
+                      <option value="alert">Alerte</option>
+                      <option value="opinion">Opinion</option>
+                      <option value="story">Story</option>
+                      <option value="list">Liste</option>
+                    </select>
+                  </div>
+                  <div className="form-group" style={{marginBottom:0}}>
+                    <label className="form-label">Longueur</label>
+                    <select className="form-input" style={{fontSize:12}} value={postLength} onChange={e=>setPostLength(e.target.value)}>
+                      <option value="short">Court</option>
+                      <option value="medium">Moyen</option>
+                      <option value="long">Long</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="form-group" style={{marginBottom:12}}>
+                  <label className="form-label">Ton</label>
+                  <div style={{display:'flex',flexWrap:'wrap' as const,gap:4,marginTop:4}}>
+                    {['expert','accessible','direct','storyteller'].map(t=>(<span key={t} className={`chip ${postTone===t?'on':''}`} onClick={()=>setPostTone(t)} style={{fontSize:11,padding:'3px 10px'}}>{t.charAt(0).toUpperCase()+t.slice(1)}</span>))}
+                  </div>
+                </div>
                 <button className="btn btn-primary" style={{width:'100%',justifyContent:'center'}} onClick={()=>generatePost()} disabled={loadingPost}>{loadingPost?<><span className="spinner"/> Génération…</>:'✦ Générer le post'}</button>
               </div>
-              <div className="card">
-                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
+
+              {/* RIGHT: Résultat */}
+              <div className="card" style={{padding:'16px 18px'}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
                   <div className="section-label" style={{marginBottom:0}}>Résultat</div>
-                  {postOutput&&<div style={{display:'flex',gap:7}}><button className="btn btn-ghost" onClick={savePost}>↓ Sauvegarder</button><button className="btn btn-ghost" onClick={()=>copyText(postOutput)}>⎘ Copier</button></div>}
+                  <div style={{display:'flex',gap:6}}>
+                    <button className="btn btn-ghost" style={{fontSize:11,opacity:postOutput?1:0.4}} onClick={savePost} disabled={!postOutput}>↓ Sauvegarder</button>
+                    <button className="btn btn-ghost" style={{fontSize:11,opacity:postOutput?1:0.4}} onClick={()=>postOutput&&copyText(postOutput)} disabled={!postOutput}>⎘ Copier</button>
+                  </div>
                 </div>
-                {loadingPost&&<div style={{marginBottom:12}}><div className="strip"/></div>}
-                <textarea className="post-editor" value={postOutput} onChange={e=>setPostOutput(e.target.value)} placeholder="Votre post apparaîtra ici…"/>
-                {postOutput&&(
-                  <div style={{marginTop:14}}>
-                    <div style={{background:'rgba(79,103,84,0.05)',border:'1px solid rgba(79,103,84,0.18)',borderRadius:12,padding:'12px 14px',marginBottom:12,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
-                      <div><div style={{fontSize:12,fontWeight:600,color:'var(--forest)',marginBottom:2}}>🖼 Ajouter un visuel</div><div style={{fontSize:11,color:'var(--text2)'}}>Génère une image 1080×1080 à partir de ce post.</div></div>
-                      <button className="btn btn-secondary" style={{fontSize:12,flexShrink:0}} onClick={()=>setShowVisualModal(true)}>Créer le visuel →</button>
-                    </div>
+                {loadingPost&&<div style={{marginBottom:10}}><div className="strip"/></div>}
+                <textarea className="post-editor" style={{minHeight:260}} value={postOutput} onChange={e=>setPostOutput(e.target.value)} placeholder="Votre post apparaîtra ici…"/>
+                {/* Action bar — always visible */}
+                <div style={{marginTop:12,display:'flex',flexDirection:'column' as const,gap:8}}>
+                  <div style={{display:'flex',gap:7}}>
+                    <button className="btn btn-secondary" style={{fontSize:12,flex:1,justifyContent:'center',opacity:postOutput?1:0.4}} onClick={()=>postOutput&&setShowVisualModal(true)} disabled={!postOutput}>
+                      🖼 Créer le visuel
+                    </button>
                     {linkedinConnected ? (
-                      <div style={{display:'flex',gap:7,alignItems:'center'}}>
-                        <button className="btn btn-primary" onClick={()=>publishPost()} disabled={publishing} style={{background:'#0077B5',flex:1,justifyContent:'center'}}>{publishing?<><span className="spinner"/> Publication…</>:'🔗 Publier sur LinkedIn'}</button>
-                      </div>
+                      <button className="btn btn-primary" onClick={()=>publishPost()} disabled={publishing||!postOutput} style={{background:'#0077B5',flex:2,justifyContent:'center',opacity:postOutput?1:0.4}}>
+                        {publishing?<><span className="spinner"/> Publication…</>:'🔗 Publier sur LinkedIn'}
+                      </button>
                     ) : (
-                      <div style={{background:'rgba(0,119,181,0.06)',border:'1px solid rgba(0,119,181,0.2)',borderRadius:12,padding:'12px 14px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
-                        <div><div style={{fontSize:12,fontWeight:600,color:'#0077B5',marginBottom:2}}>🔗 Publier directement sur LinkedIn</div><div style={{fontSize:11,color:'var(--text2)'}}>Connecte ton compte LinkedIn pour publier en 1 clic.</div></div>
-                        <button className="btn btn-primary" style={{fontSize:12,flexShrink:0,background:'#0077B5'}} onClick={connectLinkedIn}>Connecter →</button>
-                      </div>
+                      <button className="btn btn-primary" style={{fontSize:12,flex:2,justifyContent:'center',background:'#0077B5'}} onClick={connectLinkedIn}>
+                        🔗 Connecter LinkedIn
+                      </button>
                     )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>

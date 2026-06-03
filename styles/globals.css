@@ -138,7 +138,7 @@ html, body {
 
 /* Main */
 .main { flex: 1; overflow-y: auto; background: var(--ivory); transition: background 0.3s; }
-.page { padding: 36px 40px; max-width: 900px; display: none; }
+.page { padding: 24px 28px; max-width: 960px; display: none; }
 .page.active { display: block; }
 
 /* Page headers */
@@ -304,6 +304,10 @@ select.form-input { cursor: pointer; }
 /* Fade up */
 @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 .fade { animation: fadeUp 0.3s ease forwards; }
+
+/* Rediger grid */
+.rediger-grid { grid-template-columns: 320px 1fr !important; }
+@media (max-width: 1024px) { .rediger-grid { grid-template-columns: 1fr !important; } }
 
 /* ─── MOBILE ─────────────────────────────────────────── */
 @media (max-width: 768px) {
