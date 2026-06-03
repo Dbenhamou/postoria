@@ -193,6 +193,8 @@ export default function Home() {
   const [publishing, setPublishing] = useState(false)
   const [scheduleDate, setScheduleDate] = useState('')
   const [showVisualModal, setShowVisualModal] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [onboardingStep, setOnboardingStep] = useState(0)
   const [savingProfile, setSavingProfile] = useState(false)
   const [ideasRefreshCountdown, setIdeasRefreshCountdown] = useState<number | null>(null)
   const ideasLastRefresh = useRef<number | null>(null)
@@ -211,6 +213,10 @@ export default function Home() {
     loadIdeas()
     loadCount()
   }, [userId])
+
+  useEffect(() => {
+    if (!loading && userId && !profile.role) setShowOnboarding(true)
+  }, [loading, userId, profile.role])
 
   // ── Supabase: load posts ──
   const loadPosts = async () => {
@@ -416,6 +422,12 @@ export default function Home() {
     // Check if linkedin_token exists in profile
     if ((profile as any).linkedin_token) setLinkedinConnected(true)
   }, [profile])
+
+  const completeOnboarding = async () => {
+    if (userId) await supabase.from('profiles').update({ onboarding_done: true } as any).eq('id', userId)
+    setShowOnboarding(false)
+    showToast('Bienvenue sur Postoria !')
+  }
 
   const connectLinkedIn = () => {
     window.location.href = `/api/linkedin/auth?userId=${userId}`
@@ -678,6 +690,85 @@ export default function Home() {
         </div>
       </div>
 
+      {showOnboarding&&(
+        <div style={{position:'fixed',inset:0,zIndex:600,background:'rgba(0,0,0,0.6)',display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(6px)',padding:20}}>
+          <div style={{background:'var(--white)',borderRadius:24,width:'100%',maxWidth:520,boxShadow:'0 32px 80px rgba(0,0,0,0.2)',overflow:'hidden'}}>
+            <div style={{background:'var(--forest)',padding:'28px 32px 24px'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+                <div style={{width:32,height:32,background:'rgba(255,255,255,0.15)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 4h8a4 4 0 0 1 0 8H6V4Z" fill="white" opacity=".9"/><path d="M6 12h5l4 8H6v-8Z" fill="white" opacity=".5"/></svg></div>
+                <span style={{fontFamily:"'Playfair Display',serif",fontSize:14,fontWeight:500,color:'rgba(255,255,255,0.9)',letterSpacing:'.06em'}}>POSTORIA</span>
+              </div>
+              <div style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:500,color:'white',marginBottom:4}}>
+                {onboardingStep===0&&'Bienvenue'}{onboardingStep===1&&'Connecte LinkedIn'}{onboardingStep===2&&'Ton profil'}
+              </div>
+              <div style={{fontSize:13,color:'rgba(255,255,255,0.7)'}}>
+                {onboardingStep===0&&'Postoria genere tes posts LinkedIn en quelques secondes.'}
+                {onboardingStep===1&&'LinkedIn pre-remplit ton nom et enrichit ton profil.'}
+                {onboardingStep===2&&'Verifie et complete les infos detectees.'}
+              </div>
+              <div style={{display:'flex',gap:6,marginTop:16}}>
+                {[0,1,2].map(i=>(<div key={i} style={{width:i===onboardingStep?20:6,height:6,borderRadius:3,background:i===onboardingStep?'white':'rgba(255,255,255,0.3)',transition:'all 0.2s'}}/>))}
+              </div>
+            </div>
+            <div style={{padding:'24px 32px 28px'}}>
+              {onboardingStep===0&&(
+                <div>
+                  {[{icon:'*',title:'10 idees par jour',desc:'Generees selon ton secteur et ton audience LinkedIn'},{icon:'o',title:'Post en 30 secondes',desc:'Genere, edite, publie directement sur LinkedIn'},{icon:'-',title:'Visuels 1080px',desc:'Cree des images pro pour accompagner chaque post'}].map((f,i)=>(
+                    <div key={i} style={{display:'flex',gap:14,marginBottom:14}}>
+                      <div style={{width:32,height:32,background:'var(--sand)',borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>{f.icon}</div>
+                      <div><div style={{fontSize:13,fontWeight:500,color:'var(--text1)',marginBottom:2}}>{f.title}</div><div style={{fontSize:12,color:'var(--text2)'}}>{f.desc}</div></div>
+                    </div>
+                  ))}
+                  <button className="btn btn-primary" style={{width:'100%',justifyContent:'center',marginTop:12}} onClick={()=>setOnboardingStep(1)}>Commencer</button>
+                </div>
+              )}
+              {onboardingStep===1&&(
+                <div>
+                  <div style={{background:'rgba(0,119,181,0.05)',border:'1px solid rgba(0,119,181,0.15)',borderRadius:12,padding:'14px 16px',marginBottom:10}}>
+                    <div style={{fontSize:13,fontWeight:600,color:'#0077B5',marginBottom:4}}>1. Connecte LinkedIn</div>
+                    <div style={{fontSize:12,color:'var(--text2)',marginBottom:10}}>Recupere ton nom et enrichit ton profil automatiquement.</div>
+                    <button className="btn btn-primary" style={{background:'#0077B5',width:'100%',justifyContent:'center'}} onClick={connectLinkedIn}>{linkedinConnected?'OK LinkedIn connecte':'Connecter LinkedIn'}</button>
+                  </div>
+                  <div style={{background:'rgba(79,103,84,0.05)',border:'1px solid rgba(79,103,84,0.15)',borderRadius:12,padding:'14px 16px',marginBottom:14}}>
+                    <div style={{fontSize:13,fontWeight:600,color:'var(--forest)',marginBottom:4}}>2. Enrichir depuis ton site</div>
+                    <div style={{fontSize:12,color:'var(--text2)',marginBottom:8}}>Analyse ton site pour pre-remplir secteur, audience, stack.</div>
+                    <div style={{display:'flex',gap:8}}>
+                      <input className="form-input" placeholder="ex: cyna.fr" value={profile.domain||''} onChange={(e:any)=>setProfile((p:any)=>({...p,domain:e.target.value}))} style={{flex:1,fontSize:12}}/>
+                      <button className="btn btn-secondary" style={{fontSize:12,flexShrink:0}} onClick={enrichProfile} disabled={enriching}>{enriching?<><span className="spinner"/>...</>:'Analyser'}</button>
+                    </div>
+                    {enrichSuggestions&&(
+                      <div style={{marginTop:8}}>
+                        {(Object.entries(enrichSuggestions) as [string,string][]).filter(([k])=>k!=='summary').map(([k,v])=>{
+                          const labels:Record<string,string>={company:'Entreprise',sector:'Secteur',audience:'Audience',tech_stack:'Stack'}
+                          return (<div key={k} style={{display:'flex',alignItems:'center',gap:6,marginBottom:5}}><span style={{fontSize:11,color:'var(--text2)',width:58,flexShrink:0}}>{labels[k]||k}</span><span style={{fontSize:11,color:'var(--text1)',flex:1,background:'var(--ivory)',padding:'3px 7px',borderRadius:5,border:'1px solid var(--border)'}}>{v}</span><button className="btn btn-primary" style={{fontSize:10,padding:'3px 8px',flexShrink:0}} onClick={()=>applyEnrichSuggestion(k,v)}>OK</button></div>)
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{display:'flex',gap:8}}>
+                    <button className="btn btn-ghost" style={{flex:1,justifyContent:'center',fontSize:12}} onClick={()=>setOnboardingStep(2)}>Passer</button>
+                    <button className="btn btn-primary" style={{flex:2,justifyContent:'center'}} onClick={()=>setOnboardingStep(2)}>Continuer</button>
+                  </div>
+                </div>
+              )}
+              {onboardingStep===2&&(
+                <div>
+                  {([['Prenom','name'],['Role','role'],['Entreprise','company'],['Secteur','sector'],['Audience LinkedIn','audience']] as [string,keyof typeof profile][]).map(([label,key])=>(
+                    <div className="form-group" key={key} style={{marginBottom:8}}>
+                      <label className="form-label">{label}</label>
+                      <input type="text" className="form-input" value={profile[key]||''} onChange={e=>setProfile(p=>({...p,[key]:e.target.value}))} style={{fontSize:13}}/>
+                    </div>
+                  ))}
+                  <div style={{display:'flex',gap:8,marginTop:14}}>
+                    <button className="btn btn-ghost" style={{justifyContent:'center',fontSize:12}} onClick={completeOnboarding}>Passer</button>
+                    <button className="btn btn-primary" style={{flex:1,justifyContent:'center'}} onClick={async()=>{await handleSaveProfile();completeOnboarding()}}>Enregistrer et commencer</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       {showVisualModal&&(<VisualModal onClose={()=>setShowVisualModal(false)} postContent={postOutput} postTopic={postTopic} profileName={profile.name} profileRole={profile.role} profileCompany={profile.company} profileSector={profile.sector} brandBg={profile.brand_bg} brandText={profile.brand_text} brandAccent={profile.brand_accent}/>)}
       <div className={`toast ${toastVisible?'show':''}`}>{toast}</div>
     </>
