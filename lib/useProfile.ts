@@ -16,6 +16,7 @@ export type Profile = {
   brand_bg: string
   brand_text: string
   brand_accent: string
+  writing_style: string
 }
 
 export const DEFAULT_PROFILE: Profile = {
@@ -31,6 +32,7 @@ export const DEFAULT_PROFILE: Profile = {
   brand_bg: '#F8F6F2',
   brand_text: '#232323',
   brand_accent: '#4F6754',
+  writing_style: '',
 }
 
 export function useProfile() {
@@ -93,6 +95,7 @@ export function useProfile() {
         brand_bg: data.brand_bg || '#F8F6F2',
         brand_text: data.brand_text || '#232323',
         brand_accent: data.brand_accent || '#4F6754',
+        writing_style: data.writing_style || '',
       })
     }
     setLoading(false)
