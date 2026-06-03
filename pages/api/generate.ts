@@ -29,45 +29,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const lang = profile?.lang === 'en' ? 'Anglais' : 'Français'
   const writingStyle = profile?.writing_style || ''
 
-  // Build style section based on whether user provided examples
-  const styleSection = writingStyle.trim()
-    ? `Style de rédaction personnalisé — IMPÉRATIF :
-L'utilisateur a fourni des exemples de ses propres posts LinkedIn ci-dessous.
-Analyse attentivement ces exemples et imite EXACTEMENT :
-- La longueur et structure des phrases
-- L'utilisation des emojis et symboles
-- Le ton et le vocabulaire
-- La façon d'accrocher en début de post
-- La façon de conclure et d'utiliser les hashtags
-- Les formulations caractéristiques
+  // Parse writing_style — supports JSON array (new) or plain string (legacy)
+  let refPosts: string[] = []
+  if (writingStyle.trim()) {
+    try { refPosts = JSON.parse(writingStyle) } catch { refPosts = [writingStyle] }
+  }
 
-Exemples de posts de l'utilisateur :
----
-${writingStyle}
----
+  // Build style section
+  let styleSection: string
+  if (refPosts.length > 0) {
+    const postsBlock = refPosts
+      .map((p, i) => '--- Post referent ' + (i + 1) + ' ---\n' + p)
+      .join('\n\n')
 
-Tu DOIS produire un post qui ressemble stylistiquement à ces exemples. Un lecteur habituel de ses posts doit reconnaître son style.`
-    : `Style obligatoire :
-- Phrases courtes et percutantes
-- Structure avec emojis et flèches (→, ↳, ▸)
-- Numéros pour les listes d'actions
-- Hook fort dans les 2 premières lignes
-- 3 à 5 hashtags seulement à la toute fin
-- Adapte le vocabulaire et les exemples au secteur de l'utilisateur`
+    styleSection = 'Style de redaction personnalise — IMPERATIF :\n'
+      + "L'utilisateur a fourni " + refPosts.length + ' exemple' + (refPosts.length > 1 ? 's' : '') + ' de ses propres posts LinkedIn.\n'
+      + 'Analyse attentivement ces exemples et imite EXACTEMENT :\n'
+      + '- La longueur et structure des phrases\n'
+      + "- L'utilisation des emojis et symboles\n"
+      + '- Le ton et le vocabulaire\n'
+      + "- La facon d'accrocher en debut de post\n"
+      + "- La facon de conclure et d'utiliser les hashtags\n"
+      + '- Les formulations caracteristiques\n\n'
+      + postsBlock + '\n---\n\n'
+      + "Tu DOIS produire un post qui ressemble stylistiquement a ces exemples. Un lecteur habituel de ses posts doit reconnaitre son style."
+  } else {
+    styleSection = 'Style obligatoire :\n'
+      + '- Phrases courtes et percutantes\n'
+      + '- Structure avec emojis et fleches (→, ↳, ▸)\n'
+      + '- Numeros pour les listes d\'actions\n'
+      + '- Hook fort dans les 2 premieres lignes\n'
+      + '- 3 a 5 hashtags seulement a la toute fin\n'
+      + "- Adapte le vocabulaire et les exemples au secteur de l'utilisateur"
+  }
 
-  const systemPrompt = `Tu es un expert en personal branding LinkedIn.
-Utilisateur : ${role}${company ? ` chez ${company}` : ''}.
-Secteur : ${sector || 'Non précisé'}.
-Audience : ${audience}.
-${techStack ? `Stack : ${techStack}.` : ''}
-Langue : ${lang}.
-
-${styleSection}
-
-- N'utilise JAMAIS de Markdown : pas de **, pas de __, pas de ##, pas de *
-- Le texte doit être brut, prêt à coller sur LinkedIn tel quel
-
-Réponds UNIQUEMENT avec le post LinkedIn, sans introduction ni commentaire.`
+  const systemPrompt = 'Tu es un expert en personal branding LinkedIn.\n'
+    + 'Utilisateur : ' + role + (company ? ' chez ' + company : '') + '.\n'
+    + 'Secteur : ' + (sector || 'Non precise') + '.\n'
+    + 'Audience : ' + audience + '.\n'
+    + (techStack ? 'Stack : ' + techStack + '.\n' : '')
+    + 'Langue : ' + lang + '.\n\n'
+    + styleSection + '\n\n'
+    + "- N'utilise JAMAIS de Markdown : pas de **, pas de __, pas de ##, pas de *\n"
+    + '- Le texte doit etre brut, pret a coller sur LinkedIn tel quel\n\n'
+    + 'Reponds UNIQUEMENT avec le post LinkedIn, sans introduction ni commentaire.'
 
   try {
     const message = await anthropic.messages.create({
@@ -76,7 +81,7 @@ Réponds UNIQUEMENT avec le post LinkedIn, sans introduction ni commentaire.`
       system: systemPrompt,
       messages: [{
         role: 'user',
-        content: `Rédige un ${formatMap[format] || formatMap.educational} sur : "${topic}"\nLongueur : ${lengthMap[length] || lengthMap.medium}\nTon : ${tone || 'expert'}`,
+        content: 'Redige un ' + (formatMap[format] || formatMap.educational) + ' sur : "' + topic + '"\nLongueur : ' + (lengthMap[length] || lengthMap.medium) + '\nTon : ' + (tone || 'expert'),
       }],
     })
 
@@ -84,6 +89,6 @@ Réponds UNIQUEMENT avec le post LinkedIn, sans introduction ni commentaire.`
     res.status(200).json({ content })
   } catch (err) {
     console.error(err)
-    res.status(500).json({ error: 'Erreur génération post' })
+    res.status(500).json({ error: 'Erreur generation post' })
   }
 }

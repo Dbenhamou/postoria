@@ -199,6 +199,8 @@ export default function Home() {
   const [showVisualModal, setShowVisualModal] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [onboardingStep, setOnboardingStep] = useState(0)
+  const [newRefPost, setNewRefPost] = useState('')
+  const [showAddRef, setShowAddRef] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
   const [ideasRefreshCountdown, setIdeasRefreshCountdown] = useState<number | null>(null)
   const ideasLastRefresh = useRef<number | null>(null)
@@ -437,6 +439,28 @@ export default function Home() {
     // Check if linkedin_token exists in profile
     if ((profile as any).linkedin_token) setLinkedinConnected(true)
   }, [profile])
+
+  // Parse writing_style as JSON array of posts, fallback to legacy string
+  const getRefPosts = (): string[] => {
+    const ws = (profile as any).writing_style || ''
+    if (!ws) return []
+    try { return JSON.parse(ws) } catch { return ws ? [ws] : [] }
+  }
+
+  const addRefPost = () => {
+    if (!newRefPost.trim()) return
+    const posts = getRefPosts()
+    if (posts.length >= 5) { showToast('Maximum 5 posts référents'); return }
+    const updated = [...posts, newRefPost.trim()]
+    setProfile((p: any) => ({ ...p, writing_style: JSON.stringify(updated) }))
+    setNewRefPost('')
+    setShowAddRef(false)
+  }
+
+  const removeRefPost = (idx: number) => {
+    const posts = getRefPosts().filter((_: string, i: number) => i !== idx)
+    setProfile((p: any) => ({ ...p, writing_style: JSON.stringify(posts) }))
+  }
 
   const completeOnboarding = async () => {
     if (userId) await supabase.from('profiles').update({ onboarding_done: true } as any).eq('id', userId)
@@ -843,24 +867,62 @@ export default function Home() {
                   <div style={{marginTop:8}}><span className="badge badge-forest">Ton expert</span>&nbsp;<span className="badge badge-copper">MSP France</span></div>
                 </div>
                 <div className="card" style={{marginTop:16}}>
-                  <div className="section-label">✍️ Mon style de rédaction</div>
-                  <div style={{fontSize:12,color:'var(--text2)',marginBottom:10,lineHeight:1.5}}>
-                    Colle 2-3 exemples de tes meilleurs posts LinkedIn. Claude analysera ton style et l'imitera à chaque génération.
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
+                    <div className="section-label" style={{marginBottom:0}}>✍️ Posts référents</div>
+                    <div style={{display:'flex',alignItems:'center',gap:8}}>
+                      <span style={{fontSize:11,color:'var(--text3)'}}>{getRefPosts().length}/5</span>
+                      {getRefPosts().length < 5 && (
+                        <button className="btn btn-secondary" style={{fontSize:11,padding:'4px 10px'}} onClick={()=>setShowAddRef(!showAddRef)}>
+                          {showAddRef ? '✕ Annuler' : '+ Ajouter'}
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <div className="form-group" style={{marginBottom:8}}>
-                    <textarea
-                      className="form-input"
-                      rows={8}
-                      value={(profile as any).writing_style||''}
-                      onChange={e=>setProfile((p:any)=>({...p,writing_style:e.target.value}))}
-                      placeholder={"Colle ici tes anciens posts LinkedIn...\n\nExemple :\n74% des MSP ont ete victimes d'une cyberattaque en 2024.\nPourtant, la majorite n'avait pas de plan de reponse.\nVoici ce que j'ai appris en 3 ans a proteger des PME..."}
-                      style={{fontSize:12,minHeight:160,fontFamily:'inherit'}}
-                    />
+                  <div style={{fontSize:12,color:'var(--text2)',marginBottom:12,lineHeight:1.5}}>
+                    Ajoute jusqu'à 5 de tes meilleurs posts LinkedIn. Claude analysera ton style et l'imitera à chaque génération.
                   </div>
-                  {(profile as any).writing_style && (
-                    <div style={{display:'flex',alignItems:'center',gap:8,padding:'8px 12px',background:'rgba(79,103,84,0.07)',borderRadius:8,fontSize:12,color:'var(--forest)'}}>
+                  {/* Existing ref posts */}
+                  {getRefPosts().map((post: string, idx: number) => (
+                    <div key={idx} style={{background:'var(--ivory)',border:'1px solid var(--border)',borderRadius:10,padding:'10px 12px',marginBottom:8,position:'relative' as const}}>
+                      <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:8}}>
+                        <div>
+                          <div style={{fontSize:11,fontWeight:600,color:'var(--forest)',marginBottom:4}}>Post {idx+1}</div>
+                          <div style={{fontSize:11,color:'var(--text2)',lineHeight:1.5,maxHeight:60,overflow:'hidden',maskImage:'linear-gradient(to bottom, black 60%, transparent 100%)'}}>{post}</div>
+                        </div>
+                        <button onClick={()=>removeRefPost(idx)} style={{flexShrink:0,background:'none',border:'none',cursor:'pointer',color:'var(--text3)',fontSize:14,padding:'0 4px',lineHeight:1}}>✕</button>
+                      </div>
+                    </div>
+                  ))}
+                  {/* Add new ref post */}
+                  {showAddRef && (
+                    <div style={{border:'1px solid var(--forest)',borderRadius:10,padding:'12px',marginBottom:8,background:'rgba(79,103,84,0.03)'}}>
+                      <div style={{fontSize:11,fontWeight:600,color:'var(--forest)',marginBottom:6}}>Nouveau post référent</div>
+                      <textarea
+                        className="form-input"
+                        rows={6}
+                        value={newRefPost}
+                        onChange={e=>setNewRefPost(e.target.value)}
+                        placeholder="Colle ici un de tes anciens posts LinkedIn..."
+                        style={{fontSize:12,fontFamily:'inherit',marginBottom:8}}
+                        autoFocus
+                      />
+                      <div style={{display:'flex',gap:7}}>
+                        <button className="btn btn-ghost" style={{fontSize:12}} onClick={()=>{setShowAddRef(false);setNewRefPost('')}}>Annuler</button>
+                        <button className="btn btn-primary" style={{fontSize:12,flex:1,justifyContent:'center'}} onClick={addRefPost} disabled={!newRefPost.trim()}>
+                          Ajouter ce post →
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {getRefPosts().length === 0 && !showAddRef && (
+                    <div style={{textAlign:'center' as const,padding:'16px 0',color:'var(--text3)',fontSize:12}}>
+                      Aucun post référent — clique sur "+ Ajouter" pour commencer
+                    </div>
+                  )}
+                  {getRefPosts().length > 0 && (
+                    <div style={{display:'flex',alignItems:'center',gap:8,padding:'8px 12px',background:'rgba(79,103,84,0.07)',borderRadius:8,fontSize:12,color:'var(--forest)',marginTop:4}}>
                       <span>✓</span>
-                      <span>Style personnalisé actif — tes prochains posts imiteront ton style</span>
+                      <span>Style actif — {getRefPosts().length} post{getRefPosts().length > 1 ? 's' : ''} référent{getRefPosts().length > 1 ? 's' : ''}</span>
                     </div>
                   )}
                 </div>
