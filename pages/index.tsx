@@ -910,7 +910,6 @@ export default function Home() {
       </div>
       <div className={`toast ${toastVisible?'show':''}`}>{toast}</div>
     </>
-    </>
   )
 }
 
