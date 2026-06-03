@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
 
-type Idea = { topic: string; title: string; hook: string; recommended?: boolean }
+type Idea = { topic: string; title: string; hook: string }
 type Post = { id: string; topic: string; content: string; format: string; created_at: string }
-type Profile = { role: string; company: string; sector: string; audience: string; tech_stack: string; lang: string; name: string; brand_bg: string; brand_text: string; brand_accent: string; webhook_url: string; domain: string }
+type Profile = { role: string; company: string; sector: string; audience: string; tech_stack: string; lang: string; name: string; brand_bg: string; brand_text: string; brand_accent: string; webhook_url: string }
 
 const DEFAULT_PROFILE: Profile = {
   name: 'David', role: 'Account Executive (AE)', company: 'Cyna',
@@ -13,7 +13,6 @@ const DEFAULT_PROFILE: Profile = {
   tech_stack: 'Microsoft, Azure, Entra ID, M365', lang: 'fr',
   brand_bg: '#F8F6F2', brand_text: '#232323', brand_accent: '#4F6754',
   webhook_url: '',
-  domain: '',
 }
 
 const PALETTES = [
@@ -541,27 +540,8 @@ export default function Home() {
   const [aItems, setAItems] = useState('Appliquer KB5049981 immédiatement\nVérifier l\'exposition des endpoints\nActiver les alertes Defender')
   const [aSev, setASev] = useState('CRITIQUE')
   const previewRef = useRef<HTMLDivElement>(null)
-  const [user, setUser] = useState<any>(null)
-  const [authChecked, setAuthChecked] = useState(false)
-  const [authEmail, setAuthEmail] = useState('')
-  const [authPassword, setAuthPassword] = useState('')
-  const [authMode, setAuthMode] = useState<'login'|'signup'>('login')
-  const [authLoading, setAuthLoading] = useState(false)
-  const [showVisualInPublish, setShowVisualInPublish] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      setAuthChecked(true)
-      if (session?.user) {
-        supabase.from('profiles').select('*').eq('id', session.user.id).single().then(({ data }) => {
-          if (data) { setProfile(data); if (data.brand_bg) setVizColors({bg:data.brand_bg,text:data.brand_text||'#232323',accent:data.brand_accent||'#4F6754'}) }
-        })
-      }
-    })
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
     const saved = localStorage.getItem('postoria_posts')
     const count = localStorage.getItem('postoria_count')
     const prof = localStorage.getItem('postoria_profile')
@@ -607,15 +587,7 @@ export default function Home() {
   }
   const deletePost = (id:string) => { const u=savedPosts.filter(p=>p.id!==id); setSavedPosts(u); localStorage.setItem('postoria_posts',JSON.stringify(u)); showToast('Post supprimé') }
   const copyText = (text:string) => { navigator.clipboard.writeText(text); showToast('Copié ✓') }
-  const saveProfile = async () => {
-    if (user) {
-      await supabase.from('profiles').upsert({ id: user.id, ...profile })
-      showToast('Profil enregistré ✓')
-    } else {
-      localStorage.setItem('postoria_profile', JSON.stringify(profile))
-      showToast('Profil enregistré ✓')
-    }
-  }
+  const saveProfile = () => { localStorage.setItem('postoria_profile',JSON.stringify(profile)); showToast('Profil enregistré ✓') }
 
   const publishPost = async (scheduled?: string) => {
     if (!postOutput.trim()) { showToast('Aucun post à publier'); return }
@@ -738,38 +710,6 @@ export default function Home() {
   return (
     <>
       <Head><title>Postoria</title></Head>
-      {!authChecked && <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}}><span className="spinner"/></div>}
-      {authChecked && !user && (
-        <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bg)'}}>
-          <div style={{width:360,padding:40,borderRadius:16,background:'var(--card)',boxShadow:'0 4px 24px rgba(0,0,0,0.08)'}}>
-            <div style={{textAlign:'center',marginBottom:32}}>
-              <div style={{fontSize:28,fontWeight:700,color:'var(--text1)'}}>Postoria</div>
-              <div style={{fontSize:14,color:'var(--text2)',marginTop:4}}>{authMode==='login'?'Connexion':'Créer un compte'}</div>
-            </div>
-            <div style={{display:'flex',flexDirection:'column',gap:12}}>
-              <input className="form-input" type="email" placeholder="Email" value={authEmail} onChange={e=>setAuthEmail(e.target.value)}/>
-              <input className="form-input" type="password" placeholder="Mot de passe" value={authPassword} onChange={e=>setAuthPassword(e.target.value)}/>
-              <button className="btn btn-primary" style={{marginTop:8}} disabled={authLoading} onClick={async()=>{
-                setAuthLoading(true)
-                if(authMode==='login'){
-                  const {error}=await supabase.auth.signInWithPassword({email:authEmail,password:authPassword})
-                  if(error) alert(error.message)
-                  else { const {data:{user:u}}=await supabase.auth.getUser(); setUser(u) }
-                } else {
-                  const {error}=await supabase.auth.signUp({email:authEmail,password:authPassword})
-                  if(error) alert(error.message)
-                  else alert('Vérifiez votre email pour confirmer votre compte')
-                }
-                setAuthLoading(false)
-              }}>{authLoading?'...':authMode==='login'?'Se connecter':'Créer le compte'}</button>
-              <button className="btn btn-ghost" style={{fontSize:13}} onClick={()=>setAuthMode(m=>m==='login'?'signup':'login')}>
-                {authMode==='login'?"Pas encore de compte ? S'inscrire":'Déjà un compte ? Se connecter'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {authChecked && user && <>
       <div className="app">
 
         {/* SIDEBAR */}
