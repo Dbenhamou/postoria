@@ -364,6 +364,30 @@ export default function Home() {
 
   const copyText = (text:string) => { navigator.clipboard.writeText(text); showToast('Copié ✓') }
 
+  const [enriching, setEnriching] = useState(false)
+  const [enrichSuggestions, setEnrichSuggestions] = useState<any>(null)
+
+  const enrichProfile = async () => {
+    if (!profile.domain) { showToast('Renseigne d\'abord ton domaine'); return }
+    setEnriching(true)
+    try {
+      const res = await fetch('/api/enrich-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain: profile.domain }),
+      })
+      const data = await res.json()
+      if (data.suggestions) setEnrichSuggestions(data.suggestions)
+      else showToast(data.error || 'Impossible d\'analyser le site')
+    } catch { showToast('Erreur réseau') }
+    setEnriching(false)
+  }
+
+  const applyEnrichSuggestion = (key: string, value: string) => {
+    setProfile(p => ({ ...p, [key]: value }))
+    setEnrichSuggestions((prev: any) => { const n = { ...prev }; delete n[key]; return Object.keys(n).length ? n : null })
+  }
+
   const handleSaveProfile = async () => {
     setSavingProfile(true)
     const ok = await saveProfile(profile)
@@ -558,7 +582,31 @@ export default function Home() {
                   <div className="form-group" key={key}>
                     <label className="form-label">{label}</label>
                     <input type="text" className="form-input" value={profile[key]||''} placeholder={key==='domain'?'ex: cyna.fr':undefined} onChange={e=>setProfile(p=>({...p,[key]:e.target.value}))}/>
-                    {key==='domain'&&<div style={{fontSize:11,color:'var(--text3)',marginTop:3}}>Utilisé pour personnaliser les idées selon votre domaine.</div>}
+                    {key==='domain'&&<>
+                      <div style={{display:'flex',alignItems:'center',gap:8,marginTop:6}}>
+                        <div style={{fontSize:11,color:'var(--text3)',flex:1}}>Utilisé pour personnaliser les idées selon votre domaine.</div>
+                        <button className="btn btn-secondary" style={{fontSize:11,flexShrink:0,whiteSpace:'nowrap' as const}} onClick={enrichProfile} disabled={enriching}>
+                          {enriching?<><span className="spinner"/> Analyse…</>:'✦ Enrichir'}
+                        </button>
+                      </div>
+                      {enrichSuggestions&&(
+                        <div style={{marginTop:12,background:'rgba(79,103,84,0.05)',border:'1px solid rgba(79,103,84,0.2)',borderRadius:12,padding:'14px 16px'}}>
+                          <div style={{fontSize:12,fontWeight:600,color:'var(--forest)',marginBottom:10}}>✦ Suggestions détectées depuis {profile.domain}</div>
+                          {enrichSuggestions.summary&&<div style={{fontSize:11,color:'var(--text2)',marginBottom:10,fontStyle:'italic'}}>"{enrichSuggestions.summary}"</div>}
+                          {(Object.entries(enrichSuggestions) as [string,string][]).filter(([k])=>k!=='summary').map(([k,v])=>{
+                            const labels:Record<string,string>={company:'Entreprise',sector:'Secteur',audience:'Audience',tech_stack:'Stack'}
+                            return (
+                              <div key={k} style={{display:'flex',alignItems:'center',gap:8,marginBottom:7}}>
+                                <span style={{fontSize:11,color:'var(--text2)',width:64,flexShrink:0}}>{labels[k]||k}</span>
+                                <span style={{fontSize:11,color:'var(--text1)',flex:1,background:'var(--white)',padding:'4px 8px',borderRadius:6,border:'1px solid var(--border)'}}>{v}</span>
+                                <button className="btn btn-primary" style={{fontSize:10,padding:'4px 10px',flexShrink:0}} onClick={()=>applyEnrichSuggestion(k,v)}>Appliquer</button>
+                              </div>
+                            )
+                          })}
+                          <button className="btn btn-ghost" style={{fontSize:11,marginTop:4,color:'var(--text3)'}} onClick={()=>setEnrichSuggestions(null)}>Ignorer tout</button>
+                        </div>
+                      )}
+                    </>}
                   </div>
                 ))}
                 <div className="form-group"><label className="form-label">Langue</label><select className="form-input" value={profile.lang} onChange={e=>setProfile(p=>({...p,lang:e.target.value}))}><option value="fr">Français</option><option value="en">English</option></select></div>
