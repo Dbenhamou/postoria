@@ -64,15 +64,27 @@ Réponds UNIQUEMENT avec le prompt DALL-E en anglais, sans introduction ni comme
 
     const openaiData = await openaiRes.json()
 
-    if (!openaiRes.ok || !openaiData.data?.[0]?.url) {
-      console.error('OpenAI error:', openaiData)
+    console.log('OpenAI response status:', openaiRes.status)
+    console.log('OpenAI response:', JSON.stringify(openaiData).substring(0, 500))
+
+    if (!openaiRes.ok) {
       return res.status(500).json({ 
         error: openaiData.error?.message || 'Erreur génération image',
+        code: openaiData.error?.code,
         details: openaiData
       })
     }
 
-    const imageUrl = openaiData.data[0].url
+    // gpt-image-1 returns base64, dall-e-3 returns URL
+    let imageUrl = ''
+    if (openaiData.data?.[0]?.url) {
+      imageUrl = openaiData.data[0].url
+    } else if (openaiData.data?.[0]?.b64_json) {
+      imageUrl = `data:image/png;base64,${openaiData.data[0].b64_json}`
+    } else {
+      console.error('No image in response:', openaiData)
+      return res.status(500).json({ error: 'Pas d\'image dans la réponse', details: openaiData })
+    }
     const revisedPrompt = openaiData.data[0].revised_prompt
 
     res.status(200).json({ 
