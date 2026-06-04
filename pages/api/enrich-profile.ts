@@ -45,7 +45,12 @@ async function extractColors(url: string): Promise<{ bg: string; text: string; a
       messages: [{
         role: 'user',
         content: `Parmi ces couleurs extraites d'un site web: ${uniqueColors.join(', ')}
-Identifie les 3 couleurs les plus probables pour: fond principal, texte principal, couleur accent/CTA.
+
+Identifie :
+- bg : la couleur de fond principale (souvent claire/blanche)
+- text : la couleur de texte principale (souvent sombre)
+- accent : la couleur de marque/CTA distinctive (PAS un gris, PAS #ffffff, PAS #f5f5f5, PAS #eeeeee — une vraie couleur de marque)
+
 Réponds UNIQUEMENT avec ce JSON: {"bg":"#xxxxxx","text":"#xxxxxx","accent":"#xxxxxx"}`,
       }],
     })
