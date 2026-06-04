@@ -924,7 +924,11 @@ export default function Home() {
                 <div className="card">
                   <div className="section-label">{T('stack_style')}</div>
                   <div className="form-group"><label className="form-label">{T('technologies')}</label><input type="text" className="form-input" value={profile.tech_stack||''} onChange={e=>setProfile(p=>({...p,tech_stack:e.target.value}))}/></div>
-                  <div style={{marginTop:8}}><span className="badge badge-forest">Ton expert</span>&nbsp;<span className="badge badge-copper">MSP France</span></div>
+                  <div style={{marginTop:8,display:'flex',gap:6,flexWrap:'wrap'}}>
+                    {postTone && <span className="badge badge-forest">{postTone.charAt(0).toUpperCase()+postTone.slice(1)}</span>}
+                    {profile.sector && <span className="badge badge-copper">{profile.sector}</span>}
+                    {profile.company && <span className="badge badge-forest">{profile.company}</span>}
+                  </div>
                 </div>
                 <div className="card" style={{marginTop:16}}>
                   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
