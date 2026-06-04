@@ -57,7 +57,7 @@ Réponds UNIQUEMENT avec le prompt DALL-E en anglais, sans introduction ni comme
         model: 'gpt-image-1',
         prompt: dallePrompt,
         n: 1,
-        size: '1024x1792',
+        size: 'auto',
         quality: 'high',
       }),
     })
