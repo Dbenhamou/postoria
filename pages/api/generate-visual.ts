@@ -71,15 +71,20 @@ Réponds UNIQUEMENT avec le code SVG complet, commençant par <svg et finissant 
       }],
     })
 
-    const svgContent = (message.content[0] as { text: string }).text.trim()
-    console.log('SVG reçu (100 premiers chars):', svgContent.substring(0, 100))
-    console.log('SVG contient <svg:', svgContent.includes('<svg'))
+    const svgRaw = (message.content[0] as { text: string }).text.trim()
+    console.log('SVG raw (200 chars):', svgRaw.substring(0, 200))
+    
+    // Nettoyer les backticks markdown si présents
+    const svgCleaned = svgRaw
+      .replace(/```svg/g, '')
+      .replace(/```xml/g, '')
+      .replace(/```/g, '')
+      .trim()
 
-    // Extraire le SVG même s'il y a du texte avant/après
-    const svgMatch = svgContent.match(/<svg[\s\S]*<\/svg>/)
+    const svgMatch = svgCleaned.match(/<svg[\s\S]*<\/svg>/)
     if (!svgMatch) {
-      console.error('SVG invalide reçu:', svgContent.substring(0, 200))
-      return res.status(500).json({ error: 'Génération SVG invalide' })
+      console.error('Pas de SVG trouvé. Contenu:', svgCleaned.substring(0, 300))
+      return res.status(500).json({ error: 'Génération SVG invalide', debug: svgCleaned.substring(0, 300) })
     }
     const svgClean = svgMatch[0]
 
