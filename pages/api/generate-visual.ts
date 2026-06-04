@@ -77,16 +77,19 @@ Réponds UNIQUEMENT avec le code SVG complet, commençant par <svg et finissant 
 
     const svgContent = (message.content[0] as { text: string }).text.trim()
 
-    // Vérifier que c'est bien un SVG
-    if (!svgContent.startsWith('<svg')) {
+    // Extraire le SVG même s'il y a du texte avant/après
+    const svgMatch = svgContent.match(/<svg[\s\S]*<\/svg>/)
+    if (!svgMatch) {
+      console.error('SVG invalide reçu:', svgContent.substring(0, 200))
       return res.status(500).json({ error: 'Génération SVG invalide' })
     }
+    const svgClean = svgMatch[0]
 
     // Convertir en data URL base64
-    const base64 = Buffer.from(svgContent).toString('base64')
+    const base64 = Buffer.from(svgClean).toString('base64')
     const imageUrl = `data:image/svg+xml;base64,${base64}`
 
-    res.status(200).json({ imageUrl, svgContent })
+    res.status(200).json({ imageUrl, svgContent: svgClean })
 
   } catch (err: any) {
     console.error('Generate visual error:', err)
