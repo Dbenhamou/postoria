@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4000,
+      max_tokens: 8000,
       messages: [{
         role: 'user',
         content: `Tu es un expert en design SVG premium pour LinkedIn B2B.
@@ -79,13 +79,16 @@ Réponds UNIQUEMENT avec le code SVG complet, commençant par <svg et finissant 
       .replace(/\s*```\s*$/m, '')
       .trim()
 
-    // Extraire le SVG
-    const svgMatch = svgCleaned.match(/<svg[\s\S]*<\/svg>/i)
+    // Extraire le SVG — avec ou sans closing tag (troncature possible)
+    let svgClean = ''
+    const svgMatch = svgCleaned.match(/<svg[\s\S]*/i)
     if (!svgMatch) {
-      console.error('Pas de SVG trouvé après nettoyage:', svgCleaned.substring(0, 200))
+      console.error('Pas de SVG trouvé après nettoyage')
       return res.status(500).json({ error: 'Génération SVG invalide' })
     }
-    const svgClean = svgMatch[0]
+    svgClean = svgMatch[0]
+    // Ajouter </svg> si manquant
+    if (!svgClean.includes('</svg>')) svgClean += '</svg>'
 
     res.status(200).json({ svgContent: svgClean })
 
