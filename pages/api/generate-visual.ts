@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const message = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-6',
       max_tokens: 4000,
       messages: [{
         role: 'user',
@@ -87,11 +87,7 @@ Réponds UNIQUEMENT avec le code SVG complet, commençant par <svg et finissant 
     }
     const svgClean = svgMatch[0]
 
-    // Encoder en data URL SVG directe
-    const encoded = encodeURIComponent(svgClean)
-    const imageUrl = `data:image/svg+xml,${encoded}`
-
-    res.status(200).json({ imageUrl, svgContent: svgClean })
+    res.status(200).json({ svgContent: svgClean })
 
   } catch (err: any) {
     console.error('Generate visual error:', err)

@@ -499,8 +499,12 @@ export default function Home() {
         body: JSON.stringify({ postContent: postOutput, postTopic, profile }),
       })
       const data = await res.json()
-      if (data.imageUrl) { setAiVisualUrl(data.imageUrl); showToast('Visuel IA généré ✓') }
-      else showToast('Erreur : ' + (data.error || 'inconnue'))
+      if (data.svgContent) {
+        const blob = new Blob([data.svgContent], { type: 'image/svg+xml' })
+        const url = URL.createObjectURL(blob)
+        setAiVisualUrl(url)
+        showToast('Visuel généré ✓')
+      } else showToast('Erreur : ' + (data.error || 'inconnue'))
     } catch { showToast('Erreur réseau') }
     setGeneratingAiVisual(false)
   }
