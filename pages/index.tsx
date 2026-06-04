@@ -637,7 +637,7 @@ export default function Home() {
         </div>
 
         <aside className="sidebar">
-          <div className="sidebar-logo"><img src="/logo-ecrira-icon.png" alt="Ecrira" style={{height:44,width:'auto',display:'block'}} /></div>
+          <div className="sidebar-logo" style={{justifyContent:'center'}}><img src="/logo-ecrira-icon.png" alt="Ecrira" style={{height:60,width:'auto',display:'block'}} /></div>
           <nav className="sidebar-nav">{navItems.map(item=>(<button key={item.id} className={`nav-link ${page===item.id?'active':''}`} onClick={()=>setPage(item.id)}>{item.icon}{item.label}</button>))}</nav>
           <div className="sidebar-footer">
             <div className="user-row" onClick={()=>setPage('profil')}>
