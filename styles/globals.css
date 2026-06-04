@@ -370,3 +370,7 @@ select.form-input { cursor: pointer; }
   .mobile-nav { display: none; }
   .mobile-header { display: none; }
 }
+
+/* Mobile only */
+.mobile-only { display: none; }
+@media (max-width: 768px) { .mobile-only { display: block; } }

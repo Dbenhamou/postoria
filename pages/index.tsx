@@ -992,6 +992,12 @@ export default function Home() {
                 </div>
               </div>
             </div>
+            {/* Bouton déconnexion — visible uniquement sur mobile */}
+            <div className="mobile-only" style={{marginTop:24,paddingBottom:8}}>
+              <button className="btn btn-ghost" style={{width:'100%',justifyContent:'center',color:'var(--text3)'}} onClick={signOut}>
+                ↩ Se déconnecter
+              </button>
+            </div>
           </div>
         </div>
       </div>
