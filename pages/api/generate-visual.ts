@@ -51,11 +51,11 @@ CHARTE GRAPHIQUE OBLIGATOIRE :
 - Polices : system-ui, sans-serif (Inter style)
 
 STRUCTURE DU VISUEL (dans l'ordre vertical) :
-1. Header (hauteur 180px) — fond ${brandAccent}, logo "E" + "ECRIRA" en blanc à gauche, secteur en badge à droite
+1. Header (hauteur 180px) — fond ${brandAccent}, nom entreprise "${company || 'Content Studio'}" en blanc à gauche, secteur en badge à droite. PAS de mention Ecrira.
 2. Zone titre (hauteur 280px) — fond ${brandBg}, grand titre du sujet en ${brandAccent} (font-size 52px, font-weight 700, max 2 lignes)
 3. Séparateur décoratif — ligne champagne + accent géométrique
 4. Zone points clés (hauteur 580px) — fond blanc, 3 blocs avec numéro cerclé en ${brandAccent} + texte en #1F2421
-5. Footer (hauteur 160px) — fond #1F2421, nom auteur en blanc + rôle en #B7C0B8 + site "ecrira.com" à droite
+5. Footer (hauteur 160px) — fond #1F2421, nom auteur en blanc + rôle en gris clair. PAS de mention Ecrira ni ecrira.com.
 6. Bordure décorative gauche — bande verticale de 8px en ${brandAccent}
 
 RÈGLES DESIGN :

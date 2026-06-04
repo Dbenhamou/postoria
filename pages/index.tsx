@@ -413,8 +413,19 @@ export default function Home() {
         body: JSON.stringify({ domain: profile.domain }),
       })
       const data = await res.json()
-      if (data.suggestions) setEnrichSuggestions(data.suggestions)
-      else showToast(data.error || 'Impossible d\'analyser le site')
+      if (data.suggestions) {
+        setEnrichSuggestions(data.suggestions)
+        // Appliquer automatiquement les couleurs extraites
+        if (data.colors) {
+          setProfile(p => ({
+            ...p,
+            brand_bg: data.colors.bg || p.brand_bg,
+            brand_text: data.colors.text || p.brand_text,
+            brand_accent: data.colors.accent || p.brand_accent,
+          }))
+          showToast('Couleurs de marque détectées ✓')
+        }
+      } else showToast(data.error || 'Impossible d\'analyser le site')
     } catch { showToast('Erreur réseau') }
     setEnriching(false)
   }
