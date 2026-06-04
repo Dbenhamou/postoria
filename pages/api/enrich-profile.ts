@@ -34,7 +34,7 @@ async function extractColors(url: string): Promise<{ bg: string; text: string; a
 
     // Extraire les couleurs hex du CSS inline + style tags
     const colorMatches = html.match(/#[0-9a-fA-F]{6}\b/g) || []
-    const uniqueColors = [...new Set(colorMatches)].slice(0, 20)
+    const uniqueColors = Array.from(new Set(colorMatches)).slice(0, 20)
 
     if (uniqueColors.length < 2) return { bg: '#FAF9F7', text: '#1F2421', accent: '#516756' }
 
