@@ -57,7 +57,7 @@ export default function Login() {
       <Head><title>Ecrira · Connexion</title></Head>
       <div style={{
         minHeight: '100vh',
-        background: '#F8F6F2',
+        background: '#FAF9F7',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -66,7 +66,7 @@ export default function Login() {
       }}>
         <div style={{
           background: 'white',
-          border: '1px solid #E5DFD5',
+          border: '1px solid #E3DED7',
           borderRadius: 20,
           padding: '40px 36px',
           width: '100%',
@@ -78,7 +78,7 @@ export default function Login() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32 }}>
             <div style={{
               width: 34, height: 34,
-              background: '#4F6754',
+              background: '#516756',
               borderRadius: 9,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
@@ -88,21 +88,21 @@ export default function Login() {
               </svg>
             </div>
             <span style={{
-              fontFamily: "'Playfair Display', serif",
+              fontFamily: "'Clash Display', 'Inter', sans-serif",
               fontSize: 16, fontWeight: 600,
-              letterSpacing: '0.06em', color: '#232323',
+              letterSpacing: '0.06em', color: '#1F2421',
             }}>ECRIRA</span>
           </div>
 
           <div style={{ marginBottom: 24 }}>
             <h1 style={{
-              fontFamily: "'Playfair Display', serif",
+              fontFamily: "'Clash Display', 'Inter', sans-serif",
               fontSize: 22, fontWeight: 500,
-              color: '#232323', marginBottom: 6,
+              color: '#1F2421', marginBottom: 6,
             }}>
               {mode === 'login' ? 'Connexion' : 'Créer un compte'}
             </h1>
-            <p style={{ fontSize: 13, color: '#727272', lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13, color: '#6B7069', lineHeight: 1.5 }}>
               {mode === 'login'
                 ? 'Accède à ton espace Ecrira.'
                 : 'Rejoins Ecrira pour créer tes posts LinkedIn.'}
@@ -118,10 +118,10 @@ export default function Login() {
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
               padding: '10px 16px',
               background: 'white',
-              border: '1px solid #E5DFD5',
+              border: '1px solid #E3DED7',
               borderRadius: 11,
               fontSize: 13, fontWeight: 500,
-              color: '#232323',
+              color: '#1F2421',
               cursor: 'pointer',
               marginBottom: 18,
               transition: 'border-color 0.2s',
@@ -140,16 +140,16 @@ export default function Login() {
 
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10,
-            marginBottom: 18, color: '#A8A49C', fontSize: 11,
+            marginBottom: 18, color: '#9EA39C', fontSize: 11,
           }}>
-            <div style={{ flex: 1, height: 1, background: '#E5DFD5' }}/>
+            <div style={{ flex: 1, height: 1, background: '#E3DED7' }}/>
             <span>ou par email</span>
-            <div style={{ flex: 1, height: 1, background: '#E5DFD5' }}/>
+            <div style={{ flex: 1, height: 1, background: '#E3DED7' }}/>
           </div>
 
           {/* Email */}
           <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#727272', marginBottom: 5 }}>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#6B7069', marginBottom: 5 }}>
               Email
             </label>
             <input
@@ -159,11 +159,11 @@ export default function Login() {
               placeholder="david@cyna.fr"
               style={{
                 width: '100%',
-                background: '#F8F6F2',
-                border: '1px solid #E5DFD5',
+                background: '#FAF9F7',
+                border: '1px solid #E3DED7',
                 borderRadius: 9,
                 padding: '9px 13px',
-                fontSize: 13, color: '#232323',
+                fontSize: 13, color: '#1F2421',
                 fontFamily: "'Inter', sans-serif",
                 outline: 'none',
                 boxSizing: 'border-box',
@@ -173,7 +173,7 @@ export default function Login() {
           </div>
 
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#727272', marginBottom: 5 }}>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#6B7069', marginBottom: 5 }}>
               Mot de passe
             </label>
             <input
@@ -183,11 +183,11 @@ export default function Login() {
               placeholder="••••••••"
               style={{
                 width: '100%',
-                background: '#F8F6F2',
-                border: '1px solid #E5DFD5',
+                background: '#FAF9F7',
+                border: '1px solid #E3DED7',
                 borderRadius: 9,
                 padding: '9px 13px',
-                fontSize: 13, color: '#232323',
+                fontSize: 13, color: '#1F2421',
                 fontFamily: "'Inter', sans-serif",
                 outline: 'none',
                 boxSizing: 'border-box',
@@ -211,7 +211,7 @@ export default function Login() {
               background: 'rgba(79,103,84,0.07)',
               border: '1px solid rgba(79,103,84,0.2)',
               borderRadius: 9, padding: '9px 13px',
-              fontSize: 12, color: '#4F6754',
+              fontSize: 12, color: '#516756',
               marginBottom: 14,
             }}>{message}</div>
           )}
@@ -221,7 +221,7 @@ export default function Login() {
             disabled={loading}
             style={{
               width: '100%',
-              background: '#4F6754', color: 'white',
+              background: '#516756', color: 'white',
               border: 'none',
               borderRadius: 11,
               padding: '10px 18px',
@@ -246,11 +246,11 @@ export default function Login() {
             {mode === 'login' ? 'Se connecter' : 'Créer mon compte'}
           </button>
 
-          <p style={{ textAlign: 'center', fontSize: 12, color: '#A8A49C' }}>
+          <p style={{ textAlign: 'center', fontSize: 12, color: '#9EA39C' }}>
             {mode === 'login' ? "Pas encore de compte ? " : "Déjà un compte ? "}
             <span
               onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setMessage('') }}
-              style={{ color: '#4F6754', cursor: 'pointer', fontWeight: 500 }}
+              style={{ color: '#516756', cursor: 'pointer', fontWeight: 500 }}
             >
               {mode === 'login' ? "S'inscrire" : 'Se connecter'}
             </span>

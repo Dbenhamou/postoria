@@ -8,18 +8,18 @@ type Idea = { topic: string; title: string; hook: string; recommended?: boolean 
 type Post = { id: string; topic: string; content: string; format: string; created_at: string }
 
 const PALETTES = [
-  { name:'Ecrira Ivory', bg:'#F8F6F2', text:'#232323', accent:'#4F6754' },
-  { name:'Ecrira Forest', bg:'#4F6754', text:'#F8F6F2', accent:'#A8784F' },
-  { name:'Ecrira Dark', bg:'#232323', text:'#F8F6F2', accent:'#A8784F' },
-  { name:'Ecrira Copper', bg:'#A8784F', text:'#F8F6F2', accent:'#F8F6F2' },
-  { name:'Ecrira Sand', bg:'#ECE6DD', text:'#232323', accent:'#4F6754' },
+  { name:'Ivory', bg:'#FAF9F7', text:'#1F2421', accent:'#516756' },
+  { name:'Forest Sage', bg:'#516756', text:'#FAF9F7', accent:'#D9C8A3' },
+  { name:'Charcoal', bg:'#1F2421', text:'#FAF9F7', accent:'#B7C0B8' },
+  { name:'Champagne', bg:'#D9C8A3', text:'#1F2421', accent:'#516756' },
+  { name:'Soft Sage', bg:'#B7C0B8', text:'#1F2421', accent:'#516756' },
   { name:'Blue Pro', bg:'#1B2A4A', text:'#F0F4FF', accent:'#4A90E2' },
   { name:'Slate', bg:'#F4F6F8', text:'#1A1A2E', accent:'#6C5CE7' },
   { name:'Warm Noir', bg:'#1C1410', text:'#F5ECD7', accent:'#D4A853' },
 ]
 
 const FONTS = [
-  { id:'playfair', label:'Playfair Display', stack:"'Playfair Display',Georgia,serif" },
+  { id:'playfair', label:'Playfair Display', stack:"'Clash Display','Inter',sans-serif" },
   { id:'inter', label:'Inter', stack:"'Inter',sans-serif" },
   { id:'syne', label:'Syne', stack:"'Syne',sans-serif" },
   { id:'dm', label:'DM Sans', stack:"'DM Sans',sans-serif" },
@@ -64,7 +64,7 @@ function VisualModal({ onClose, postContent, postTopic, profileName, profileRole
 
   const [s, setS] = useState<any>({
     tpl:'quote', fmt:'square',
-    colors:{ bg:brandBg||'#F8F6F2', text:brandText||'#232323', accent:brandAccent||'#4F6754' },
+    colors:{ bg:brandBg||'#FAF9F7', text:brandText||'#1F2421', accent:brandAccent||'#516756' },
     font:'playfair', textSize:'L', align:'left', accentStyle:'bar', bgPattern:'none',
     sectorIcon:'cyber', logoUrl:null, logoPos:'tl', logoSize:36, showWatermark:true,
     qText:extractHook(postContent),
@@ -84,7 +84,7 @@ function VisualModal({ onClose, postContent, postTopic, profileName, profileRole
   const updC = (k:string,v:string) => setS((p:any)=>({...p,colors:{...p.colors,[k]:v}}))
   const mix = (hex:string,a:number) => { const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${a})` }
   const getDate = () => new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
-  const fontStack = FONTS.find(f=>f.id===s.font)?.stack||"'Playfair Display',serif"
+  const fontStack = FONTS.find(f=>f.id===s.font)?.stack||"'Clash Display','Inter',sans-serif"
   const sizeMult = ({S:0.8,M:1,L:1.2,XL:1.5} as any)[s.textSize]||1
   const logoSVGfn = (col:string,sz:number) => `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none"><path d="M6 4h8a4 4 0 0 1 0 8H6V4Z" fill="${col}" opacity=".9"/><path d="M6 12h5l4 8H6v-8Z" fill="${col}" opacity=".5"/></svg>`
   const buildPattern = (col:string) => (PATTERNS_SVG[s.bgPattern]||'').replace(/FILLCOL/g,col)
@@ -134,7 +134,7 @@ function VisualModal({ onClose, postContent, postTopic, profileName, profileRole
 
   const S_BASE=1080; const H_BASE=s.fmt==='portrait'?Math.round(S_BASE*1.25):S_BASE
   const previewW=Math.round(S_BASE*zoom/100); const previewH=Math.round(H_BASE*zoom/100)
-  const QUICK_COLORS=['#FFFFFF','#232323','#F8F6F2','#ECE6DD','#4F6754','#A8784F','#2563EB','#DC2626','#D97706','#7C3AED']
+  const QUICK_COLORS=['#FFFFFF','#1F2421','#FAF9F7','#EDE9E3','#516756','#A8784F','#2563EB','#DC2626','#D97706','#7C3AED']
   const POS_GRID=[['tl','tc','tr'],['ml','mc','mr'],['bl','bc','br']]
   const POS_LABELS:Record<string,string>={tl:'↖',tc:'↑',tr:'↗',ml:'←',mc:'·',mr:'→',bl:'↙',bc:'↓',br:'↘'}
 
@@ -142,7 +142,7 @@ function VisualModal({ onClose, postContent, postTopic, profileName, profileRole
     <div style={{position:'fixed',inset:0,zIndex:500,background:'rgba(0,0,0,0.55)',display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(4px)',padding:20}} onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
       <div style={{background:'var(--ivory)',borderRadius:20,width:'100%',maxWidth:1100,maxHeight:'92vh',display:'flex',flexDirection:'column',boxShadow:'0 24px 80px rgba(0,0,0,0.25)',overflow:'hidden'}}>
         <div style={{padding:'16px 24px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-between',background:'var(--white)',flexShrink:0}}>
-          <div><div style={{fontSize:11,fontWeight:600,color:'var(--copper)',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:2}}>Visuel du post</div><div style={{fontFamily:"'Playfair Display',serif",fontSize:16,fontWeight:500,color:'var(--text1)'}}>Générateur de visuel</div></div>
+          <div><div style={{fontSize:11,fontWeight:600,color:'var(--forest)',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:2}}>Visuel du post</div><div style={{fontFamily:"'Clash Display','Inter',sans-serif",fontSize:16,fontWeight:500,color:'var(--text1)'}}>Générateur de visuel</div></div>
           <div style={{display:'flex',gap:8}}><button className="btn btn-primary" style={{fontSize:12}} onClick={()=>exportPNG()}>↓ Télécharger PNG</button><button className="btn btn-ghost" style={{fontSize:12}} onClick={onClose}>✕ Fermer</button></div>
         </div>
         <div style={{display:'flex',flex:1,overflow:'hidden'}}>
@@ -567,10 +567,10 @@ export default function Home() {
   ]
 
   if (loading) return (
-    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#F8F6F2',fontFamily:"'Inter',sans-serif"}}>
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#FAF9F7',fontFamily:"'Inter',sans-serif"}}>
       <div style={{textAlign:'center' as const}}>
-        <div style={{width:36,height:36,background:'#4F6754',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 4h8a4 4 0 0 1 0 8H6V4Z" fill="white" opacity=".9"/><path d="M6 12h5l4 8H6v-8Z" fill="white" opacity=".5"/></svg></div>
-        <div style={{fontSize:13,color:'#727272'}}>{T('loading')}</div>
+        <div style={{width:36,height:36,background:'#516756',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 4h8a4 4 0 0 1 0 8H6V4Z" fill="white" opacity=".9"/><path d="M6 12h5l4 8H6v-8Z" fill="white" opacity=".5"/></svg></div>
+        <div style={{fontSize:13,color:'#6B7069'}}>{T('loading')}</div>
       </div>
     </div>
   )
@@ -584,7 +584,7 @@ export default function Home() {
             <div style={{fontSize:11,color:'var(--text3)'}}>
               Générées le {formatIdeasDate(ideasGeneratedAt)}
               {ideasRefreshCountdown !== null && ideasRefreshCountdown > 0 && (
-                <span style={{marginLeft:8,color:'var(--copper)'}}>· Refresh dans {formatCountdown(ideasRefreshCountdown)}</span>
+                <span style={{marginLeft:8,color:'var(--forest)'}}>· Refresh dans {formatCountdown(ideasRefreshCountdown)}</span>
               )}
             </div>
           )}
@@ -600,7 +600,7 @@ export default function Home() {
         <div key={i} className="idea-card fade" style={{animationDelay:`${i*.06}s`,border:idea.recommended?'1px solid rgba(168,120,79,0.4)':undefined,background:idea.recommended?'rgba(168,120,79,0.04)':undefined}}>
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
             <span className="idea-tag">{idea.topic}</span>
-            {idea.recommended && <span style={{fontSize:10,fontWeight:600,padding:'2px 8px',borderRadius:20,background:'rgba(168,120,79,0.12)',color:'var(--copper)',border:'1px solid rgba(168,120,79,0.25)'}}>★ Recommandé</span>}
+            {idea.recommended && <span style={{fontSize:10,fontWeight:600,padding:'2px 8px',borderRadius:20,background:'rgba(168,120,79,0.12)',color:'var(--forest)',border:'1px solid rgba(168,120,79,0.25)'}}>★ Recommandé</span>}
           </div>
           <div className="idea-title">{idea.title}</div>
           <div className="idea-hook">{idea.hook}</div>
@@ -621,7 +621,7 @@ export default function Home() {
         <div className="mobile-header">
           <div className="mobile-header-logo">
             <div className="logo-icon" style={{width:26,height:26,borderRadius:7}}><svg viewBox="0 0 24 24" fill="none"><path d="M6 4h8a4 4 0 0 1 0 8H6V4Z" fill="white" opacity=".9"/><path d="M6 12h5l4 8H6v-8Z" fill="white" opacity=".5"/></svg></div>
-            <span style={{fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:600,color:'var(--text1)',letterSpacing:'.05em'}}>ECRIRA</span>
+            <span style={{fontFamily:"'Clash Display','Inter',sans-serif",fontSize:13,fontWeight:600,color:'var(--text1)',letterSpacing:'.05em'}}>ECRIRA</span>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             <div style={{display:'flex',gap:3}}>
@@ -822,10 +822,10 @@ export default function Home() {
           <div className={`page ${page==='visuels'?'active':''}`} style={{maxWidth:'100%',padding:'28px 32px'}}>
             <div className="eyebrow">Création visuelle</div><div className="page-title">Générateur visuel</div><div className="copper-rule"/>
             <div style={{background:'var(--white)',border:'1px solid var(--border)',borderRadius:16,padding:'20px 24px',marginBottom:18,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-              <div><div style={{fontFamily:"'Playfair Display',serif",fontSize:15,fontWeight:500,color:'var(--text1)',marginBottom:4}}>Créer un visuel depuis un post</div><div style={{fontSize:13,color:'var(--text2)'}}>Génère d'abord un post dans Rédiger, puis clique sur "Créer le visuel".</div></div>
+              <div><div style={{fontFamily:"'Clash Display','Inter',sans-serif",fontSize:15,fontWeight:500,color:'var(--text1)',marginBottom:4}}>Créer un visuel depuis un post</div><div style={{fontSize:13,color:'var(--text2)'}}>Génère d'abord un post dans Rédiger, puis clique sur "Créer le visuel".</div></div>
               {postOutput&&(<button className="btn btn-primary" style={{flexShrink:0}} onClick={()=>setShowVisualModal(true)}>Ouvrir le générateur →</button>)}
             </div>
-            <div style={{background:'var(--sand)',borderRadius:16,padding:'40px 24px',textAlign:'center' as const}}><div style={{fontSize:28,marginBottom:12,opacity:.3}}>◫</div><div style={{fontFamily:"'Playfair Display',serif",fontSize:16,fontStyle:'italic',color:'var(--text2)',marginBottom:6}}>Générateur intégré au flow publication</div><div style={{fontSize:13,color:'var(--text3)'}}>Rendez-vous dans Rédiger → générez un post → cliquez sur "Créer le visuel".</div></div>
+            <div style={{background:'var(--sand)',borderRadius:16,padding:'40px 24px',textAlign:'center' as const}}><div style={{fontSize:28,marginBottom:12,opacity:.3}}>◫</div><div style={{fontFamily:"'Clash Display','Inter',sans-serif",fontSize:16,fontStyle:'italic',color:'var(--text2)',marginBottom:6}}>Générateur intégré au flow publication</div><div style={{fontSize:13,color:'var(--text3)'}}>Rendez-vous dans Rédiger → générez un post → cliquez sur "Créer le visuel".</div></div>
           </div>
 
           {/* BIBLIOTHÈQUE */}
@@ -904,7 +904,7 @@ export default function Home() {
                   {([['Fond','brand_bg'],['Texte','brand_text'],['Accent','brand_accent']] as [string,keyof typeof profile][]).map(([label,key])=>(
                     <div key={key} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
                       <span style={{fontSize:11,color:'var(--text2)',width:50}}>{label}</span>
-                      <input type="color" value={profile[key]||'#F8F6F2'} onChange={e=>setProfile(p=>({...p,[key]:e.target.value}))} style={{width:30,height:30,borderRadius:8,border:'1px solid var(--border)',cursor:'pointer',padding:2}}/>
+                      <input type="color" value={profile[key]||'#FAF9F7'} onChange={e=>setProfile(p=>({...p,[key]:e.target.value}))} style={{width:30,height:30,borderRadius:8,border:'1px solid var(--border)',cursor:'pointer',padding:2}}/>
                       <span style={{fontSize:11,fontFamily:'monospace',color:'var(--text2)'}}>{profile[key]}</span>
                     </div>
                   ))}
@@ -1003,9 +1003,9 @@ export default function Home() {
             <div style={{background:'var(--forest)',padding:'28px 32px 24px'}}>
               <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
                 <div style={{width:32,height:32,background:'rgba(255,255,255,0.15)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 4h8a4 4 0 0 1 0 8H6V4Z" fill="white" opacity=".9"/><path d="M6 12h5l4 8H6v-8Z" fill="white" opacity=".5"/></svg></div>
-                <span style={{fontFamily:"'Playfair Display',serif",fontSize:14,fontWeight:500,color:'rgba(255,255,255,0.9)',letterSpacing:'.06em'}}>ECRIRA</span>
+                <span style={{fontFamily:"'Clash Display','Inter',sans-serif",fontSize:14,fontWeight:500,color:'rgba(255,255,255,0.9)',letterSpacing:'.06em'}}>ECRIRA</span>
               </div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:500,color:'white',marginBottom:4}}>
+              <div style={{fontFamily:"'Clash Display','Inter',sans-serif",fontSize:22,fontWeight:500,color:'white',marginBottom:4}}>
                 {onboardingStep===0&&'Bienvenue'}{onboardingStep===1&&'Connecte LinkedIn'}{onboardingStep===2&&'Ton profil'}
               </div>
               <div style={{fontSize:13,color:'rgba(255,255,255,0.7)'}}>
