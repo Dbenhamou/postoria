@@ -464,6 +464,7 @@ export default function Home() {
   useEffect(() => {
     // Check if linkedin_token exists in profile
     if ((profile as any).linkedin_token) setLinkedinConnected(true)
+    else setLinkedinConnected(false)
   }, [profile])
 
   // Parse writing_style as JSON array of posts, fallback to legacy string

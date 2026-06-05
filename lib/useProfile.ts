@@ -17,6 +17,9 @@ export type Profile = {
   brand_text: string
   brand_accent: string
   writing_style: string
+  linkedin_token?: string
+  linkedin_token_expiry?: string
+  linkedin_id?: string
 }
 
 export const DEFAULT_PROFILE: Profile = {
@@ -92,10 +95,13 @@ export function useProfile() {
         lang: data.lang || 'fr',
         domain: data.domain || '',
         webhook_url: data.webhook_url || '',
-        brand_bg: data.brand_bg || '#F8F6F2',
-        brand_text: data.brand_text || '#232323',
-        brand_accent: data.brand_accent || '#4F6754',
+        brand_bg: data.brand_bg || '#FAF9F7',
+        brand_text: data.brand_text || '#1F2421',
+        brand_accent: data.brand_accent || '#516756',
         writing_style: data.writing_style || '',
+        linkedin_token: data.linkedin_token || '',
+        linkedin_token_expiry: data.linkedin_token_expiry || '',
+        linkedin_id: data.linkedin_id || '',
       })
     }
     setLoading(false)
