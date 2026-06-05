@@ -475,6 +475,23 @@ export default function Home() {
     else setLinkedinConnected(false)
   }, [profile])
 
+  // Fermer les pickers au clic extérieur
+  useEffect(() => {
+    const handler = () => { setShowDatePicker(false); setShowTimePicker(false) }
+    if (showDatePicker || showTimePicker) document.addEventListener('click', handler)
+    return () => document.removeEventListener('click', handler)
+  }, [showDatePicker, showTimePicker])
+
+  // Heure actuelle arrondie aux 15min suivantes
+  const getNextQuarterHour = () => {
+    const now = new Date()
+    const minutes = now.getMinutes()
+    const nextQuarter = Math.ceil((minutes + 1) / 15) * 15
+    const h = (nextQuarter >= 60 ? now.getHours() + 1 : now.getHours()).toString().padStart(2, '0')
+    const m = (nextQuarter % 60).toString().padStart(2, '0')
+    return `${h}:${m}`
+  }
+
   // Parse writing_style as JSON array of posts, fallback to legacy string
   const getRefPosts = (): string[] => {
     const ws = (profile as any).writing_style || ''
@@ -898,13 +915,13 @@ export default function Home() {
                   </div>
                   <div style={{display:'flex',gap:7,alignItems:'center',flexWrap:'wrap' as const,position:'relative' as const}}>
                     {/* Bouton date custom */}
-                    <button className="btn btn-ghost" onClick={()=>setShowDatePicker(v=>!v)} style={{fontSize:12,flex:1,justifyContent:'flex-start',minWidth:130,color:scheduleDateTime?'var(--text1)':'var(--text3)'}}>
+                    <button className="btn btn-ghost" onClick={(e)=>{e.stopPropagation();if(!scheduleDateTime){setScheduleDateTime(new Date().toISOString().split('T')[0]+'T'+getNextQuarterHour())};setShowDatePicker(v=>!v);setShowTimePicker(false)}} style={{fontSize:12,flex:1,justifyContent:'flex-start',minWidth:130,color:scheduleDateTime?'var(--text1)':'var(--text3)'}}>
                       📅 {scheduleDateTime ? new Date(scheduleDateTime).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) : 'Choisir une date'}
                     </button>
                     {/* Sélecteur heure custom */}
                     <div style={{position:'relative' as const}}>
-                      <button className="btn btn-ghost" onClick={()=>setShowTimePicker(v=>!v)} style={{fontSize:12,width:90,justifyContent:'center',color:scheduleDateTime.split('T')[1]?'var(--text1)':'var(--text3)'}}>
-                        🕐 {scheduleDateTime.split('T')[1]||'09:00'}
+                      <button className="btn btn-ghost" onClick={(e)=>{e.stopPropagation();setShowTimePicker(v=>!v);setShowDatePicker(false)}} style={{fontSize:12,width:90,justifyContent:'center',color:scheduleDateTime.split('T')[1]?'var(--text1)':'var(--text3)'}}>
+                        🕐 {scheduleDateTime.split('T')[1]||getNextQuarterHour()}
                       </button>
                       {showTimePicker && (
                         <div style={{position:'absolute' as const,bottom:'100%',left:0,marginBottom:6,background:'var(--white)',border:'1px solid var(--border)',borderRadius:16,padding:12,boxShadow:'0 8px 32px rgba(0,0,0,0.12)',zIndex:150,width:160,maxHeight:220,overflowY:'auto' as const}} onClick={e=>e.stopPropagation()}>
