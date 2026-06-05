@@ -201,6 +201,7 @@ export default function Home() {
   const [scheduling, setScheduling] = useState(false)
   const [scheduleDateTime, setScheduleDateTime] = useState('')
   const [showDatePicker, setShowDatePicker] = useState(false)
+  const [showTimePicker, setShowTimePicker] = useState(false)
   const [pickerMonth, setPickerMonth] = useState(new Date())
   const [loadingIdeas, setLoadingIdeas] = useState(false)
   const [loadingPosts, setLoadingPosts] = useState(false)
@@ -900,10 +901,27 @@ export default function Home() {
                     <button className="btn btn-ghost" onClick={()=>setShowDatePicker(v=>!v)} style={{fontSize:12,flex:1,justifyContent:'flex-start',minWidth:130,color:scheduleDateTime?'var(--text1)':'var(--text3)'}}>
                       📅 {scheduleDateTime ? new Date(scheduleDateTime).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) : 'Choisir une date'}
                     </button>
-                    {/* Sélecteur heure */}
-                    <select className="form-input" value={scheduleDateTime.split('T')[1]||'09:00'} onChange={e=>setScheduleDateTime((scheduleDateTime.split('T')[0]||new Date().toISOString().split('T')[0])+'T'+e.target.value)} style={{fontSize:12,width:90}}>
-                      {Array.from({length:24*4},(_,i)=>{const h=Math.floor(i/4).toString().padStart(2,'0');const m=(i%4*15).toString().padStart(2,'0');return `${h}:${m}`}).map(t=><option key={t} value={t}>{t}</option>)}
-                    </select>
+                    {/* Sélecteur heure custom */}
+                    <div style={{position:'relative' as const}}>
+                      <button className="btn btn-ghost" onClick={()=>setShowTimePicker(v=>!v)} style={{fontSize:12,width:90,justifyContent:'center',color:scheduleDateTime.split('T')[1]?'var(--text1)':'var(--text3)'}}>
+                        🕐 {scheduleDateTime.split('T')[1]||'09:00'}
+                      </button>
+                      {showTimePicker && (
+                        <div style={{position:'absolute' as const,bottom:'100%',left:0,marginBottom:6,background:'var(--white)',border:'1px solid var(--border)',borderRadius:16,padding:12,boxShadow:'0 8px 32px rgba(0,0,0,0.12)',zIndex:150,width:160,maxHeight:220,overflowY:'auto' as const}} onClick={e=>e.stopPropagation()}>
+                          {Array.from({length:24*4},(_,i)=>{
+                            const h=Math.floor(i/4).toString().padStart(2,'0')
+                            const m=(i%4*15).toString().padStart(2,'0')
+                            const t=`${h}:${m}`
+                            const selected=scheduleDateTime.split('T')[1]===t
+                            return (
+                              <button key={t} onClick={()=>{setScheduleDateTime((scheduleDateTime.split('T')[0]||new Date().toISOString().split('T')[0])+'T'+t);setShowTimePicker(false)}} style={{display:'block',width:'100%',padding:'6px 12px',border:'none',borderRadius:8,cursor:'pointer',background:selected?'var(--forest)':'transparent',color:selected?'white':'var(--text1)',fontSize:12,fontWeight:selected?600:400,textAlign:'left' as const}}>
+                                {t}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
                     <button className="btn btn-primary" style={{background:'var(--forest)'}} onClick={schedulePost} disabled={scheduling||!postOutput||!scheduleDateTime}>
                       {scheduling?<><span className="spinner" style={{borderTopColor:'white'}}/>…</>:'📅 Planifier'}
                     </button>
