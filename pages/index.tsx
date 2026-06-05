@@ -211,6 +211,7 @@ export default function Home() {
   const [scheduleDate, setScheduleDate] = useState('')
   const [showVisualModal, setShowVisualModal] = useState(false)
   const [aiVisualUrl, setAiVisualUrl] = useState('')
+  const [aiSvgContent, setAiSvgContent] = useState('')
   const [generatingAiVisual, setGeneratingAiVisual] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [onboardingStep, setOnboardingStep] = useState(0)
@@ -515,6 +516,7 @@ export default function Home() {
         const blob = new Blob([data.svgContent], { type: 'image/svg+xml' })
         const url = URL.createObjectURL(blob)
         setAiVisualUrl(url)
+        setAiSvgContent(data.svgContent)
         showToast('Visuel généré ✓')
       } else showToast('Erreur : ' + (data.error || 'inconnue'))
     } catch { showToast('Erreur réseau') }
@@ -571,13 +573,15 @@ export default function Home() {
     if (!userId) { showToast('Non connecté'); return }
     setPublishing(true)
     try {
-      const res = await fetch('/api/linkedin/publish', {
+      const res = await authFetch('/api/linkedin/publish-with-image', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, content: postOutput }),
+        body: JSON.stringify({
+          content: postOutput,
+          svgContent: aiSvgContent || null,
+        }),
       })
       const data = await res.json()
-      if (data.success) showToast('✓ Post publié sur LinkedIn !')
+      if (data.success) showToast(data.withImage ? '✓ Post + visuel publiés sur LinkedIn !' : '✓ Post publié sur LinkedIn !')
       else showToast(data.error || 'Erreur publication')
     } catch { showToast('Erreur réseau') }
     setPublishing(false)
