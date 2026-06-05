@@ -579,20 +579,19 @@ export default function Home() {
       // Conversion SVG → PNG côté client si visuel demandé
       if (withImage && aiSvgContent) {
         pngBase64 = await new Promise<string>((resolve, reject) => {
+          const canvas = document.createElement('canvas')
+          canvas.width = 1080
+          canvas.height = 1350
+          const ctx = canvas.getContext('2d')!
           const img = new Image()
-          const svgBlob = new Blob([aiSvgContent], { type: 'image/svg+xml;charset=utf-8' })
-          const url = URL.createObjectURL(svgBlob)
+          // Encoder le SVG en base64 data URL directement
+          const svgBase64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(aiSvgContent)))
           img.onload = () => {
-            const canvas = document.createElement('canvas')
-            canvas.width = 1080
-            canvas.height = 1350
-            const ctx = canvas.getContext('2d')!
             ctx.drawImage(img, 0, 0, 1080, 1350)
-            URL.revokeObjectURL(url)
             resolve(canvas.toDataURL('image/png').split(',')[1])
           }
-          img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Conversion SVG échouée')) }
-          img.src = url
+          img.onerror = (e) => { console.error('Image load error:', e); reject(new Error('Conversion SVG échouée')) }
+          img.src = svgBase64
         })
       }
 
