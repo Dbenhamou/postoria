@@ -1,26 +1,59 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
+import { requireAuth } from '../../lib/auth-helper'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') return res.status(405).end()
+  if (!['POST', 'PUT', 'DELETE'].includes(req.method!)) return res.status(405).end()
 
-  const { content, webhookUrl, scheduledAt } = req.body
+  const userId = await requireAuth(req, res)
+  if (!userId) return
 
-  if (!webhookUrl) return res.status(400).json({ error: 'URL webhook manquante' })
-  if (!content) return res.status(400).json({ error: 'Contenu manquant' })
-  if (!scheduledAt) return res.status(400).json({ error: 'Date manquante' })
+  // Supprimer un post planifié
+  if (req.method === 'DELETE') {
+    const { id } = req.body
+    const { error } = await supabase
+      .from('scheduled_posts')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId)
+    if (error) return res.status(500).json({ error: error.message })
+    return res.status(200).json({ success: true })
+  }
+
+  // Modifier un post planifié
+  if (req.method === 'PUT') {
+    const { id, content, scheduled_at, topic, svg_content } = req.body
+    const { error } = await supabase
+      .from('scheduled_posts')
+      .update({ content, scheduled_at, topic, svg_content, status: 'pending' })
+      .eq('id', id)
+      .eq('user_id', userId)
+    if (error) return res.status(500).json({ error: error.message })
+    return res.status(200).json({ success: true })
+  }
+
+  // Créer un post planifié
+  const { content, scheduled_at, topic, svg_content } = req.body
+  if (!content || !scheduled_at) return res.status(400).json({ error: 'Contenu et date requis' })
 
   const { data, error } = await supabase
     .from('scheduled_posts')
-    .insert([{ content, webhook_url: webhookUrl, scheduled_at: scheduledAt, status: 'pending' }])
+    .insert({
+      user_id: userId,
+      content,
+      scheduled_at,
+      topic: topic || '',
+      svg_content: svg_content || null,
+      status: 'pending',
+    })
     .select()
+    .single()
 
   if (error) return res.status(500).json({ error: error.message })
-
-  res.status(200).json({ success: true, post: data[0] })
+  res.status(200).json({ success: true, post: data })
 }

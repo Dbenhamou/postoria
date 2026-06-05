@@ -195,6 +195,9 @@ export default function Home() {
   const [savedPosts, setSavedPosts] = useState<Post[]>([])
   const [generatedCount, setGeneratedCount] = useState(0)
   const [scheduledPosts, setScheduledPosts] = useState<any[]>([])
+  const [calView, setCalView] = useState<'semaine'|'mois'|'annee'>('mois')
+  const [calDate, setCalDate] = useState(new Date())
+  const [selectedCalPost, setSelectedCalPost] = useState<any>(null)
   const [scheduling, setScheduling] = useState(false)
   const [scheduleDateTime, setScheduleDateTime] = useState('')
   const [loadingIdeas, setLoadingIdeas] = useState(false)
@@ -545,28 +548,86 @@ export default function Home() {
     if (!scheduleDateTime) { showToast('Choisis une date et heure'); return }
     if (!userId) return
     setScheduling(true)
-    const { data, error } = await supabase.from('scheduled_posts').insert({
-      user_id: userId,
-      topic: postTopic || 'Sans titre',
-      content: postOutput,
-      format: postFormat,
-      scheduled_at: new Date(scheduleDateTime).toISOString(),
-      status: 'scheduled',
-    }).select().single()
-    if (!error && data) {
-      setScheduledPosts(prev => [...prev, data].sort((a,b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()))
-      showToast('Post planifié ✓')
-      setScheduleDateTime('')
-    } else {
-      showToast('Erreur lors de la planification')
-    }
+    try {
+      // Convertir SVG en PNG base64 si visuel disponible
+      let svgBase64: string | null = null
+      if (aiSvgContent) {
+        svgBase64 = await new Promise<string>((resolve, reject) => {
+          const canvas = document.createElement('canvas')
+          canvas.width = 1080; canvas.height = 1350
+          const ctx = canvas.getContext('2d')!
+          const img = new Image()
+          const blob = new Blob([new TextEncoder().encode(aiSvgContent)], { type: 'image/svg+xml;charset=utf-8' })
+          const url = URL.createObjectURL(blob)
+          img.onload = () => { try { ctx.drawImage(img, 0, 0, 1080, 1350); URL.revokeObjectURL(url); resolve(canvas.toDataURL('image/png').split(',')[1]) } catch(e) { reject(e) } }
+          img.onerror = () => { URL.revokeObjectURL(url); resolve('') }
+          img.src = url
+        }).catch(() => null)
+      }
+
+      const res = await authFetch('/api/schedule', {
+        method: 'POST',
+        body: JSON.stringify({
+          content: postOutput,
+          topic: postTopic || 'Sans titre',
+          scheduled_at: new Date(scheduleDateTime).toISOString(),
+          svg_content: svgBase64,
+        }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setScheduledPosts(prev => [...prev, data.post].sort((a,b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()))
+        showToast('Post planifié ✓')
+        setScheduleDateTime('')
+      } else showToast(data.error || 'Erreur planification')
+    } catch { showToast('Erreur réseau') }
     setScheduling(false)
   }
 
   const cancelScheduled = async (id: string) => {
-    await supabase.from('scheduled_posts').delete().eq('id', id)
+    await authFetch('/api/schedule', { method: 'DELETE', body: JSON.stringify({ id }) })
     setScheduledPosts(prev => prev.filter(p => p.id !== id))
     showToast('Post annulé')
+  }
+
+  // Helpers calendrier
+  const getPostsForDay = (day: Date) => scheduledPosts.filter(p => new Date(p.scheduled_at).toDateString() === day.toDateString())
+
+  const getWeekDays = () => {
+    const start = new Date(calDate)
+    const day = start.getDay()
+    const diff = day === 0 ? -6 : 1 - day
+    start.setDate(start.getDate() + diff)
+    return Array.from({length:7}, (_,i) => { const d = new Date(start); d.setDate(start.getDate()+i); return d })
+  }
+
+  const getMonthDays = () => {
+    const year = calDate.getFullYear(), month = calDate.getMonth()
+    const firstDay = new Date(year, month, 1)
+    const lastDay = new Date(year, month+1, 0)
+    const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay()-1
+    const days: (Date|null)[] = []
+    for (let i=0; i<startDay; i++) days.push(null)
+    for (let i=1; i<=lastDay.getDate(); i++) days.push(new Date(year,month,i))
+    while (days.length % 7 !== 0) days.push(null)
+    return days
+  }
+
+  const moveCalendar = (dir: number) => {
+    const d = new Date(calDate)
+    if (calView==='semaine') d.setDate(d.getDate()+dir*7)
+    else if (calView==='mois') d.setMonth(d.getMonth()+dir)
+    else d.setFullYear(d.getFullYear()+dir)
+    setCalDate(d)
+  }
+
+  const getCalendarTitle = () => {
+    if (calView==='semaine') {
+      const days = getWeekDays()
+      return `${days[0].getDate()} ${days[0].toLocaleDateString('fr-FR',{month:'short'})} — ${days[6].getDate()} ${days[6].toLocaleDateString('fr-FR',{month:'short',year:'numeric'})}`
+    }
+    if (calView==='mois') return calDate.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})
+    return calDate.getFullYear().toString()
   }
 
   const publishPost = async (withImage?: boolean) => {
@@ -858,41 +919,133 @@ export default function Home() {
             <div className="eyebrow">Planification</div>
             <div className="page-title">Calendrier éditorial</div>
             <div className="copper-rule"/>
-            <div className="page-sub">Vos posts planifiés — publiez au bon moment.</div>
-            {scheduledPosts.length === 0 ? (
-              <div className="card empty">
-                <div className="empty-icon">📅</div>
-                <div className="empty-title">Aucun post planifié</div>
-                <div className="empty-body" style={{marginBottom:16}}>Génère un post et planifie-le pour publier au bon moment.</div>
-                <button className="btn btn-primary" style={{justifyContent:'center'}} onClick={()=>setPage('rediger')}>✦ Créer un post à planifier</button>
+
+            {/* Contrôles calendrier */}
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20,flexWrap:'wrap' as const,gap:10}}>
+              <div style={{display:'flex',gap:6}}>
+                {(['semaine','mois','annee'] as const).map(v=>(
+                  <button key={v} className={`chip ${calView===v?'on':''}`} onClick={()=>setCalView(v)} style={{fontSize:12}}>
+                    {v==='semaine'?'Semaine':v==='mois'?'Mois':'Année'}
+                  </button>
+                ))}
               </div>
-            ) : (
-              <div>
-                {scheduledPosts.map((p: any) => {
-                  const date = new Date(p.scheduled_at)
-                  const isPast = date < new Date()
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <button className="btn btn-ghost" style={{fontSize:13,padding:'5px 10px'}} onClick={()=>moveCalendar(-1)}>←</button>
+                <span style={{fontSize:13,fontWeight:500,color:'var(--text1)',minWidth:160,textAlign:'center' as const}}>{getCalendarTitle()}</span>
+                <button className="btn btn-ghost" style={{fontSize:13,padding:'5px 10px'}} onClick={()=>moveCalendar(1)}>→</button>
+                <button className="btn btn-ghost" style={{fontSize:11}} onClick={()=>setCalDate(new Date())}>Aujourd'hui</button>
+              </div>
+              <button className="btn btn-primary" style={{fontSize:12}} onClick={()=>setPage('rediger')}>✦ Nouveau post</button>
+            </div>
+
+            {/* Vue Semaine */}
+            {calView==='semaine' && (
+              <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:6}}>
+                {getWeekDays().map((day,i)=>{
+                  const dayPosts = getPostsForDay(day)
+                  const isToday = day.toDateString()===new Date().toDateString()
                   return (
-                    <div key={p.id} className="saved-card fade" style={{opacity: isPast ? 0.6 : 1}}>
-                      <div className="saved-header">
-                        <div style={{display:'flex',alignItems:'center',gap:8}}>
-                          <span className={`badge ${isPast?'badge-copper':'badge-forest'}`}>
-                            {isPast ? 'Passé' : 'Planifié'}
-                          </span>
-                          <span style={{fontSize:12,fontWeight:500,color:'var(--text1)'}}>
-                            {date.toLocaleDateString('fr-FR', {weekday:'short',day:'numeric',month:'short'})} à {date.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}
-                          </span>
-                        </div>
-                        <button className="btn btn-ghost" style={{fontSize:11,color:'#c0392b',borderColor:'transparent'}} onClick={()=>cancelScheduled(p.id)}>Annuler</button>
+                    <div key={i} style={{minHeight:120,background:'var(--white)',border:`1px solid ${isToday?'var(--forest)':'var(--border)'}`,borderRadius:12,padding:'8px 10px'}}>
+                      <div style={{fontSize:11,fontWeight:600,color:isToday?'var(--forest)':'var(--text3)',marginBottom:6,textTransform:'uppercase' as const}}>
+                        {day.toLocaleDateString('fr-FR',{weekday:'short'})} {day.getDate()}
                       </div>
-                      <div className="saved-title">{p.topic}</div>
-                      <div className="saved-preview">{p.content.substring(0,160)}…</div>
-                      <div style={{display:'flex',gap:7}}>
-                        <button className="btn btn-secondary" style={{fontSize:12}} onClick={()=>copyText(p.content)}>⎘ Copier</button>
-                        <button className="btn btn-ghost" style={{fontSize:12}} onClick={()=>{setPostOutput(p.content);setPostTopic(p.topic);setPage('rediger')}}>Modifier</button>
+                      {dayPosts.map((p:any)=>(
+                        <div key={p.id} onClick={()=>setSelectedCalPost(p)} style={{background:p.status==='published'?'rgba(81,103,86,0.1)':'rgba(217,200,163,0.2)',border:`1px solid ${p.status==='published'?'rgba(81,103,86,0.3)':'rgba(217,200,163,0.4)'}`,borderRadius:6,padding:'4px 7px',marginBottom:4,cursor:'pointer',fontSize:11}}>
+                          <div style={{fontWeight:500,color:'var(--text1)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{p.topic||'Post'}</div>
+                          <div style={{fontSize:10,color:'var(--text3)'}}>{new Date(p.scheduled_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>
+                          <span style={{fontSize:9,fontWeight:600,color:p.status==='published'?'var(--forest)':p.status==='error'?'#c0392b':'#8a7040',textTransform:'uppercase' as const}}>{p.status==='published'?'✓ Publié':p.status==='error'?'Erreur':'Planifié'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Vue Mois */}
+            {calView==='mois' && (
+              <div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:2,marginBottom:4}}>
+                  {['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d=>(
+                    <div key={d} style={{textAlign:'center' as const,fontSize:11,fontWeight:600,color:'var(--text3)',padding:'4px 0'}}>{d}</div>
+                  ))}
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:2}}>
+                  {getMonthDays().map((day,i)=>{
+                    const dayPosts = day ? getPostsForDay(day) : []
+                    const isToday = day?.toDateString()===new Date().toDateString()
+                    const isCurrentMonth = day?.getMonth()===calDate.getMonth()
+                    return (
+                      <div key={i} style={{minHeight:80,background:day?'var(--white)':'transparent',border:day?`1px solid ${isToday?'var(--forest)':'var(--border)'}`:'none',borderRadius:8,padding:'4px 6px',opacity:isCurrentMonth?1:0.4}}>
+                        {day&&<div style={{fontSize:11,fontWeight:isToday?700:400,color:isToday?'var(--forest)':'var(--text3)',marginBottom:3}}>{day.getDate()}</div>}
+                        {dayPosts.slice(0,2).map((p:any)=>(
+                          <div key={p.id} onClick={()=>setSelectedCalPost(p)} style={{background:p.status==='published'?'rgba(81,103,86,0.1)':'rgba(217,200,163,0.2)',borderRadius:4,padding:'2px 5px',marginBottom:2,cursor:'pointer',fontSize:10,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const,color:'var(--text1)'}}>
+                            {p.topic||'Post'}
+                          </div>
+                        ))}
+                        {dayPosts.length>2&&<div style={{fontSize:9,color:'var(--text3)'}}>+{dayPosts.length-2}</div>}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Vue Année */}
+            {calView==='annee' && (
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16}}>
+                {Array.from({length:12},(_,i)=>i).map(month=>{
+                  const monthPosts = scheduledPosts.filter(p=>{const d=new Date(p.scheduled_at);return d.getFullYear()===calDate.getFullYear()&&d.getMonth()===month})
+                  return (
+                    <div key={month} style={{background:'var(--white)',border:'1px solid var(--border)',borderRadius:12,padding:'12px 14px',cursor:'pointer'}} onClick={()=>{setCalDate(new Date(calDate.getFullYear(),month,1));setCalView('mois')}}>
+                      <div style={{fontSize:12,fontWeight:600,color:'var(--text1)',marginBottom:8,textTransform:'capitalize' as const}}>
+                        {new Date(calDate.getFullYear(),month,1).toLocaleDateString('fr-FR',{month:'long'})}
+                      </div>
+                      {monthPosts.length>0?(
+                        <div style={{fontSize:11,color:'var(--text2)'}}>{monthPosts.length} post{monthPosts.length>1?'s':''}</div>
+                      ):(
+                        <div style={{fontSize:11,color:'var(--text3)'}}>Aucun post</div>
+                      )}
+                      <div style={{marginTop:6,display:'flex',gap:3,flexWrap:'wrap' as const}}>
+                        {monthPosts.slice(0,3).map((p:any)=>(
+                          <span key={p.id} style={{fontSize:9,padding:'2px 6px',background:p.status==='published'?'rgba(81,103,86,0.1)':'rgba(217,200,163,0.2)',borderRadius:4,color:'var(--text2)'}}>
+                            {new Date(p.scheduled_at).getDate()} {p.topic?.substring(0,10)||'Post'}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   )
                 })}
+              </div>
+            )}
+
+            {/* Modal détail post */}
+            {selectedCalPost && (
+              <div style={{position:'fixed' as const,inset:0,background:'rgba(0,0,0,0.4)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:20}} onClick={()=>setSelectedCalPost(null)}>
+                <div style={{background:'var(--white)',borderRadius:20,padding:24,maxWidth:480,width:'100%',boxShadow:'0 20px 60px rgba(0,0,0,0.15)'}} onClick={e=>e.stopPropagation()}>
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
+                    <span className={`badge ${selectedCalPost.status==='published'?'badge-forest':'badge-copper'}`}>
+                      {selectedCalPost.status==='published'?'✓ Publié':selectedCalPost.status==='error'?'Erreur':'Planifié'}
+                    </span>
+                    <button className="btn btn-ghost" style={{fontSize:11}} onClick={()=>setSelectedCalPost(null)}>✕</button>
+                  </div>
+                  <div style={{fontFamily:"'Clash Display','Inter',sans-serif",fontSize:16,fontWeight:500,color:'var(--text1)',marginBottom:6}}>{selectedCalPost.topic||'Post'}</div>
+                  <div style={{fontSize:12,color:'var(--text3)',marginBottom:12}}>
+                    {new Date(selectedCalPost.scheduled_at).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})} à {new Date(selectedCalPost.scheduled_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}
+                  </div>
+                  <div style={{fontSize:13,color:'var(--text2)',lineHeight:1.6,marginBottom:16,maxHeight:120,overflow:'hidden'}}>{selectedCalPost.content?.substring(0,200)}…</div>
+                  {selectedCalPost.svg_content && (
+                    <div style={{marginBottom:16,borderRadius:8,overflow:'hidden',height:80,background:'var(--sand)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      <span style={{fontSize:11,color:'var(--text3)'}}>🖼 Visuel joint</span>
+                    </div>
+                  )}
+                  <div style={{display:'flex',gap:8}}>
+                    <button className="btn btn-secondary" style={{fontSize:12,flex:1,justifyContent:'center'}} onClick={()=>{setPostOutput(selectedCalPost.content);setPostTopic(selectedCalPost.topic);setPage('rediger');setSelectedCalPost(null)}}>✏️ Modifier</button>
+                    {selectedCalPost.status==='pending'&&(
+                      <button className="btn btn-ghost" style={{fontSize:12,color:'#c0392b',flex:1,justifyContent:'center'}} onClick={()=>{cancelScheduled(selectedCalPost.id);setSelectedCalPost(null)}}>🗑 Annuler</button>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
           </div>
