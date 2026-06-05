@@ -43,29 +43,28 @@ ${keyPoints.map((p: string, i: number) => `${i + 1}. ${p}`).join('\n')}
 
 CHARTE GRAPHIQUE OBLIGATOIRE :
 - Fond principal : ${brandBg}
-- Couleur accent : ${brandAccent} (Forest Sage)
-- Couleur secondaire : #B7C0B8 (Soft Sage)
+- Couleur accent : ${brandAccent}
+- Couleur secondaire : #B7C0B8
 - Champagne : #D9C8A3
 - Charcoal : #1F2421
-- Ivory : #FAF9F7
-- Polices : system-ui, sans-serif (Inter style)
+- IMPORTANT : utilise UNIQUEMENT font-family="Arial, Helvetica, sans-serif" — pas de system-ui ni polices custom
 
 STRUCTURE DU VISUEL (dans l'ordre vertical) :
 1. Header (hauteur 180px) — fond ${brandAccent}, nom entreprise "${company || 'Content Studio'}" en blanc à gauche, secteur en badge à droite. PAS de mention Ecrira.
-2. Zone titre (hauteur 280px) — fond ${brandBg}, grand titre du sujet en ${brandAccent} (font-size 52px, font-weight 700, max 2 lignes)
-3. Séparateur décoratif — ligne champagne + accent géométrique
+2. Zone titre (hauteur 280px) — fond ${brandBg}, grand titre du sujet en ${brandAccent} (font-size 52px, font-weight bold, max 2 lignes)
+3. Séparateur décoratif — ligne simple
 4. Zone points clés (hauteur 580px) — fond blanc, 3 blocs avec numéro cerclé en ${brandAccent} + texte en #1F2421
-5. Footer (hauteur 160px) — fond #1F2421, nom auteur en blanc + rôle en gris clair. PAS de mention Ecrira ni ecrira.com.
+5. Footer (hauteur 160px) — fond #1F2421, nom auteur en blanc + rôle en #B7C0B8. PAS de mention Ecrira.
 6. Bordure décorative gauche — bande verticale de 8px en ${brandAccent}
 
 RÈGLES DESIGN :
-- Padding horizontal : 64px partout
-- Coins arrondis sur les blocs internes : rx="16"
-- Ombres légères sur les blocs points clés
+- Padding horizontal : 64px
+- Coins arrondis sur les blocs : rx="12"
 - Numéros cerclés : cercle ${brandAccent} 44px, chiffre blanc bold
-- Texte points clés : 28px, line-height 1.5, couleur #1F2421
-- Le titre doit tenir en 2 lignes max — tronque si nécessaire
-- Style épuré, beaucoup d'espace blanc, premium B2B
+- Texte points clés : 26px, fill="#1F2421"
+- Titre max 2 lignes — tronque si nécessaire
+- PAS de filtres CSS complexes, PAS de backdrop-filter, PAS de foreignObject
+- Utilise uniquement des éléments SVG basiques : rect, text, circle, line, path
 
 Réponds UNIQUEMENT avec le code SVG complet, commençant par <svg et finissant par </svg>. Aucun texte avant ou après.`,
       }],
