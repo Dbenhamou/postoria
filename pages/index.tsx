@@ -212,6 +212,7 @@ export default function Home() {
   const [showVisualModal, setShowVisualModal] = useState(false)
   const [aiVisualUrl, setAiVisualUrl] = useState('')
   const [aiSvgContent, setAiSvgContent] = useState('')
+  const [showPublishMenu, setShowPublishMenu] = useState(false)
   const [generatingAiVisual, setGeneratingAiVisual] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [onboardingStep, setOnboardingStep] = useState(0)
@@ -568,22 +569,44 @@ export default function Home() {
     showToast('Post annulé')
   }
 
-  const publishPost = async (scheduled?: string) => {
+  const publishPost = async (withImage?: boolean) => {
     if (!postOutput.trim()) { showToast('Aucun post à publier'); return }
     if (!userId) { showToast('Non connecté'); return }
     setPublishing(true)
     try {
+      let pngBase64: string | null = null
+
+      // Conversion SVG → PNG côté client si visuel demandé
+      if (withImage && aiSvgContent) {
+        pngBase64 = await new Promise<string>((resolve, reject) => {
+          const img = new Image()
+          const svgBlob = new Blob([aiSvgContent], { type: 'image/svg+xml;charset=utf-8' })
+          const url = URL.createObjectURL(svgBlob)
+          img.onload = () => {
+            const canvas = document.createElement('canvas')
+            canvas.width = 1080
+            canvas.height = 1350
+            const ctx = canvas.getContext('2d')!
+            ctx.drawImage(img, 0, 0, 1080, 1350)
+            URL.revokeObjectURL(url)
+            resolve(canvas.toDataURL('image/png').split(',')[1])
+          }
+          img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Conversion SVG échouée')) }
+          img.src = url
+        })
+      }
+
       const res = await authFetch('/api/linkedin/publish-with-image', {
         method: 'POST',
         body: JSON.stringify({
           content: postOutput,
-          svgContent: aiSvgContent || null,
+          pngBase64,
         }),
       })
       const data = await res.json()
       if (data.success) showToast(data.withImage ? '✓ Post + visuel publiés sur LinkedIn !' : '✓ Post publié sur LinkedIn !')
       else showToast(data.error || 'Erreur publication')
-    } catch { showToast('Erreur réseau') }
+    } catch (err: any) { showToast('Erreur : ' + err.message) }
     setPublishing(false)
   }
 
@@ -782,9 +805,26 @@ export default function Home() {
                       </button>
                     </div>
                     {linkedinConnected ? (
-                      <button className="btn btn-primary" onClick={()=>publishPost()} disabled={publishing||!postOutput} style={{background:'#0077B5',flex:2,justifyContent:'center',opacity:postOutput?1:0.4}}>
-                        {publishing?<><span className="spinner"/> {T('publishing')}</>:T('publish_linkedin')}
-                      </button>
+                      <div style={{position:'relative' as const, flex:2}}>
+                        <div style={{display:'flex',borderRadius:11,overflow:'hidden',border:'1px solid #0077B5'}}>
+                          <button className="btn" onClick={()=>publishPost(false)} disabled={publishing||!postOutput} style={{background:'#0077B5',color:'white',flex:1,justifyContent:'center',fontSize:12,borderRadius:0,padding:'9px 12px'}}>
+                            {publishing?<><span className="spinner" style={{borderTopColor:'white'}}/>Publication…</>:'🔗 Publier sur LinkedIn'}
+                          </button>
+                          <button className="btn" onClick={()=>setShowPublishMenu(m=>!m)} disabled={publishing||!postOutput} style={{background:'#005e8f',color:'white',padding:'9px 10px',borderRadius:0,borderLeft:'1px solid rgba(255,255,255,0.2)'}}>
+                            ▾
+                          </button>
+                        </div>
+                        {showPublishMenu && (
+                          <div style={{position:'absolute' as const,bottom:'100%',right:0,marginBottom:4,background:'white',border:'1px solid var(--border)',borderRadius:10,boxShadow:'0 4px 20px rgba(0,0,0,0.1)',zIndex:100,minWidth:240,overflow:'hidden'}}>
+                            <button className="btn" onClick={()=>{publishPost(false);setShowPublishMenu(false)}} style={{width:'100%',padding:'10px 14px',fontSize:12,color:'var(--text1)',justifyContent:'flex-start',borderRadius:0,borderBottom:'1px solid var(--border)'}}>
+                              📝 Publier le texte uniquement
+                            </button>
+                            <button className="btn" onClick={()=>{publishPost(true);setShowPublishMenu(false)}} disabled={!aiSvgContent} style={{width:'100%',padding:'10px 14px',fontSize:12,color:aiSvgContent?'var(--text1)':'var(--text3)',justifyContent:'flex-start',borderRadius:0,cursor:aiSvgContent?'pointer':'not-allowed'}}>
+                              🖼 Publier texte + visuel{!aiSvgContent?" (générez d'abord un visuel)":''}
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       <button className="btn btn-primary" style={{fontSize:12,flex:2,justifyContent:'center',background:'#0077B5'}} onClick={connectLinkedIn}>
                         🔗 Connecter LinkedIn

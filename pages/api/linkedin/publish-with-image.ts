@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await requireAuth(req, res)
   if (!userId) return
 
-  const { content, svgContent } = req.body
+  const { content, pngBase64 } = req.body
   if (!content) return res.status(400).json({ error: 'Contenu manquant' })
 
   const { data: profile } = await supabase
@@ -36,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Si pas de visuel — publication texte simple
-    if (!svgContent) {
+    if (!pngBase64) {
       const postRes = await fetch('https://api.linkedin.com/v2/ugcPosts', {
         method: 'POST',
         headers: {
@@ -61,11 +61,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(500).json({ error: err.message || 'Erreur LinkedIn' })
     }
 
-    // Avec visuel — convertir SVG en PNG puis uploader
-    const { Resvg } = await import('@resvg/resvg-js')
-    const resvg = new Resvg(svgContent, { fitTo: { mode: 'width', value: 1080 } })
-    const pngData = resvg.render()
-    const pngBuffer = pngData.asPng()
+    // Avec visuel — PNG base64 envoyé depuis le client
+    const pngBuffer = Buffer.from(pngBase64, 'base64')
 
     // 1. Initialiser l'upload image LinkedIn
     const registerRes = await fetch('https://api.linkedin.com/v2/assets?action=registerUpload', {
