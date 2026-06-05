@@ -584,14 +584,19 @@ export default function Home() {
           canvas.height = 1350
           const ctx = canvas.getContext('2d')!
           const img = new Image()
-          // Encoder le SVG en base64 data URL directement
-          const svgBase64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(aiSvgContent)))
+          img.crossOrigin = 'anonymous'
+          // Utiliser URL.createObjectURL avec charset UTF-8 explicite
+          const blob = new Blob([new TextEncoder().encode(aiSvgContent)], { type: 'image/svg+xml;charset=utf-8' })
+          const url = URL.createObjectURL(blob)
           img.onload = () => {
-            ctx.drawImage(img, 0, 0, 1080, 1350)
-            resolve(canvas.toDataURL('image/png').split(',')[1])
+            try {
+              ctx.drawImage(img, 0, 0, 1080, 1350)
+              URL.revokeObjectURL(url)
+              resolve(canvas.toDataURL('image/png').split(',')[1])
+            } catch(e) { URL.revokeObjectURL(url); reject(e) }
           }
-          img.onerror = (e) => { console.error('Image load error:', e); reject(new Error('Conversion SVG échouée')) }
-          img.src = svgBase64
+          img.onerror = (e) => { URL.revokeObjectURL(url); console.error('SVG load error', e); reject(new Error('Conversion SVG échouée')) }
+          img.src = url
         })
       }
 
