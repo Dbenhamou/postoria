@@ -535,10 +535,10 @@ export default function Home() {
 
   // Fermer les pickers au clic extérieur
   useEffect(() => {
-    const handler = () => { setShowPublishMenu(false); setShowScheduleMenu(false); setShowTimePicker(false); }
-    if (showPublishMenu || showScheduleMenu || showTimePicker) document.addEventListener('click', handler)
+    const handler = () => { setShowPublishMenu(false); setShowScheduleMenu(false); setShowTimePicker(false); setShowNotifPanel(false); }
+    if (showPublishMenu || showScheduleMenu || showTimePicker || showNotifPanel) document.addEventListener('click', handler)
     return () => document.removeEventListener('click', handler)
-  }, [showPublishMenu, showScheduleMenu, showTimePicker])
+  }, [showPublishMenu, showScheduleMenu, showTimePicker, showNotifPanel])
 
   // Heure actuelle arrondie aux 15min suivantes
   const getNextQuarterHour = () => {
@@ -847,7 +847,7 @@ export default function Home() {
           <div className="sidebar-logo" style={{justifyContent:'center',cursor:'pointer'}} onClick={()=>setPage('apercu')}><img src="/logo-ecrira-icon.png" alt="Ecrira" style={{height:60,width:'auto',display:'block'}} /></div>
           {/* Notifications bell */}
           <div style={{position:'relative' as const,margin:'0 12px 8px'}}>
-            <button onClick={()=>{setShowNotifPanel(v=>!v);if(unreadCount>0)markAllRead()}} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'8px 12px',borderRadius:10,border:'none',background:'transparent',cursor:'pointer',color:'var(--text2)',fontSize:12,fontWeight:500}}>
+            <button onClick={(e)=>{e.stopPropagation();setShowNotifPanel(v=>!v);if(unreadCount>0)markAllRead()}} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'8px 12px',borderRadius:10,border:'none',background:'transparent',cursor:'pointer',color:'var(--text2)',fontSize:12,fontWeight:500}}>
               <span style={{position:'relative' as const,display:'inline-flex'}}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{width:18,height:18}}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 {unreadCount>0&&<span style={{position:'absolute' as const,top:-4,right:-4,background:'#c0392b',color:'white',borderRadius:'50%',width:14,height:14,fontSize:9,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center'}}>{unreadCount>9?'9+':unreadCount}</span>}
@@ -855,7 +855,7 @@ export default function Home() {
               Notifications
             </button>
             {showNotifPanel && (
-              <div style={{position:'absolute' as const,left:'100%',top:0,marginLeft:8,width:320,background:'var(--white)',border:'1px solid var(--border)',borderRadius:14,boxShadow:'0 8px 32px rgba(0,0,0,0.12)',zIndex:200,maxHeight:400,overflowY:'auto' as const}}>
+              <div style={{position:'absolute' as const,left:'100%',top:0,marginLeft:8,width:320,background:'var(--white)',border:'1px solid var(--border)',borderRadius:14,boxShadow:'0 8px 32px rgba(0,0,0,0.12)',zIndex:200,maxHeight:400,overflowY:'auto' as const}} onClick={e=>e.stopPropagation()}>
                 <div style={{padding:'12px 14px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--text1)'}}>Notifications</div>
                 {notifications.length===0 ? (
                   <div style={{padding:24,textAlign:'center' as const,fontSize:12,color:'var(--text3)'}}>Aucune notification</div>
