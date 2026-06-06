@@ -516,10 +516,10 @@ export default function Home() {
 
   // Fermer les pickers au clic extérieur
   useEffect(() => {
-    const handler = () => { setShowDatePicker(false); setShowTimePicker(false) }
-    if (showDatePicker || showTimePicker) document.addEventListener('click', handler)
+    const handler = () => { setShowDatePicker(false); setShowTimePicker(false); setShowPublishMenu(false); setShowScheduleMenu(false); }
+    if (showDatePicker || showTimePicker || showPublishMenu || showScheduleMenu) document.addEventListener('click', handler)
     return () => document.removeEventListener('click', handler)
-  }, [showDatePicker, showTimePicker])
+  }, [showDatePicker, showTimePicker, showPublishMenu, showScheduleMenu])
 
   // Heure actuelle arrondie aux 15min suivantes
   const getNextQuarterHour = () => {
@@ -932,6 +932,7 @@ export default function Home() {
                 <textarea className="post-editor" style={{minHeight:260}} value={postOutput} onChange={e=>setPostOutput(e.target.value)} placeholder={T('post_placeholder')}/>
                 {/* Action bar — always visible */}
                 <div style={{marginTop:16,display:'flex',flexDirection:'column' as const,gap:10}}>
+
                   {/* Créer le visuel */}
                   <button className="btn btn-primary" style={{fontSize:12,justifyContent:'center',background:'linear-gradient(135deg,#516756,#B7C0B8)',opacity:postOutput?1:0.4}} onClick={()=>{ if(!isPro){ setShowUpgradeModal(true); return; } generateAiVisual(); }} disabled={!postOutput||generatingAiVisual}>
                     {generatingAiVisual?<><span className="spinner" style={{borderTopColor:'white'}}/>Génération visuel…</>:'🖼 Créer le visuel'}
@@ -940,19 +941,19 @@ export default function Home() {
                   {/* Boutons Publier + Planifier */}
                   <div style={{display:'flex',gap:7}}>
 
-                    {/* Publier maintenant */}
+                    {/* Publier maintenant dropdown */}
                     <div style={{position:'relative' as const,flex:1}}>
                       {linkedinConnected ? (
                         <>
-                          <button className="btn" onClick={()=>setShowPublishMenu(m=>!m)} disabled={publishing||!postOutput} style={{width:'100%',background:'#0077B5',color:'white',justifyContent:'center',fontSize:12,borderRadius:10,padding:'9px 12px',border:'none',opacity:postOutput?1:0.5}}>
+                          <button className="btn" onClick={(e)=>{e.stopPropagation();setShowPublishMenu(m=>!m);setShowScheduleMenu(false);}} disabled={publishing||!postOutput} style={{width:'100%',background:'#0077B5',color:'white',justifyContent:'center',fontSize:12,borderRadius:10,padding:'9px 12px',border:'none',opacity:postOutput?1:0.5}}>
                             {publishing?<><span className="spinner" style={{borderTopColor:'white'}}/>Publication…</>:'📤 Publier ▾'}
                           </button>
                           {showPublishMenu && (
                             <div style={{position:'absolute' as const,bottom:'100%',left:0,marginBottom:4,background:'var(--white)',border:'1px solid var(--border)',borderRadius:10,boxShadow:'0 4px 20px rgba(0,0,0,0.15)',zIndex:100,minWidth:'100%',overflow:'hidden'}}>
-                              <button className="btn" onClick={()=>{publishPost(false);setShowPublishMenu(false)}} style={{width:'100%',padding:'10px 14px',fontSize:12,color:'var(--text1)',justifyContent:'flex-start',borderRadius:0,borderBottom:'1px solid var(--border)',background:'transparent'}}>
+                              <button className="btn" onClick={()=>{publishPost(false);setShowPublishMenu(false);}} style={{width:'100%',padding:'10px 14px',fontSize:12,color:'var(--text1)',justifyContent:'flex-start',borderRadius:0,borderBottom:'1px solid var(--border)',background:'transparent'}}>
                                 📝 Texte uniquement
                               </button>
-                              <button className="btn" onClick={()=>{publishPost(true);setShowPublishMenu(false)}} disabled={!aiSvgContent} style={{width:'100%',padding:'10px 14px',fontSize:12,color:aiSvgContent?'var(--text1)':'var(--text3)',justifyContent:'flex-start',borderRadius:0,background:'transparent',cursor:aiSvgContent?'pointer':'not-allowed'}}>
+                              <button className="btn" onClick={()=>{publishPost(true);setShowPublishMenu(false);}} disabled={!aiSvgContent} style={{width:'100%',padding:'10px 14px',fontSize:12,color:aiSvgContent?'var(--text1)':' var(--text3)',justifyContent:'flex-start',borderRadius:0,background:'transparent',cursor:aiSvgContent?'pointer':'not-allowed'}}>
                                 🖼 Texte + visuel{!aiSvgContent?' (créez un visuel)':''}
                               </button>
                             </div>
@@ -965,17 +966,17 @@ export default function Home() {
                       )}
                     </div>
 
-                    {/* Planifier */}
+                    {/* Planifier dropdown */}
                     <div style={{position:'relative' as const,flex:1}}>
-                      <button className="btn" onClick={()=>{setShowScheduleMenu(m=>!m);setShowPublishMenu(false)}} disabled={!postOutput} style={{width:'100%',background:'var(--forest)',color:'white',justifyContent:'center',fontSize:12,borderRadius:10,padding:'9px 12px',border:'none',opacity:postOutput?1:0.5}}>
+                      <button className="btn" onClick={(e)=>{e.stopPropagation();setShowScheduleMenu(m=>!m);setShowPublishMenu(false);}} disabled={!postOutput} style={{width:'100%',background:'var(--forest)',color:'white',justifyContent:'center',fontSize:12,borderRadius:10,padding:'9px 12px',border:'none',opacity:postOutput?1:0.5}}>
                         📅 Planifier ▾
                       </button>
                       {showScheduleMenu && (
                         <div style={{position:'absolute' as const,bottom:'100%',left:0,marginBottom:4,background:'var(--white)',border:'1px solid var(--border)',borderRadius:10,boxShadow:'0 4px 20px rgba(0,0,0,0.15)',zIndex:100,minWidth:'100%',overflow:'hidden'}}>
-                          <button className="btn" onClick={()=>{setScheduleWithVisual(false);setShowScheduleMenu(false);setShowDatePicker(true);if(!scheduleDateTime){setScheduleDateTime(new Date().toISOString().split('T')[0]+'T'+getNextQuarterHour())}}} style={{width:'100%',padding:'10px 14px',fontSize:12,color:'var(--text1)',justifyContent:'flex-start',borderRadius:0,borderBottom:'1px solid var(--border)',background:'transparent'}}>
+                          <button className="btn" onClick={()=>{setScheduleWithVisual(false);setShowScheduleMenu(false);if(!scheduleDateTime){setScheduleDateTime(new Date().toISOString().split('T')[0]+'T'+getNextQuarterHour())}setShowDatePicker(true);}} style={{width:'100%',padding:'10px 14px',fontSize:12,color:'var(--text1)',justifyContent:'flex-start',borderRadius:0,borderBottom:'1px solid var(--border)',background:'transparent'}}>
                             📝 Texte uniquement
                           </button>
-                          <button className="btn" onClick={()=>{setScheduleWithVisual(true);setShowScheduleMenu(false);setShowDatePicker(true);if(!scheduleDateTime){setScheduleDateTime(new Date().toISOString().split('T')[0]+'T'+getNextQuarterHour())}}} disabled={!aiSvgContent} style={{width:'100%',padding:'10px 14px',fontSize:12,color:aiSvgContent?'var(--text1)':'var(--text3)',justifyContent:'flex-start',borderRadius:0,background:'transparent',cursor:aiSvgContent?'pointer':'not-allowed'}}>
+                          <button className="btn" onClick={()=>{setScheduleWithVisual(true);setShowScheduleMenu(false);if(!scheduleDateTime){setScheduleDateTime(new Date().toISOString().split('T')[0]+'T'+getNextQuarterHour())}setShowDatePicker(true);}} disabled={!aiSvgContent} style={{width:'100%',padding:'10px 14px',fontSize:12,color:aiSvgContent?'var(--text1)':'var(--text3)',justifyContent:'flex-start',borderRadius:0,background:'transparent',cursor:aiSvgContent?'pointer':'not-allowed'}}>
                             🖼 Texte + visuel{!aiSvgContent?' (créez un visuel)':''}
                           </button>
                         </div>
@@ -983,34 +984,24 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Date + heure + confirmer (visible après choix planifier) */}
-                  {showDatePicker===false && scheduleDateTime && (
-                    <div style={{display:'flex',gap:7,alignItems:'center',flexWrap:'wrap' as const}}>
-                      <span style={{fontSize:11,color:'var(--text2)',flex:1}}>
-                        📅 {new Date(scheduleDateTime).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})} à {scheduleDateTime.split('T')[1]||'--:--'}
-                      </span>
-                      <button className="btn btn-ghost" style={{fontSize:11}} onClick={()=>setShowDatePicker(true)}>✏️ Modifier</button>
-                      <button className="btn btn-primary" style={{background:'var(--forest)',fontSize:12}} onClick={schedulePost} disabled={scheduling||!scheduleDateTime}>
-                        {scheduling?<><span className="spinner" style={{borderTopColor:'white'}}/>...</>:'Confirmer →'}
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Picker date/heure inline */}
+                  {/* Picker date/heure inline (visible après choix planifier) */}
                   {showDatePicker && (
                     <div style={{background:'var(--white)',border:'1px solid var(--border)',borderRadius:16,padding:16,boxShadow:'0 4px 20px rgba(0,0,0,0.1)'}}>
+                      {/* Header mois */}
                       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
-                        <button className="btn btn-ghost" style={{padding:'4px 8px',fontSize:13}} onClick={()=>{const d=new Date(pickerMonth);d.setMonth(d.getMonth()-1);setPickerMonth(d)}}>←</button>
+                        <button className="btn btn-ghost" style={{padding:'4px 8px',fontSize:13}} onClick={()=>{const d=new Date(pickerMonth);d.setMonth(d.getMonth()-1);setPickerMonth(d);}}>←</button>
                         <span style={{fontSize:13,fontWeight:600,color:'var(--text1)',textTransform:'capitalize' as const}}>
                           {pickerMonth.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}
                         </span>
-                        <button className="btn btn-ghost" style={{padding:'4px 8px',fontSize:13}} onClick={()=>{const d=new Date(pickerMonth);d.setMonth(d.getMonth()+1);setPickerMonth(d)}}>→</button>
+                        <button className="btn btn-ghost" style={{padding:'4px 8px',fontSize:13}} onClick={()=>{const d=new Date(pickerMonth);d.setMonth(d.getMonth()+1);setPickerMonth(d);}}>→</button>
                       </div>
+                      {/* Jours semaine */}
                       <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',marginBottom:4}}>
                         {['L','M','M','J','V','S','D'].map((d,i)=>(
                           <div key={i} style={{textAlign:'center' as const,fontSize:10,fontWeight:600,color:'var(--text3)',padding:'2px 0'}}>{d}</div>
                         ))}
                       </div>
+                      {/* Grille jours */}
                       <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:2}}>
                         {(()=>{
                           const year=pickerMonth.getFullYear(),month=pickerMonth.getMonth()
@@ -1038,7 +1029,7 @@ export default function Home() {
                       <div style={{display:'flex',alignItems:'center',gap:8,marginTop:12,borderTop:'1px solid var(--border)',paddingTop:12}}>
                         <span style={{fontSize:11,color:'var(--text2)',flexShrink:0}}>🕐 Heure :</span>
                         <div style={{position:'relative' as const,flex:1}}>
-                          <button className="btn btn-ghost" onClick={(e)=>{e.stopPropagation();setShowTimePicker(v=>!v)}} style={{fontSize:12,width:'100%',justifyContent:'center',color:scheduleDateTime.split('T')[1]?'var(--text1)':'var(--text3)'}}>
+                          <button className="btn btn-ghost" onClick={(e)=>{e.stopPropagation();setShowTimePicker(v=>!v);}} style={{fontSize:12,width:'100%',justifyContent:'center'}}>
                             {scheduleDateTime.split('T')[1]||getNextQuarterHour()}
                           </button>
                           {showTimePicker && (
@@ -1049,7 +1040,7 @@ export default function Home() {
                                 const t=`${h}:${m}`
                                 const selected=scheduleDateTime.split('T')[1]===t
                                 return (
-                                  <button key={t} onClick={()=>{setScheduleDateTime((scheduleDateTime.split('T')[0]||new Date().toISOString().split('T')[0])+'T'+t);setShowTimePicker(false)}} style={{display:'block',width:'100%',padding:'6px 12px',border:'none',borderRadius:8,cursor:'pointer',background:selected?'var(--forest)':'transparent',color:selected?'white':'var(--text1)',fontSize:12,fontWeight:selected?600:400,textAlign:'left' as const}}>
+                                  <button key={t} onClick={()=>{setScheduleDateTime((scheduleDateTime.split('T')[0]||new Date().toISOString().split('T')[0])+'T'+t);setShowTimePicker(false);}} style={{display:'block',width:'100%',padding:'6px 12px',border:'none',borderRadius:8,cursor:'pointer',background:selected?'var(--forest)':'transparent',color:selected?'white':'var(--text1)',fontSize:12,fontWeight:selected?600:400,textAlign:'left' as const}}>
                                     {t}
                                   </button>
                                 )
@@ -1057,8 +1048,8 @@ export default function Home() {
                             </div>
                           )}
                         </div>
-                        <button className="btn btn-primary" style={{background:'var(--forest)',fontSize:12,flexShrink:0}} onClick={()=>{setShowDatePicker(false)}} disabled={!scheduleDateTime.split('T')[0]}>
-                          OK →
+                        <button className="btn btn-primary" style={{background:'var(--forest)',fontSize:12,flexShrink:0}} onClick={schedulePost} disabled={scheduling||!scheduleDateTime.split('T')[0]}>
+                          {scheduling?<><span className="spinner" style={{borderTopColor:'white'}}/>...</>:'Planifier →'}
                         </button>
                       </div>
                     </div>
