@@ -1017,7 +1017,7 @@ export default function Home() {
                             for(let i=0;i<startDay;i++) cells.push(<div key={`e${i}`}/>)
                             for(let d=1;d<=lastDay.getDate();d++){
                               const date=new Date(year,month,d)
-                              const dateStr=date.toISOString().split('T')[0]
+                              const dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
                               const selected=scheduleDateTime.split('T')[0]===dateStr
                               const isToday=date.toDateString()===new Date().toDateString()
                               const isPast=date<new Date(new Date().setHours(0,0,0,0))
