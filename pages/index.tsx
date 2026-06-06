@@ -1441,7 +1441,7 @@ export default function Home() {
       </div>
       <div style={{border:'2px solid var(--forest)',borderRadius:14,padding:'16px 20px',cursor:'pointer',background:'var(--forest)',color:'white'}} onClick={async()=>{
         if(!userId) return;
-        const res = await fetch('/api/stripe/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,email:profile?.email})});
+        const res = await fetch('/api/stripe/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,email:(profile as any)?.email})});
         const {url} = await res.json();
         window.location.href = url;
       }}>
