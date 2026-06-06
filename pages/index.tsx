@@ -1441,9 +1441,10 @@ export default function Home() {
       </div>
       <div style={{border:'2px solid var(--forest)',borderRadius:14,padding:'16px 20px',cursor:'pointer',background:'var(--forest)',color:'white'}} onClick={async()=>{
         if(!userId) return;
-        const res = await fetch('/api/stripe/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,email:(profile as any)?.email})});
-        const {url} = await res.json();
-        window.location.href = url;
+        const res = await fetch('/api/stripe/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,email:(profile as any)?.email ?? ''})});
+        const data = await res.json();
+        if(data.url) window.location.href = data.url;
+        else console.error('Checkout error:', data);
       }}>
         <div style={{fontFamily:"'Clash Display',sans-serif",fontWeight:700,fontSize:15,marginBottom:4}}>Pro — 12,99€/mois</div>
         <div style={{fontSize:12,opacity:0.85}}>Posts illimités · Visuels · Calendrier</div>

@@ -10,9 +10,13 @@ const supabase = createClient(
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { userId, email } = req.body;
+  const { userId } = req.body;
 
-  if (!userId || !email) return res.status(400).json({ error: 'Missing userId or email' });
+  if (!userId) return res.status(400).json({ error: 'Missing userId' });
+
+  // Récupérer l'email depuis Supabase
+  const { data: profileData } = await supabase.from('profiles').select('email').eq('id', userId).single();
+  const email = profileData?.email ?? '';
 
   try {
     // Créer ou récupérer le customer Stripe
