@@ -74,7 +74,7 @@ DONNEES :
 
 ---
 SI CLASSIQUE :
-1. HEADER (0-170px) : dégradé linearGradient ${brandAccent} vers version +20% sombre. Texte bold blanc 52px x=72 y=110. Badge secteur droite rx=24 fond blanc 25% texte blanc bold 20px x=900.
+1. HEADER (0-170px) : dégradé linearGradient ${brandAccent} vers version +20% sombre. Texte bold blanc 48px x=72 y=110 — IMPORTANT : largeur max du texte titre = 620px (x=72 à x=692), tronque avec '...' si nécessaire. Badge secteur : rect rx=24 fond blanc 25% x=720 largeur adaptée au texte, texte blanc bold 18px centré dans le badge y=110.
 2. TITRE (170-490px) : fond ${brandBg}. Rect ${brandAccent} 6px haut w=88 rx=3 y=182. Titre ${brandAccent} bold 58px y=290 et y=362 (max 2 lignes). Sous-titre italic #555 25px y=430.
 3. SÉPARATEUR (490-510px) : ligne #E0DAD4 pleine largeur + cercle ${brandAccent} r=5 centré + 2 cercles stroke ${brandAccent} 30% r=3 à ±40px.
 4. POINTS CLÉS (510-1080px) : fond blanc. Label "POINTS CLÉS" #B0A898 12px letter-spacing=5 centré y=548. 3 cards (x=56 w=968 rx=16) fond ${brandBg} avec bordure gauche rect ${brandAccent} 5px large rx=3. Cercle ${brandAccent} r=28 fill=${brandAccent} + numéro blanc bold 22px. Titre bold 28px #1F2421. Description ${brandAccent} 20px opacity=0.85.
@@ -84,7 +84,7 @@ ${watermarkLine}
 
 ---
 SI TIMELINE :
-1. HEADER (0-160px) : fond ${brandAccent}. Titre bold blanc 52px centré y=95. Sous-titre blanc 75% 23px centré y=135.
+1. HEADER (0-160px) : fond ${brandAccent}. Titre bold blanc 48px centré y=95 — max 2 lignes, tronque si nécessaire. Sous-titre blanc 75% 22px centré y=138.
 2. FRISE (160-1090px) : fond blanc. Ligne verticale centrale stroke=${brandAccent} strokeWidth=6 x1=540 x2=540 y1=195 y2=1040.
    MAX 4 ETAPES (pas plus) espacées régulièrement : cercle fill=${brandAccent} r=42 + numéro blanc bold 26px centré. Cards alternées gauche (x=72 w=420 rx=16) / droite (x=588 w=420 rx=16) fond ${brandBg} avec bordure gauche ou droite ${brandAccent} 5px. Ligne connectrice horizontale stroke=${brandAccent} strokeWidth=3 entre cercle et card. Titre card bold 28px #1F2421. Description 20px #555 max 2 lignes.
 3. CONCLUSION (1090-1210px) : fond ${brandAccent}. Texte clé blanc bold 30px centré. Sous-texte blanc 75% 21px centré.
@@ -118,7 +118,7 @@ ${watermarkLine}
 
 ---
 SI LISTE :
-1. HEADER (0-160px) : fond ${brandAccent}. Titre bold blanc 48px x=72 y=100. Badge contexte droite.
+1. HEADER (0-160px) : fond ${brandAccent}. Titre bold blanc 46px x=72 y=105 — largeur max 620px, tronque si nécessaire. Badge contexte : rx=24 fond blanc 25% x=720 texte blanc bold 17px y=105.
 2. SOUS-TITRE (160-230px) : fond ${brandBg}. Italic #666 24px x=72 y=205.
 3. ITEMS (230-1110px) : fond blanc. 3-4 items :
    Chaque item (hauteur ~200px) : rect ${brandBg} rx=16 x=56 w=968. Carre arrondi ${brandAccent} 58x58 rx=14 x=80 + numero blanc bold 30px centre. Titre bold 29px #1F2421 x=162. Description 21px #666 x=162.
