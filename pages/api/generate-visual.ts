@@ -170,10 +170,20 @@ Reponds UNIQUEMENT avec le code SVG complet, commencant par <svg et finissant pa
     // Supprimer les hashtags générés par Claude dans le SVG
     svgSafe = svgSafe.replace(/<text[^>]*>[^<]*#\w+[^<]*<\/text>/gi, '')
 
+    // Supprimer le footer texte généré par Claude (nom, rôle, entreprise en bas)
+    // Supprimer tout rect #1F2421 (footer sombre)
+    svgSafe = svgSafe.replace(/<rect[^>]+fill=["']#1[Ff]2421["'][^>]*\/>/gi, '')
+    svgSafe = svgSafe.replace(/<rect[^>]+fill=["']#1[Ff]2421["'][^>]*>[^<]*<\/rect>/gi, '')
+    // Supprimer les text dans la zone footer (y > 1260)
+    svgSafe = svgSafe.replace(/<text[^>]+y=["']1[3-9]\d{2}["'][^>]*>[\s\S]*?<\/text>/gi, '')
+    svgSafe = svgSafe.replace(/<text[^>]+y=["']12[7-9]\d["'][^>]*>[\s\S]*?<\/text>/gi, '')
+    // Supprimer les circles dans la zone footer (cy > 1260)
+    svgSafe = svgSafe.replace(/<circle[^>]+cy=["']1[3-9]\d{2}["'][^>]*\/>/gi, '')
+
     // Injecter le logo Ecrira programmatiquement (plus fiable que via le prompt)
     if (showWatermark) {
       // Inject logo bottom right, outside any dark footer
-      const logoImg = `<image x="870" y="1285" width="160" height="58" href="${ECRIRA_LOGO}" opacity="0.80" preserveAspectRatio="xMidYMid meet"/>`
+      const logoImg = `<image x="850" y="1278" width="180" height="66" href="${ECRIRA_LOGO}" opacity="0.85" preserveAspectRatio="xMidYMid meet"/>`
       svgSafe = svgSafe.replace('</svg>', logoImg + '</svg>')
     }
     // Company logo bottom left — only if available
