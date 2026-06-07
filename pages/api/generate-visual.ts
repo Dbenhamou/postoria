@@ -44,12 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .slice(0, 3)
   const keyPoints = lines.length > 0 ? lines : [postContent.substring(0, 100)]
 
-  const footerClassique = ''
 
-  const footerSimple = ''
-  const footerSimple2 = ''
-  const footerCitation = ''
-  const authorLine = hideUserInfo ? '' : `${name}${role ? ' - ' + role + (company ? ' · ' + company : '') : ''}`
   const titleLine = visualCustomTitle || postTopic || 'Post LinkedIn'
   const pointsLine = customPoints
     ? customPoints.split('\n').filter((p: string) => p.trim()).slice(0, 4).join(' | ')
@@ -124,7 +119,6 @@ DONNEES :
 - Points : ${pointsLine}
 - Accent : ${brandAccent}
 - Fond : ${brandBg}
-- Auteur : ${authorLine}
 
 STRUCTURE A RESPECTER :
 ${selectedInstructions}
@@ -186,11 +180,7 @@ Reponds UNIQUEMENT avec le code SVG complet, commencant par <svg et finissant pa
       const logoImg = `<image x="850" y="1278" width="180" height="66" href="${ECRIRA_LOGO}" opacity="0.85" preserveAspectRatio="xMidYMid meet"/>`
       svgSafe = svgSafe.replace('</svg>', logoImg + '</svg>')
     }
-    // Company logo bottom left — only if available
-    if (!hideUserInfo && profile?.logo_b64) {
-      const companyLogo = `<image x="56" y="1285" width="140" height="58" href="${profile.logo_b64}" opacity="0.85" preserveAspectRatio="xMidYMid meet"/>`
-      svgSafe = svgSafe.replace('</svg>', companyLogo + '</svg>')
-    }
+
 
     res.status(200).json({ svgContent: svgSafe })
   } catch (err) {
