@@ -44,14 +44,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .slice(0, 3)
   const keyPoints = lines.length > 0 ? lines : [postContent.substring(0, 100)]
 
-  const footerClassique = hideUserInfo ? '' : (
-    profile?.logo_b64
-      ? ` Image logo entreprise : <image x="72" y="1258" width="80" height="60" href="${profile.logo_b64}" preserveAspectRatio="xMidYMid meet" opacity="0.9"/>. Nom blanc bold 27px x=168 y=1278. Role #B7C0B8 20px x=168 y=1308. Badge LinkedIn ${brandAccent} droite rx=20.`
-      : ` Cercle ${brandAccent}40 r=32 + initiales blanches bold. Nom blanc bold 27px + role #B7C0B8 20px. Badge LinkedIn ${brandAccent} droite rx=20.`
-  )
-  const footerSimple = hideUserInfo ? '' : ` Nom blanc bold 26px + role #B7C0B8 19px.`
-  const footerSimple2 = hideUserInfo ? '' : ` Nom blanc 26px + role #B7C0B8 18px.`
-  const footerCitation = hideUserInfo ? '' : ` Cercle initiales + nom blanc 26px + role #B7C0B8 19px.`
+  const footerClassique = ''
+
+  const footerSimple = ''
+  const footerSimple2 = ''
+  const footerCitation = ''
   const authorLine = hideUserInfo ? '' : `${name}${role ? ' - ' + role + (company ? ' · ' + company : '') : ''}`
   const titleLine = visualCustomTitle || postTopic || 'Post LinkedIn'
   const pointsLine = customPoints
@@ -66,14 +63,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 3. SEPARATEUR (490-510px) : ligne #E0DAD4 pleine largeur + cercle ${brandAccent} r=5 centre + 2 cercles stroke r=3 a +-40px.
 4. POINTS CLES (510-1080px) : fond blanc. Label "POINTS CLES" #B0A898 12px centré y=548. 3 cards (x=56 w=968 rx=16) fond ${brandBg} avec bordure gauche rect ${brandAccent} 5px. Cercle ${brandAccent} r=28 + numero blanc bold 22px. Titre bold 28px #1F2421. Description ${brandAccent} 20px.
 5. STAT (1085-1200px) : fond ${brandAccent} opacity=0.12. Chiffre ${brandAccent} bold 68px centre. Label #1F2421 bold 22px.
-6. FOOTER (1200-1350px) : fond #1F2421.${footerClassique}`,
+`,
 
     timeline: `
 1. HEADER (0-160px) : fond ${brandAccent}. Titre bold blanc 48px centre y=95 max 2 lignes. Sous-titre blanc 75% 22px centre y=135.
 2. FRISE (160-1090px) : fond blanc. Ligne verticale centrale stroke=${brandAccent} strokeWidth=6 x1=540 x2=540 y1=195 y2=1040.
    MAX 4 ETAPES espacees : cercle fill=${brandAccent} r=42 + numero blanc bold 26px. Cards alternees gauche (x=72 w=420 rx=16) / droite (x=588 w=420 rx=16) fond ${brandBg} bordure ${brandAccent} 5px. Ligne connectrice stroke=${brandAccent} strokeWidth=3. Titre card bold 28px #1F2421. Description 20px #555 max 2 lignes.
 3. CONCLUSION (1090-1210px) : fond ${brandAccent}. Texte blanc bold 30px centre. Sous-texte blanc 75% 21px.
-4. FOOTER (1210-1350px) : fond #1F2421.${footerSimple}`,
+`,
 
     stat: `
 1. FOND (0-1350px) : rect ${brandBg}.
@@ -84,7 +81,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 6. LABEL (y=640px) : #1F2421 bold 36px centre.
 7. CONTEXTE (y=710-900px) : 2-3 lignes #555 25px centre.
 8. ENCADRE (y=940-1080px) : rect ${brandAccent} rx=20 x=72 w=936. Titre italic blanc bold 32px centre. Sous-texte blanc 75% 22px.
-9. FOOTER (1200-1350px) : fond #1F2421.${footerSimple}`,
+`,
 
     citation: `
 1. FOND (0-1350px) : rect ${brandBg}.
@@ -94,14 +91,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 5. TRAIT (y=720px) : rect ${brandAccent} w=120 h=7 rx=4 centre.
 6. CONTEXTE (y=770-870px) : italic ${brandAccent} 28px centre.
 7. ENCADRE (y=920-1130px) : rect fill=${brandAccent} rx=22 x=56 w=968. Texte blanc bold 34px centre. Sous-texte blanc 78% 23px.
-8. FOOTER (1160-1350px) : fond #1F2421.${footerCitation}`,
+`,
 
     liste: `
 1. HEADER (0-160px) : fond ${brandAccent}. Titre bold blanc 46px x=72 y=105 largeur max 620px. Badge rx=24 fond blanc 25% x=720 texte blanc bold 17px.
 2. SOUS-TITRE (160-230px) : fond ${brandBg}. Italic #666 24px x=72 y=205.
 3. ITEMS (230-1110px) : fond blanc. 3-4 items (hauteur ~200px chacun) : rect ${brandBg} rx=16 x=56 w=968. Carre arrondi ${brandAccent} 58x58 rx=14 x=80 + numero blanc bold 30px. Titre bold 29px #1F2421 x=162. Description 21px #666 x=162.
 4. CTA (1110-1220px) : rect ${brandAccent} x=0 w=1080. Texte blanc bold 30px centre.
-5. FOOTER (1220-1350px) : fond #1F2421.${footerSimple2}`,
+`,
   }
 
   const selectedInstructions = typeInstructions[visualType] || typeInstructions['classique']
@@ -116,6 +113,8 @@ REGLES ABSOLUES :
 - Texte long = plusieurs balises text separees
 - Tous textes entre x=72 et x=1008
 - INTERDIT : hashtags (#), mentions (@), URLs dans le visuel
+- INTERDIT : footer sombre (#1F2421) en bas — PAS de bande noire/sombre en bas du visuel
+- Le visuel se termine proprement sur le fond general, sans bandeau de pied de page
 - Texte dans les cards : MAX 40 caractères par ligne, découpe en plusieurs balises text si nécessaire
 - Ne jamais laisser du texte déborder hors des rectangles
 - INTERDIT : reproduire le texte brut du post LinkedIn dans le visuel
@@ -173,7 +172,8 @@ Reponds UNIQUEMENT avec le code SVG complet, commencant par <svg et finissant pa
 
     // Injecter le logo Ecrira programmatiquement (plus fiable que via le prompt)
     if (showWatermark) {
-      const logoImg = `<image x="820" y="1288" width="140" height="52" href="${ECRIRA_LOGO}" opacity="0.85" preserveAspectRatio="xMidYMid meet"/>`
+      // Inject logo bottom right, outside any dark footer
+      const logoImg = `<image x="900" y="1300" width="120" height="42" href="${ECRIRA_LOGO}" opacity="0.70" preserveAspectRatio="xMidYMid meet"/>`
       svgSafe = svgSafe.replace('</svg>', logoImg + '</svg>')
     }
 
