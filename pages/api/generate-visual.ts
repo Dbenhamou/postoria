@@ -173,8 +173,13 @@ Reponds UNIQUEMENT avec le code SVG complet, commencant par <svg et finissant pa
     // Injecter le logo Ecrira programmatiquement (plus fiable que via le prompt)
     if (showWatermark) {
       // Inject logo bottom right, outside any dark footer
-      const logoImg = `<image x="900" y="1300" width="120" height="42" href="${ECRIRA_LOGO}" opacity="0.70" preserveAspectRatio="xMidYMid meet"/>`
+      const logoImg = `<image x="870" y="1285" width="160" height="58" href="${ECRIRA_LOGO}" opacity="0.80" preserveAspectRatio="xMidYMid meet"/>`
       svgSafe = svgSafe.replace('</svg>', logoImg + '</svg>')
+    }
+    // Company logo bottom left — only if available
+    if (!hideUserInfo && profile?.logo_b64) {
+      const companyLogo = `<image x="56" y="1285" width="140" height="58" href="${profile.logo_b64}" opacity="0.85" preserveAspectRatio="xMidYMid meet"/>`
+      svgSafe = svgSafe.replace('</svg>', companyLogo + '</svg>')
     }
 
     res.status(200).json({ svgContent: svgSafe })
