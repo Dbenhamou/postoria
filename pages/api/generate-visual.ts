@@ -54,14 +54,60 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ? customPoints.split('\n').filter((p: string) => p.trim()).slice(0, 4).join(' | ')
     : keyPoints.slice(0, 3).join(' | ')
 
-  const prompt = `Tu es un expert en design graphique SVG pour LinkedIn. Tu crées des visuels IMPACTANTS, EPURES et PROFESSIONNELS.
+  // Build type-specific instructions only
+  const typeInstructions: Record<string, string> = {
+    classique: `
+1. HEADER (0-170px) : degrade linearGradient ${brandAccent} vers version +20% sombre. Texte bold blanc 48px x=72 y=110 — largeur max 620px. Badge secteur rx=24 fond blanc 25% x=720 texte blanc bold 18px.
+2. TITRE (170-490px) : fond ${brandBg}. Rect ${brandAccent} 6px haut w=88 rx=3 y=182. Titre ${brandAccent} bold 58px y=290 et y=362. Sous-titre italic #555 25px y=430.
+3. SEPARATEUR (490-510px) : ligne #E0DAD4 pleine largeur + cercle ${brandAccent} r=5 centre + 2 cercles stroke r=3 a +-40px.
+4. POINTS CLES (510-1080px) : fond blanc. Label "POINTS CLES" #B0A898 12px centré y=548. 3 cards (x=56 w=968 rx=16) fond ${brandBg} avec bordure gauche rect ${brandAccent} 5px. Cercle ${brandAccent} r=28 + numero blanc bold 22px. Titre bold 28px #1F2421. Description ${brandAccent} 20px.
+5. STAT (1085-1200px) : fond ${brandAccent} opacity=0.12. Chiffre ${brandAccent} bold 68px centre. Label #1F2421 bold 22px.
+6. FOOTER (1200-1350px) : fond #1F2421.${footerClassique}`,
 
-${hideUserInfo ? 'IMPORTANT : NE PAS ajouter de footer sombre (#1F2421). La zone en bas du visuel doit continuer le fond general du design sans rect supplementaire.' : ''}
+    timeline: `
+1. HEADER (0-160px) : fond ${brandAccent}. Titre bold blanc 48px centre y=95 max 2 lignes. Sous-titre blanc 75% 22px centre y=135.
+2. FRISE (160-1090px) : fond blanc. Ligne verticale centrale stroke=${brandAccent} strokeWidth=6 x1=540 x2=540 y1=195 y2=1040.
+   MAX 4 ETAPES espacees : cercle fill=${brandAccent} r=42 + numero blanc bold 26px. Cards alternees gauche (x=72 w=420 rx=16) / droite (x=588 w=420 rx=16) fond ${brandBg} bordure ${brandAccent} 5px. Ligne connectrice stroke=${brandAccent} strokeWidth=3. Titre card bold 28px #1F2421. Description 20px #555 max 2 lignes.
+3. CONCLUSION (1090-1210px) : fond ${brandAccent}. Texte blanc bold 30px centre. Sous-texte blanc 75% 21px.
+4. FOOTER (1210-1350px) : fond #1F2421.${footerSimple}`,
+
+    stat: `
+1. FOND (0-1350px) : rect ${brandBg}.
+2. BANDES DECO : rect ${brandAccent} x=0 y=0 width=12 height=1350. Rect ${brandAccent} x=1068 y=0 width=12 height=1350.
+3. CERCLES DECO : 3 cercles stroke=${brandAccent} strokeWidth=3 opacity=0.08/0.12/0.18 r=380/280/180 cx=540 cy=600.
+4. TITRE (y=140-230px) : texte #1F2421 bold 32px centre.
+5. CHIFFRE (y=350-620px) : stat cle ${brandAccent} bold font-size=220 centre. Unite font-size=100.
+6. LABEL (y=640px) : #1F2421 bold 36px centre.
+7. CONTEXTE (y=710-900px) : 2-3 lignes #555 25px centre.
+8. ENCADRE (y=940-1080px) : rect ${brandAccent} rx=20 x=72 w=936. Titre italic blanc bold 32px centre. Sous-texte blanc 75% 22px.
+9. FOOTER (1200-1350px) : fond #1F2421.${footerSimple}`,
+
+    citation: `
+1. FOND (0-1350px) : rect ${brandBg}.
+2. GUILLEMETS MONUMENTAUX : text u+00AB fill=${brandAccent} opacity=0.22 font-size=500 font-weight=bold x=30 y=520. Text u+00BB fill=${brandAccent} opacity=0.22 font-size=500 font-weight=bold x=620 y=920.
+3. BANDE ACCENT : rect ${brandAccent} x=0 y=0 w=8 h=1350.
+4. CITATION (y=220-700px) : phrase cle #1F2421 bold font-size=58 centre, max 3 lignes espacees de 80px.
+5. TRAIT (y=720px) : rect ${brandAccent} w=120 h=7 rx=4 centre.
+6. CONTEXTE (y=770-870px) : italic ${brandAccent} 28px centre.
+7. ENCADRE (y=920-1130px) : rect fill=${brandAccent} rx=22 x=56 w=968. Texte blanc bold 34px centre. Sous-texte blanc 78% 23px.
+8. FOOTER (1160-1350px) : fond #1F2421.${footerCitation}`,
+
+    liste: `
+1. HEADER (0-160px) : fond ${brandAccent}. Titre bold blanc 46px x=72 y=105 largeur max 620px. Badge rx=24 fond blanc 25% x=720 texte blanc bold 17px.
+2. SOUS-TITRE (160-230px) : fond ${brandBg}. Italic #666 24px x=72 y=205.
+3. ITEMS (230-1110px) : fond blanc. 3-4 items (hauteur ~200px chacun) : rect ${brandBg} rx=16 x=56 w=968. Carre arrondi ${brandAccent} 58x58 rx=14 x=80 + numero blanc bold 30px. Titre bold 29px #1F2421 x=162. Description 21px #666 x=162.
+4. CTA (1110-1220px) : rect ${brandAccent} x=0 w=1080. Texte blanc bold 30px centre.
+5. FOOTER (1220-1350px) : fond #1F2421.${footerSimple2}`,
+  }
+
+  const selectedInstructions = typeInstructions[visualType] || typeInstructions['classique']
+
+  const prompt = `Tu es un expert en design graphique SVG pour LinkedIn. Cree un visuel IMPACTANT et PROFESSIONNEL.
 
 REGLES ABSOLUES :
 - SVG 1080x1350px viewBox="0 0 1080 1350"
 - font-family="Arial, Helvetica, sans-serif" UNIQUEMENT
-- Elements : rect, text, circle, line, path, defs, linearGradient, stop, polygon
+- Elements : rect, text, circle, line, path, defs, linearGradient, stop, polygon, image
 - PAS de foreignObject, PAS @import, PAS filter complexe
 - Texte long = plusieurs balises text separees
 - Tous textes entre x=72 et x=1008
@@ -72,61 +118,11 @@ DONNEES :
 - Accent : ${brandAccent}
 - Fond : ${brandBg}
 - Auteur : ${authorLine}
-- Type demande : ${visualType.toUpperCase()}
 
----
-SI CLASSIQUE :
-1. HEADER (0-170px) : dégradé linearGradient ${brandAccent} vers version +20% sombre. Texte bold blanc 48px x=72 y=110 — IMPORTANT : largeur max du texte titre = 620px (x=72 à x=692), tronque avec '...' si nécessaire. Badge secteur : rect rx=24 fond blanc 25% x=720 largeur adaptée au texte, texte blanc bold 18px centré dans le badge y=110.
-2. TITRE (170-490px) : fond ${brandBg}. Rect ${brandAccent} 6px haut w=88 rx=3 y=182. Titre ${brandAccent} bold 58px y=290 et y=362 (max 2 lignes). Sous-titre italic #555 25px y=430.
-3. SÉPARATEUR (490-510px) : ligne #E0DAD4 pleine largeur + cercle ${brandAccent} r=5 centré + 2 cercles stroke ${brandAccent} 30% r=3 à ±40px.
-4. POINTS CLÉS (510-1080px) : fond blanc. Label "POINTS CLÉS" #B0A898 12px letter-spacing=5 centré y=548. 3 cards (x=56 w=968 rx=16) fond ${brandBg} avec bordure gauche rect ${brandAccent} 5px large rx=3. Cercle ${brandAccent} r=28 fill=${brandAccent} + numéro blanc bold 22px. Titre bold 28px #1F2421. Description ${brandAccent} 20px opacity=0.85.
-5. STAT (1085-1200px) : fond ${brandAccent} opacity=0.12. Chiffre ${brandAccent} bold 68px centré. Label #1F2421 bold 22px centré.
-6. FOOTER (1200-1350px) : fond #1F2421.${footerClassique}
-${watermarkLine}
+STRUCTURE A RESPECTER :
+${selectedInstructions}
 
----
-SI TIMELINE :
-1. HEADER (0-160px) : fond ${brandAccent}. Titre bold blanc 48px centré y=95 — max 2 lignes, tronque si nécessaire. Sous-titre blanc 75% 22px centré y=138.
-2. FRISE (160-1090px) : fond blanc. Ligne verticale centrale stroke=${brandAccent} strokeWidth=6 x1=540 x2=540 y1=195 y2=1040.
-   MAX 4 ETAPES (pas plus) espacées régulièrement : cercle fill=${brandAccent} r=42 + numéro blanc bold 26px centré. Cards alternées gauche (x=72 w=420 rx=16) / droite (x=588 w=420 rx=16) fond ${brandBg} avec bordure gauche ou droite ${brandAccent} 5px. Ligne connectrice horizontale stroke=${brandAccent} strokeWidth=3 entre cercle et card. Titre card bold 28px #1F2421. Description 20px #555 max 2 lignes.
-3. CONCLUSION (1090-1210px) : fond ${brandAccent}. Texte clé blanc bold 30px centré. Sous-texte blanc 75% 21px centré.
-4. FOOTER (1210-1350px) : fond #1F2421.${footerSimple}
-${watermarkLine}
-
----
-SI STAT :
-1. FOND (0-1350px) : rect ${brandBg}.
-2. BANDES DÉCO : rect ${brandAccent} x=0 y=0 width=12 height=1350. Rect ${brandAccent} x=1068 y=0 width=12 height=1350.
-3. CERCLES DÉCO CONCENTRIQUES : 3 cercles stroke=${brandAccent} strokeWidth=3 opacity=0.08/0.12/0.18 r=380/280/180 cx=540 cy=600.
-4. TITRE SUJET (y=140-230px) : texte #1F2421 bold 32px centré y=185.
-5. LE CHIFFRE (y=350-620px) : stat clé du post ${brandAccent} bold font-size=220 centré cx=540 y=600. Unité si applicable font-size=100 alignée.
-6. LABEL CHIFFRE (y=640px) : label #1F2421 bold 36px centré.
-7. CONTEXTE (y=710-900px) : 2-3 lignes #555 25px centré (max 44 chars/ligne).
-8. TITRE ENCADRÉ (y=940-1080px) : rect ${brandAccent} rx=20 x=72 w=936. Titre italic blanc bold 32px centré y=1018. Sous-texte blanc 75% 22px centré y=1055.
-9. FOOTER (1200-1350px) : fond #1F2421.${footerSimple}
-${watermarkLine}
-
----
-SI CITATION :
-1. FOND (0-1350px) : rect ${brandBg}.
-2. GUILLEMETS DÉCO MONUMENTAUX : text '«' fill=${brandAccent} opacity=0.22 font-size=500 font-weight=bold x=30 y=520. Text '»' fill=${brandAccent} opacity=0.22 font-size=500 font-weight=bold x=620 y=920.
-3. BANDE ACCENT (0-8px large) : rect ${brandAccent} x=0 y=0 w=8 h=1350.
-4. CITATION (y=220-700px) : phrase clé principale du post en #1F2421 bold font-size=58 centré, max 3 lignes, bien aéré (line-height émulé via y espacés de 80px).
-5. TRAIT (y=720px) : rect ${brandAccent} w=120 h=7 rx=4 centré.
-6. AUTEUR/CONTEXTE (y=770-870px) : texte italic ${brandAccent} 28px centré max 2 lignes.
-7. ENCADRÉ IMPACT (y=920-1130px) : rect fill=${brandAccent} rx=22 x=56 w=968. Texte blanc bold 34px centré y=995. Sous-texte blanc 78% 23px centré y=1040 et y=1075.
-8. FOOTER (1160-1350px) : fond #1F2421.${footerCitation}
-${watermarkLine}
-
----
-SI LISTE :
-1. HEADER (0-160px) : fond ${brandAccent}. Titre bold blanc 46px x=72 y=105 — largeur max 620px, tronque si nécessaire. Badge contexte : rx=24 fond blanc 25% x=720 texte blanc bold 17px y=105.
-2. SOUS-TITRE (160-230px) : fond ${brandBg}. Italic #666 24px x=72 y=205.
-3. ITEMS (230-1110px) : fond blanc. 3-4 items :
-   Chaque item (hauteur ~200px) : rect ${brandBg} rx=16 x=56 w=968. Carre arrondi ${brandAccent} 58x58 rx=14 x=80 + numero blanc bold 30px centre. Titre bold 29px #1F2421 x=162. Description 21px #666 x=162.
-4. CTA (1110-1220px) : rect ${brandAccent} x=0 w=1080. Texte blanc bold 30px centre.
-5. FOOTER (1220-1350px) : fond #1F2421.${footerSimple2}
-${watermarkLine}
+${watermarkLine ? `WATERMARK : Ajoute en bas du visuel l'element SVG suivant exactement tel quel : ${watermarkLine}` : ''}
 
 Reponds UNIQUEMENT avec le code SVG complet, commencant par <svg et finissant par </svg>. Aucun texte avant ou apres.`
 
