@@ -44,10 +44,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .slice(0, 3)
   const keyPoints = lines.length > 0 ? lines : [postContent.substring(0, 100)]
 
-  // Build conditional parts without nested backticks
-  const watermarkLine = showWatermark
-    ? '   '
-    : ''
   const footerClassique = hideUserInfo ? '' : ` Cercle ${brandAccent}40 r=32 + initiales blanches bold. Nom blanc bold 27px + role #B7C0B8 20px. Badge LinkedIn ${brandAccent} droite rx=20.`
   const footerSimple = hideUserInfo ? '' : ` Nom blanc bold 26px + role #B7C0B8 19px.`
   const footerSimple2 = hideUserInfo ? '' : ` Nom blanc 26px + role #B7C0B8 18px.`
