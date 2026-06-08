@@ -238,6 +238,8 @@ export default function Home() {
   const [showVisualModal, setShowVisualModal] = useState(false)
   const [aiVisualUrl, setAiVisualUrl] = useState('')
   const [aiSvgContent, setAiSvgContent] = useState('')
+  const [customVisualBase64, setCustomVisualBase64] = useState<string|null>(null)
+  const [customVisualName, setCustomVisualName] = useState('')
   const [improvementNote, setImprovementNote] = useState('')
   const [improving, setImproving] = useState(false)
   const [visualType, setVisualType] = useState('classique')
@@ -701,6 +703,22 @@ export default function Home() {
     }
   }
 
+  const handleVisualUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { showToast('Fichier trop lourd (max 5MB)'); return }
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const result = ev.target?.result as string
+      setCustomVisualBase64(result.split(',')[1])
+      setCustomVisualName(file.name)
+      // Reset AI visual
+      setAiSvgContent('')
+      showToast('Visuel importé ✓')
+    }
+    reader.readAsDataURL(file)
+  }
+
   const schedulePost = async () => {
     if (!postOutput.trim()) { showToast('Aucun post à planifier'); return }
     if (!scheduleDateTime) { showToast('Choisis une date et heure'); return }
@@ -721,7 +739,7 @@ export default function Home() {
           img.onerror = () => { URL.revokeObjectURL(url); resolve('') }
           img.src = url
         }).catch(() => null)
-      }
+      } // end else if aiSvgContent
 
       const res = await authFetch('/api/schedule', {
         method: 'POST',
@@ -800,7 +818,7 @@ export default function Home() {
       let pngBase64: string | null = null
 
       // Conversion SVG → PNG côté client si visuel demandé
-      if (withImage && aiSvgContent) {
+      if (withImage && (aiSvgContent || customVisualBase64)) {
         pngBase64 = await new Promise<string>((resolve, reject) => {
           const canvas = document.createElement('canvas')
           canvas.width = 1080
@@ -1079,6 +1097,19 @@ export default function Home() {
 
                 {/* Action bar — always visible */}
                 <div style={{marginTop:16,display:'flex',flexDirection:'column' as const,gap:10}}>
+
+                  {/* Import visuel custom */}
+                  <label style={{display:'flex',alignItems:'center',gap:6,padding:'9px 14px',borderRadius:10,border:'1px solid var(--border)',background:customVisualBase64?'var(--forest)':'white',cursor:'pointer',fontSize:12,fontWeight:500,color:customVisualBase64?'white':'var(--text2)',justifyContent:'center'}}>
+                    <input type="file" accept="image/png,image/jpeg,image/svg+xml" style={{display:'none'}} onChange={handleVisualUpload}/>
+                    {customVisualBase64 ? `✓ ${customVisualName||'Visuel importé'}` : '📎 Importer un visuel'}
+                    {customVisualBase64 && <span onClick={(e)=>{e.preventDefault();e.stopPropagation();setCustomVisualBase64(null);setCustomVisualName('')}} style={{marginLeft:6,background:'rgba(255,255,255,0.3)',borderRadius:4,color:'white',cursor:'pointer',fontSize:10,padding:'1px 5px'}}>✕</span>}
+                  </label>
+
+                  {customVisualBase64 && (
+                    <div style={{borderRadius:12,overflow:'hidden',border:'1px solid var(--border)',marginTop:4}}>
+                      <img src={`data:image/png;base64,${customVisualBase64}`} style={{width:'100%',display:'block'}} alt="Visuel importé"/>
+                    </div>
+                  )}
 
                   {/* Créer le visuel — config + bouton */}
                   <div style={{border:'1px solid var(--border)',borderRadius:12,overflow:'hidden'}}>
