@@ -146,7 +146,7 @@ export default function Pricing() {
             </div>
             <p style={{ fontFamily: "'Clash Display', sans-serif", fontSize: '13px', letterSpacing: '2px', textTransform: 'uppercase', color: '#D9C8A3', marginBottom: '8px' }}>Pro</p>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '8px' }}>
-              <span style={{ fontFamily: "'Clash Display', sans-serif", fontSize: '48px', fontWeight: 700, color: '#FAF9F7' }}>12,99€</span>
+              <span style={{ fontFamily: "'Clash Display', sans-serif", fontSize: '48px', fontWeight: 700, color: '#FAF9F7' }}>19,90€</span>
               <span style={{ color: '#B7C0B8', fontSize: '15px' }}>/mois</span>
             </div>
             <p style={{ color: '#B7C0B8', fontSize: '14px', marginBottom: '32px' }}>Pour les créateurs sérieux</p>

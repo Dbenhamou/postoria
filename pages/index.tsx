@@ -1732,7 +1732,7 @@ export default function Home() {
         if(data.url) window.location.href = data.url;
         else console.error('Checkout error:', data);
       }}>
-        <div style={{fontFamily:"'Clash Display',sans-serif",fontWeight:700,fontSize:15,marginBottom:4}}>Pro — 12,99€/mois</div>
+        <div style={{fontFamily:"'Clash Display',sans-serif",fontWeight:700,fontSize:15,marginBottom:4}}>Pro — 19,90€/mois</div>
         <div style={{fontSize:12,opacity:0.85}}>Posts illimités · Visuels · Calendrier</div>
       </div>
       <div style={{border:'1.5px dashed var(--border)',borderRadius:14,padding:'16px 20px',opacity:0.5}}>
