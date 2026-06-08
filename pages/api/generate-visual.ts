@@ -109,6 +109,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 REGLES ABSOLUES :
 - SVG 1080x1350px viewBox="0 0 1080 1350"
 - font-family="Arial, Helvetica, sans-serif" UNIQUEMENT
+- Palette obligatoire : ${paletteDesc} — utilise PLUSIEURS couleurs pour dégradés, titres, accents, blocs
 - Elements : rect, text, circle, line, path, defs, linearGradient, stop, polygon, image
 - PAS de foreignObject, PAS @import, PAS filter complexe
 - Utilise TOUTES les couleurs de la palette fournie : fond, texte, et les 5 couleurs de marque pour les éléments visuels (titres, accents, dégradés, blocs)
