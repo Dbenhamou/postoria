@@ -485,9 +485,9 @@ export default function Home() {
     if (!error && data) {
       const post: Post = { id: data.id, topic: data.topic, content: data.content, format: data.format, created_at: displayDate }
       setSavedPosts(prev => [post, ...prev])
-      showToast('Post sauvegardé ✓')
+      showToast(T('toast_post_saved'))
     } else {
-      showToast('Erreur lors de la sauvegarde')
+      showToast(T('toast_save_error'))
     }
   }
 
@@ -496,7 +496,7 @@ export default function Home() {
     const { error } = await supabase.from('saved_posts').delete().eq('id', id)
     if (!error) {
       setSavedPosts(prev => prev.filter(p => p.id !== id))
-      showToast('Post supprimé')
+      showToast(T('toast_post_deleted'))
     }
   }
 
@@ -527,7 +527,7 @@ export default function Home() {
             brand_color2: data.colors.secondary || p.brand_color2,
             brand_color3: data.colors.accent || p.brand_color3,
           }))
-          showToast('Couleurs de marque détectées ✓')
+          showToast(T('toast_colors_detected'))
         } else {
           showToast('Site dynamique détecté — renseigne les couleurs manuellement')
         }
@@ -544,7 +544,7 @@ export default function Home() {
   const handleSaveProfile = async () => {
     setSavingProfile(true)
     const ok = await saveProfile(profile)
-    showToast(ok ? 'Profil enregistré ✓' : 'Erreur lors de la sauvegarde')
+    showToast(ok ? T('toast_profile_saved') : T('toast_save_error'))
     setSavingProfile(false)
   }
 
@@ -557,7 +557,7 @@ export default function Home() {
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current)
     autoSaveTimer.current = setTimeout(async () => {
       const ok = await saveProfile(profile)
-      if (ok) showToast('Profil sauvegardé ✓')
+      if (ok) showToast(T('toast_profile_autosaved'))
     }, 1500)
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current) }
   }, [profile])
@@ -623,7 +623,7 @@ export default function Home() {
     if (userId) {
       const { error } = await supabase.from('profiles').update({ writing_style: JSON.stringify(updated) }).eq('id', userId)
       if (!error) showToast('Post référent ajouté ✓')
-      else showToast('Erreur lors de la sauvegarde')
+      else showToast(T('toast_save_error'))
     }
   }
 
@@ -634,7 +634,7 @@ export default function Home() {
     if (userId) {
       const { error } = await supabase.from('profiles').update({ writing_style: JSON.stringify(posts) }).eq('id', userId)
       if (!error) showToast('Post référent supprimé')
-      else showToast('Erreur lors de la suppression')
+      else showToast(T('toast_delete_error'))
     }
   }
 
@@ -724,7 +724,7 @@ export default function Home() {
         showToast('Post amélioré ✓')
       }
     } catch(e) {
-      showToast('Erreur lors de l\'amélioration')
+      showToast(T('toast_improve_error'))
     } finally {
       setImproving(false)
     }
@@ -747,8 +747,8 @@ export default function Home() {
   }
 
   const schedulePost = async () => {
-    if (!postOutput.trim()) { showToast('Aucun post à planifier'); return }
-    if (!scheduleDateTime) { showToast('Choisis une date et heure'); return }
+    if (!postOutput.trim()) { showToast(T('toast_no_schedule')); return }
+    if (!scheduleDateTime) { showToast(T('toast_pick_date')); return }
     if (!userId) return
     setScheduling(true)
     try {
@@ -769,12 +769,12 @@ export default function Home() {
       const data = await res.json()
       if (data.success) {
         setScheduledPosts(prev => [...prev, data.post].sort((a,b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()))
-        showToast('Post planifié ✓')
+        showToast(T('toast_post_scheduled'))
         setScheduleDateTime('')
         setShowDatePicker(false)
         setPostOutput('')
         setPage('apercu')
-      } else showToast(data.error || 'Erreur planification')
+      } else showToast(data.error || T('toast_schedule_error'))
     } catch { showToast('Erreur réseau') }
     setScheduling(false)
   }
@@ -782,7 +782,7 @@ export default function Home() {
   const cancelScheduled = async (id: string) => {
     await authFetch('/api/schedule', { method: 'DELETE', body: JSON.stringify({ id }) })
     setScheduledPosts(prev => prev.filter(p => p.id !== id))
-    showToast('Post annulé')
+    showToast(T('toast_post_cancelled'))
   }
 
   // Helpers calendrier
@@ -826,7 +826,7 @@ export default function Home() {
   }
 
   const publishPost = async (withImage?: boolean) => {
-    if (!postOutput.trim()) { showToast('Aucun post à publier'); return }
+    if (!postOutput.trim()) { showToast(T('toast_no_publish')); return }
     if (!userId) { showToast('Non connecté'); return }
     setPublishing(true)
     try {
@@ -852,7 +852,7 @@ export default function Home() {
       })
       const data = await res.json()
       if (data.success) showToast(data.withImage ? '✓ Post + visuel publiés sur LinkedIn !' : '✓ Post publié sur LinkedIn !')
-      else showToast(data.error || 'Erreur publication')
+      else showToast(data.error || T('toast_publish_error'))
     } catch (err: any) { showToast('Erreur : ' + err.message) }
     setPublishing(false)
   }

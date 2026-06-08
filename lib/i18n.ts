@@ -331,6 +331,23 @@ export const translations = {
     visual_imported_label: 'Visuel importé',
     visual_imported_alt: 'Visuel importé',
     sans_titre: 'Sans titre',
+
+    // Toasts
+    toast_post_saved: 'Post sauvegardé ✓',
+    toast_post_deleted: 'Post supprimé',
+    toast_save_error: 'Erreur lors de la sauvegarde',
+    toast_delete_error: 'Erreur lors de la suppression',
+    toast_colors_detected: 'Couleurs de marque détectées ✓',
+    toast_profile_saved: 'Profil enregistré ✓',
+    toast_profile_autosaved: 'Profil sauvegardé ✓',
+    toast_improve_error: 'Erreur lors de l\'amélioration',
+    toast_no_schedule: 'Aucun post à planifier',
+    toast_pick_date: 'Choisis une date et heure',
+    toast_post_scheduled: 'Post planifié ✓',
+    toast_schedule_error: 'Erreur planification',
+    toast_post_cancelled: 'Post annulé',
+    toast_no_publish: 'Aucun post à publier',
+    toast_publish_error: 'Erreur publication',
   },
 
   en: {
@@ -665,6 +682,23 @@ export const translations = {
     visual_imported_label: 'Visual imported',
     visual_imported_alt: 'Imported visual',
     sans_titre: 'Untitled',
+
+    // Toasts
+    toast_post_saved: 'Post saved ✓',
+    toast_post_deleted: 'Post deleted',
+    toast_save_error: 'Error saving',
+    toast_delete_error: 'Error deleting',
+    toast_colors_detected: 'Brand colors detected ✓',
+    toast_profile_saved: 'Profile saved ✓',
+    toast_profile_autosaved: 'Profile saved ✓',
+    toast_improve_error: 'Error improving post',
+    toast_no_schedule: 'No post to schedule',
+    toast_pick_date: 'Pick a date and time',
+    toast_post_scheduled: 'Post scheduled ✓',
+    toast_schedule_error: 'Scheduling error',
+    toast_post_cancelled: 'Post cancelled',
+    toast_no_publish: 'No post to publish',
+    toast_publish_error: 'Publishing error',
   },
 }
 
