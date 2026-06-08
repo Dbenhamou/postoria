@@ -917,7 +917,6 @@ export default function Home() {
 
         <aside className="sidebar">
           <div className="sidebar-logo" style={{justifyContent:'center',cursor:'pointer'}} onClick={()=>setPage('apercu')}><img src="/logo-ecrira-icon.png" alt="Ecrira" style={{height:60,width:'auto',display:'block'}} /></div>
-          <div style={{textAlign:'center',marginBottom:8,marginTop:-4}}><span onClick={()=>window.location.href='/pricing'} style={{fontSize:9,fontWeight:700,padding:'2px 7px',borderRadius:20,background:isPro?'var(--forest)':'rgba(0,0,0,0.08)',color:isPro?'white':'var(--text2)',letterSpacing:'0.5px',textTransform:'uppercase' as const,cursor:'pointer'}}>{isPro?'Pro':'Free'}</span></div>
           {/* Notifications bell */}
           <div style={{position:'relative' as const,margin:'0 12px 8px'}}>
             <button onClick={(e)=>{e.stopPropagation();setShowNotifPanel(v=>!v);if(unreadCount>0)markAllRead()}} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'8px 12px',borderRadius:10,border:'none',background:'transparent',cursor:'pointer',color:'var(--text2)',fontSize:12,fontWeight:500}}>
