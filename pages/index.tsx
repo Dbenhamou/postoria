@@ -728,18 +728,12 @@ export default function Home() {
       // Convertir SVG en PNG base64 si visuel disponible
       let svgBase64: string | null = null
       if (scheduleWithVisual && aiSvgContent) {
-        svgBase64 = await new Promise<string>((resolve, reject) => {
-          const canvas = document.createElement('canvas')
-          canvas.width = 1080; canvas.height = 1350
-          const ctx = canvas.getContext('2d')!
-          const img = new Image()
-          const blob = new Blob([new TextEncoder().encode(aiSvgContent)], { type: 'image/svg+xml;charset=utf-8' })
-          const url = URL.createObjectURL(blob)
-          img.onload = () => { try { ctx.drawImage(img, 0, 0, 1080, 1350); URL.revokeObjectURL(url); resolve(canvas.toDataURL('image/png').split(',')[1]) } catch(e) { reject(e) } }
-          img.onerror = () => { URL.revokeObjectURL(url); resolve(null as any) }
-          img.src = url
-        }).catch(() => null)
-      } // end else if aiSvgContent
+        try {
+          const svgRes = await authFetch('/api/svg-to-png', { method: 'POST', body: JSON.stringify({ svgContent: aiSvgContent }) })
+          const svgData = await svgRes.json()
+          svgBase64 = svgData.base64 || null
+        } catch { svgBase64 = null }
+      }
 
       const res = await authFetch('/api/schedule', {
         method: 'POST',
@@ -817,28 +811,15 @@ export default function Home() {
     try {
       let pngBase64: string | null = null
 
-      // Conversion SVG → PNG côté client si visuel demandé
-      if (withImage && (aiSvgContent || customVisualBase64)) {
-        pngBase64 = await new Promise<string>((resolve, reject) => {
-          const canvas = document.createElement('canvas')
-          canvas.width = 1080
-          canvas.height = 1350
-          const ctx = canvas.getContext('2d')!
-          const img = new Image()
-          img.crossOrigin = 'anonymous'
-          // Utiliser URL.createObjectURL avec charset UTF-8 explicite
-          const blob = new Blob([new TextEncoder().encode(aiSvgContent)], { type: 'image/svg+xml;charset=utf-8' })
-          const url = URL.createObjectURL(blob)
-          img.onload = () => {
-            try {
-              ctx.drawImage(img, 0, 0, 1080, 1350)
-              URL.revokeObjectURL(url)
-              resolve(canvas.toDataURL('image/png').split(',')[1])
-            } catch(e) { URL.revokeObjectURL(url); reject(e) }
-          }
-          img.onerror = (e) => { URL.revokeObjectURL(url); console.error('SVG load error', e); reject(new Error('Conversion SVG échouée')) }
-          img.src = url
-        })
+      // Conversion SVG → PNG côté serveur (resvg)
+      if (withImage && aiSvgContent) {
+        try {
+          const svgRes = await authFetch('/api/svg-to-png', { method: 'POST', body: JSON.stringify({ svgContent: aiSvgContent }) })
+          const svgData = await svgRes.json()
+          pngBase64 = svgData.base64 || null
+        } catch { pngBase64 = null }
+      } else if (withImage && customVisualBase64) {
+        pngBase64 = customVisualBase64
       }
 
       const res = await authFetch('/api/linkedin/publish-with-image', {
