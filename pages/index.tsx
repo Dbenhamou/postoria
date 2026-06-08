@@ -1473,7 +1473,7 @@ export default function Home() {
                   </div>
                   <div style={{fontFamily:"'Clash Display','Inter',sans-serif",fontSize:16,fontWeight:500,color:'var(--text1)',marginBottom:6}}>{selectedCalPost.topic||'Post'}</div>
                   <div style={{fontSize:12,color:'var(--text3)',marginBottom:12}}>
-                    {new Date(selectedCalPost.scheduled_at).toLocaleDateString(lang==='fr'?'fr-FR':'en-GB',{weekday:'long',day:'numeric',month:'long'})} à {new Date(selectedCalPost.scheduled_at).toLocaleTimeString(lang==='fr'?'fr-FR':'en-GB',{hour:'2-digit',minute:'2-digit'})}
+                    {new Date(selectedCalPost.scheduled_at).toLocaleDateString(lang==='fr'?'fr-FR':'en-GB',{weekday:'long',day:'numeric',month:'long'})} {lang==='en'?'at':'à'} {new Date(selectedCalPost.scheduled_at).toLocaleTimeString(lang==='fr'?'fr-FR':'en-GB',{hour:'2-digit',minute:'2-digit'})}
                   </div>
                   <div style={{fontSize:13,color:'var(--text2)',lineHeight:1.6,marginBottom:16,maxHeight:120,overflow:'hidden'}}>{selectedCalPost.content?.substring(0,200)}…</div>
                   {selectedCalPost.svg_content && (
