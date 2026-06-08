@@ -396,7 +396,7 @@ export default function Home() {
         const elapsed = Date.now() - ideasLastRefresh.current
         const remaining = IDEAS_REFRESH_MS - elapsed
         if (remaining <= 0) {
-          authFetch('/api/ideas', { method:'POST', body:JSON.stringify({profile}) })
+          authFetch('/api/ideas', { method:'POST', body:JSON.stringify({profile: {...profile, lang}}) })
             .then(r=>r.json()).then(async data=>{
               if (data.ideas) {
                 setIdeas(data.ideas)
@@ -434,7 +434,9 @@ export default function Home() {
   }
 
   const formatIdeasDate = (date: Date) => {
-    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) + ' à ' + date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    const loc = lang === 'en' ? 'en-GB' : 'fr-FR'
+    const sep = lang === 'en' ? ' at ' : ' à '
+    return date.toLocaleDateString(loc, { day: 'numeric', month: 'long' }) + sep + date.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' })
   }
 
   const showToast = (msg: string) => { setToast(msg); setToastVisible(true); setTimeout(()=>setToastVisible(false), 2600) }
@@ -443,7 +445,7 @@ export default function Home() {
   const generateIdeas = async () => {
     setLoadingIdeas(true)
     try {
-      const res = await authFetch('/api/ideas', { method:'POST', body:JSON.stringify({profile}) })
+      const res = await authFetch('/api/ideas', { method:'POST', body:JSON.stringify({profile: {...profile, lang}}) })
       const data = await res.json()
       if (data.ideas) {
         setIdeas(data.ideas)
@@ -463,7 +465,7 @@ export default function Home() {
     if (topic) setPostTopic(topic)
     setPage('rediger'); setLoadingPost(true); setPostOutput('')
     try {
-      const res = await authFetch('/api/generate', { method:'POST', body:JSON.stringify({topic:t,format:postFormat,length:postLength,tone:postTone,profile}) })
+      const res = await authFetch('/api/generate', { method:'POST', body:JSON.stringify({topic:t,format:postFormat,length:postLength,tone:postTone,profile: {...profile, lang}}) })
       const data = await res.json()
       if (data.error === 'LIMIT_REACHED') { setShowUpgradeModal(true); setLoadingPost(false); return }
       if (data.content) { setPostOutput(data.content); setGeneratedCount(c => c + 1) }
