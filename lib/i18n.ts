@@ -171,6 +171,12 @@ export const translations = {
     no_notifications: 'Aucune notification',
     my_account: 'Mon compte',
     complete_profile: 'Compléter le profil',
+
+    // Aperçu + Idées
+    my_company: 'Mon entreprise',
+    inspiration: 'Inspiration',
+    ideas_sub: '10 sujets calibrés pour votre audience, sauvegardés automatiquement.',
+    connect_linkedin_publish: '🔗 Connecter LinkedIn pour publier',
   },
 
   en: {
@@ -345,6 +351,12 @@ export const translations = {
     no_notifications: 'No notifications',
     my_account: 'My account',
     complete_profile: 'Complete profile',
+
+    // Aperçu + Idées
+    my_company: 'My company',
+    inspiration: 'Inspiration',
+    ideas_sub: '10 topics tailored to your audience, automatically saved.',
+    connect_linkedin_publish: '🔗 Connect LinkedIn to publish',
   },
 }
 

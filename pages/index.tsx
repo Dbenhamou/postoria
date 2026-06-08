@@ -946,7 +946,7 @@ export default function Home() {
               <div style={{position:'absolute' as const,left:'100%',top:0,marginLeft:8,width:320,background:'var(--white)',border:'1px solid var(--border)',borderRadius:14,boxShadow:'0 8px 32px rgba(0,0,0,0.12)',zIndex:200,maxHeight:400,overflowY:'auto' as const}} onClick={e=>e.stopPropagation()}>
                 <div style={{padding:'12px 14px',borderBottom:'1px solid var(--border)',fontSize:12,fontWeight:600,color:'var(--text1)'}}>{T('notifications')}</div>
                 {notifications.length===0 ? (
-                  <div style={{padding:24,textAlign:'center' as const,fontSize:12,color:'var(--text3)'}}>Aucune notification</div>
+                  <div style={{padding:24,textAlign:'center' as const,fontSize:12,color:'var(--text3)'}}>{T('no_notifications')}</div>
                 ) : notifications.map((n:any)=>(
                   <div key={n.id} style={{padding:'10px 14px',borderBottom:'1px solid var(--border)',background:n.read?'transparent':'rgba(81,103,86,0.04)'}}>
                     <div style={{fontSize:12,fontWeight:n.read?400:600,color:'var(--text1)',marginBottom:2}}>{n.title}</div>
@@ -979,7 +979,7 @@ export default function Home() {
             </div>
             {!linkedinConnected && (
               <div style={{margin:'0 10px 4px',padding:'8px 10px',background:'rgba(0,119,181,0.08)',border:'1px solid rgba(0,119,181,0.2)',borderRadius:8,fontSize:11,color:'#0077B5',cursor:'pointer'}} onClick={connectLinkedIn}>
-                🔗 Connecter LinkedIn pour publier
+                {T('connect_linkedin_publish')}
               </div>
             )}
             <div style={{padding:'4px 10px'}}><button className="btn btn-ghost" style={{width:'100%',justifyContent:'center',fontSize:11,color:'var(--text3)'}} onClick={signOut}>{T('sign_out')}</button></div>
@@ -998,19 +998,19 @@ export default function Home() {
             <div className="eyebrow">{T('dashboard')}</div>
             <div className="page-title">{T('hello')}{profile.name?`, ${profile.name}`:''}.</div>
             <div className="copper-rule"/>
-            <div className="page-sub">{new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+            <div className="page-sub">{new Date().toLocaleDateString(lang==='fr'?'fr-FR':'en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
             <div className="stats-grid">
               <div className="stat-card"><div className="stat-label">{T('saved_posts')}</div><div className="stat-value">{savedPosts.length}</div><div className="stat-note">{T('in_library')}</div></div>
               <div className="stat-card"><div className="stat-label">{T('generated_posts')}</div><div className="stat-value">{generatedCount}</div><div className="stat-note">{T('in_total')}</div></div>
-              <div className="stat-card"><div className="stat-label">{T('active_sector')}</div><div className="stat-value" style={{fontSize:18,paddingTop:6}}>{profile.sector?.split(' ')[0]||'Cyber'}</div><div className="stat-note">{profile.company||'Mon entreprise'}</div></div>
+              <div className="stat-card"><div className="stat-label">{T('active_sector')}</div><div className="stat-value" style={{fontSize:18,paddingTop:6}}>{profile.sector?.split(' ')[0]||'Cyber'}</div><div className="stat-note">{profile.company||T('my_company')}</div></div>
             </div>
             {ideasSection}
           </div>
 
           {/* IDÉES */}
           <div className={`page ${page==='idees'?'active':''}`}>
-            <div className="eyebrow">Inspiration</div><div className="page-title">Idées du jour</div><div className="copper-rule"/>
-            <div className="page-sub">10 sujets calibrés pour votre audience, sauvegardés automatiquement.</div>
+            <div className="eyebrow">{T('inspiration')}</div><div className="page-title">{T('ideas_of_day')}</div><div className="copper-rule"/>
+            <div className="page-sub">{T('ideas_sub')}</div>
             {ideasSection}
           </div>
 
