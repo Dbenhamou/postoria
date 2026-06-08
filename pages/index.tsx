@@ -881,18 +881,18 @@ export default function Home() {
     <>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
         <div>
-          <div className="section-label" style={{marginBottom:2}}>Idées du jour</div>
+          <div className="section-label" style={{marginBottom:2}}>{T('ideas_of_day')}</div>
           {ideasGeneratedAt && (
             <div style={{fontSize:11,color:'var(--text3)'}}>
-              Générées le {formatIdeasDate(ideasGeneratedAt)}
+              {lang==='en'?'Generated on':'Générées le'} {formatIdeasDate(ideasGeneratedAt)}
               {ideasRefreshCountdown !== null && ideasRefreshCountdown > 0 && (
-                <span style={{marginLeft:8,color:'var(--forest)'}}>· Refresh dans {formatCountdown(ideasRefreshCountdown)}</span>
+                <span style={{marginLeft:8,color:'var(--forest)'}}>{lang==='en'?'· Refresh in':'· Refresh dans'} {formatCountdown(ideasRefreshCountdown)}</span>
               )}
             </div>
           )}
         </div>
         <button className="btn btn-primary" onClick={generateIdeas} disabled={loadingIdeas}>
-          {loadingIdeas ? <><span className="spinner"/> {T('generating')}</> : '✦ Générer les idées'}
+          {loadingIdeas ? <><span className="spinner"/> {T('generating')}</> : T('generate_ideas')}
         </button>
       </div>
       {loadingIdeas && <div style={{marginBottom:12}}><div className="strip"/></div>}
