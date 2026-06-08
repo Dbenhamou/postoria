@@ -1489,27 +1489,27 @@ export default function Home() {
 
           {/* VISUELS */}
           <div className={`page ${page==='visuels'?'active':''}`} style={{maxWidth:'100%',padding:'28px 32px'}}>
-            <div className="eyebrow">Création visuelle</div><div className="page-title">Générateur visuel</div><div className="copper-rule"/>
+            <div className="eyebrow">{T('visual_creation_eyebrow')}</div><div className="page-title">{T('visual_generator_title')}</div><div className="copper-rule"/>
             <div style={{background:'var(--white)',border:'1px solid var(--border)',borderRadius:16,padding:'20px 24px',marginBottom:18,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-              <div><div style={{fontFamily:"'Clash Display','Inter',sans-serif",fontSize:15,fontWeight:500,color:'var(--text1)',marginBottom:4}}>Créer un visuel depuis un post</div><div style={{fontSize:13,color:'var(--text2)'}}>Génère d'abord un post dans Rédiger, puis clique sur "Créer le visuel".</div></div>
-              {postOutput&&(<button className="btn btn-primary" style={{flexShrink:0}} onClick={()=>setShowVisualModal(true)}>Ouvrir le générateur →</button>)}
+              <div><div style={{fontFamily:"'Clash Display','Inter',sans-serif",fontSize:15,fontWeight:500,color:'var(--text1)',marginBottom:4}}>{T('visual_from_post_title')}</div><div style={{fontSize:13,color:'var(--text2)'}}>{T('visual_from_post_body')}</div></div>
+              {postOutput&&(<button className="btn btn-primary" style={{flexShrink:0}} onClick={()=>setShowVisualModal(true)}>{T('open_generator_btn')}</button>)}
             </div>
-            <div style={{background:'var(--sand)',borderRadius:16,padding:'40px 24px',textAlign:'center' as const}}><div style={{fontSize:28,marginBottom:12,opacity:.3}}>◫</div><div style={{fontFamily:"'Clash Display','Inter',sans-serif",fontSize:16,fontStyle:'italic',color:'var(--text2)',marginBottom:6}}>Générateur intégré au flow publication</div><div style={{fontSize:13,color:'var(--text3)'}}>Rendez-vous dans Rédiger → générez un post → cliquez sur "Créer le visuel".</div></div>
+            <div style={{background:'var(--sand)',borderRadius:16,padding:'40px 24px',textAlign:'center' as const}}><div style={{fontSize:28,marginBottom:12,opacity:.3}}>◫</div><div style={{fontFamily:"'Clash Display','Inter',sans-serif",fontSize:16,fontStyle:'italic',color:'var(--text2)',marginBottom:6}}>{T('visual_integrated')}</div><div style={{fontSize:13,color:'var(--text3)'}}>{T('visual_go_to_write')}</div></div>
           </div>
 
           {/* BIBLIOTHÈQUE */}
           <div className={`page ${page==='bibliotheque'?'active':''}`}>
             <div className="eyebrow">{T('your_content')}</div><div className="page-title">{T('library')}</div><div className="copper-rule"/>
-            <div className="page-sub">Tous vos posts sauvegardés — synchronisés sur tous vos appareils.</div>
+            <div className="page-sub">{T('library_sub_auto')}</div>
             {loadingPosts && <div style={{marginBottom:12}}><div className="strip"/></div>}
             {!loadingPosts && savedPosts.length===0 ? (
-              <div className="card empty"><div className="empty-icon">◫</div><div className="empty-title">{T('library_empty_title')}</div><div className="empty-body">Générez des posts et cliquez sur "Sauvegarder".</div></div>
+              <div className="card empty"><div className="empty-icon">◫</div><div className="empty-title">{T('library_empty_title')}</div><div className="empty-body">{T('library_empty_save')}</div></div>
             ) : savedPosts.map(p=>(
               <div key={p.id} className="saved-card fade">
                 <div className="saved-header"><div><span className="badge badge-forest">{fmtLabels[p.format]||p.format}</span><span style={{fontSize:11,color:'var(--text3)',marginLeft:8}}>{p.created_at}</span></div><button className="btn btn-ghost" style={{fontSize:11,color:'#c0392b',borderColor:'transparent'}} onClick={()=>deletePost(p.id)}>{T('delete')}</button></div>
                 <div className="saved-title">{p.topic}</div>
                 <div className="saved-preview">{p.content.substring(0,180)}…</div>
-                <div style={{display:'flex',gap:7}}><button className="btn btn-secondary" style={{fontSize:12}} onClick={()=>copyText(p.content)}>⎘ Copier</button><button className="btn btn-ghost" style={{fontSize:12}} onClick={()=>{setPostOutput(p.content);setPostTopic(p.topic);setPage('rediger')}}>{T('edit')}</button></div>
+                <div style={{display:'flex',gap:7}}><button className="btn btn-secondary" style={{fontSize:12}} onClick={()=>copyText(p.content)}>{T('copy_post_btn')}</button><button className="btn btn-ghost" style={{fontSize:12}} onClick={()=>{setPostOutput(p.content);setPostTopic(p.topic);setPage('rediger')}}>{T('edit')}</button></div>
               </div>
             ))}
           </div>
@@ -1522,7 +1522,7 @@ export default function Home() {
             <div className="grid2">
               <div className="card">
                 <div className="section-label">{T('pro_identity')}</div>
-                {([['Prénom','name'],['Rôle','role'],['Entreprise','company'],['Secteur','sector'],['Audience LinkedIn','audience'],['Domaine email','domain']] as [string,keyof typeof profile][]).map(([label,key])=>(
+                {([[T('field_first_name'),'name'],[T('field_role'),'role'],[T('field_company'),'company'],[T('field_sector'),'sector'],[T('field_audience'),'audience'],[T('field_domain'),'domain']] as [string,keyof typeof profile][]).map(([label,key])=>(
                   <div className="form-group" key={key}>
                     <label className="form-label">{label}</label>
                     <input type="text" className="form-input" value={profile[key]||''} placeholder={key==='domain'?'ex: entreprise.fr':undefined} onChange={e=>setProfile(p=>({...p,[key]:e.target.value}))}/>
@@ -1530,38 +1530,38 @@ export default function Home() {
                       <div style={{display:'flex',alignItems:'center',gap:8,marginTop:6}}>
                         <div style={{fontSize:11,color:'var(--text3)',flex:1}}>Utilisé pour personnaliser les idées selon votre domaine.</div>
                         <button className="btn btn-secondary" style={{fontSize:11,flexShrink:0,whiteSpace:'nowrap' as const}} onClick={enrichProfile} disabled={enriching}>
-                          {enriching?<><span className="spinner"/> Analyse…</>:'✦ Enrichir'}
+                          {enriching?<><span className="spinner"/> {T('enriching_btn')}</>:T('enrich_btn')}
                         </button>
                       </div>
                       {enrichSuggestions&&(
                         <div style={{marginTop:12,background:'rgba(79,103,84,0.05)',border:'1px solid rgba(79,103,84,0.2)',borderRadius:12,padding:'14px 16px'}}>
-                          <div style={{fontSize:12,fontWeight:600,color:'var(--forest)',marginBottom:10}}>✦ Suggestions détectées depuis {profile.domain}</div>
+                          <div style={{fontSize:12,fontWeight:600,color:'var(--forest)',marginBottom:10}}>{T('suggestions_from_domain')} {profile.domain}</div>
                           {enrichSuggestions.summary&&<div style={{fontSize:11,color:'var(--text2)',marginBottom:10,fontStyle:'italic'}}>"{enrichSuggestions.summary}"</div>}
                           {(Object.entries(enrichSuggestions) as [string,string][]).filter(([k])=>k!=='summary').map(([k,v])=>{
-                            const labels:Record<string,string>={company:'Entreprise',sector:'Secteur',audience:'Audience',tech_stack:'Stack'}
+                            const labels:Record<string,string>={company:T('enrich_label_company'),sector:T('enrich_label_sector'),audience:T('enrich_label_audience'),tech_stack:T('enrich_label_stack')}
                             return (
                               <div key={k} style={{display:'flex',alignItems:'center',gap:8,marginBottom:7}}>
                                 <span style={{fontSize:11,color:'var(--text2)',width:64,flexShrink:0}}>{labels[k]||k}</span>
                                 <span style={{fontSize:11,color:'var(--text1)',flex:1,background:'var(--white)',padding:'4px 8px',borderRadius:6,border:'1px solid var(--border)'}}>{v}</span>
-                                <button className="btn btn-primary" style={{fontSize:10,padding:'4px 10px',flexShrink:0}} onClick={()=>applyEnrichSuggestion(k,v)}>Appliquer</button>
+                                <button className="btn btn-primary" style={{fontSize:10,padding:'4px 10px',flexShrink:0}} onClick={()=>applyEnrichSuggestion(k,v)}>{T('apply_suggestion')}</button>
                               </div>
                             )
                           })}
-                          <button className="btn btn-ghost" style={{fontSize:11,marginTop:4,color:'var(--text3)'}} onClick={()=>setEnrichSuggestions(null)}>Ignorer tout</button>
+                          <button className="btn btn-ghost" style={{fontSize:11,marginTop:4,color:'var(--text3)'}} onClick={()=>setEnrichSuggestions(null)}>{T('ignore_all_btn')}</button>
                         </div>
                       )}
                     </>}
                   </div>
                 ))}
-                <div className="form-group"><label className="form-label">Langue</label><select className="form-input" value={profile.lang} onChange={e=>setProfile(p=>({...p,lang:e.target.value}))}><option value="fr">Français</option><option value="en">English</option></select></div>
+                <div className="form-group"><label className="form-label">{T('field_language')}</label><select className="form-input" value={profile.lang} onChange={e=>setProfile(p=>({...p,lang:e.target.value}))}><option value="fr">Français</option><option value="en">English</option></select></div>
                 <div className="form-group">
                   <label className="form-label">{T('linkedin_pub')}</label>
                   <div style={{background:linkedinConnected?'rgba(79,103,84,0.06)':'rgba(0,119,181,0.05)',border:`1px solid ${linkedinConnected?'rgba(79,103,84,0.2)':'rgba(0,119,181,0.2)'}`,borderRadius:10,padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10}}>
                     <div>
-                      <div style={{fontSize:12,fontWeight:600,color:linkedinConnected?'var(--forest)':'#0077B5',marginBottom:2}}>{linkedinConnected?'✓ LinkedIn connecté':'LinkedIn non connecté'}</div>
-                      <div style={{fontSize:11,color:'var(--text2)'}}>{linkedinConnected?'Tu peux publier directement depuis Rédiger.':'Connecte ton compte pour publier en 1 clic.'}</div>
+                      <div style={{fontSize:12,fontWeight:600,color:linkedinConnected?'var(--forest)':'#0077B5',marginBottom:2}}>{linkedinConnected?T('linkedin_connected_status'):T('linkedin_disconnected_status')}</div>
+                      <div style={{fontSize:11,color:'var(--text2)'}}>{linkedinConnected?T('linkedin_connected_hint_text'):T('linkedin_connect_hint_text')}</div>
                     </div>
-                    <button className="btn btn-primary" style={{fontSize:11,flexShrink:0,background:linkedinConnected?'var(--forest)':'#0077B5'}} onClick={connectLinkedIn}>{linkedinConnected?'Reconnecter':'Connecter →'}</button>
+                    <button className="btn btn-primary" style={{fontSize:11,flexShrink:0,background:linkedinConnected?'var(--forest)':'#0077B5'}} onClick={connectLinkedIn}>{linkedinConnected?T('reconnect_btn'):T('connect_btn')}</button>
                   </div>
                 </div>
                 <button className="btn btn-primary" onClick={handleSaveProfile} disabled={savingProfile}>{savingProfile?<><span className="spinner"/> {T('saving')}</>:T('save_profile')}</button>
@@ -1570,7 +1570,7 @@ export default function Home() {
                 <div className="card" style={{marginBottom:16}}>
                   <div className="section-label">{T('brand_colors')}</div>
                   <div style={{fontSize:12,color:'var(--text2)',marginBottom:12}}>Utilisées par défaut dans le générateur visuel.</div>
-                  {([['Fond','brand_bg'],['Texte','brand_text'],['Primaire','brand_accent'],['Secondaire','brand_color2'],['Accent','brand_color3']] as [string,keyof typeof profile][]).map(([label,key])=>(
+                  {([[T('color_bg'),'brand_bg'],[T('color_text'),'brand_text'],[T('color_primary'),'brand_accent'],[T('color_secondary'),'brand_color2'],[T('color_accent'),'brand_color3']] as [string,keyof typeof profile][]).map(([label,key])=>(
                     <div key={key} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
                       <span style={{fontSize:11,color:'var(--text2)',width:64,flexShrink:0}}>{label}</span>
                       <input type="color" value={(profile[key] as string)||'#516756'} onChange={e=>setProfile(p=>({...p,[key]:e.target.value}))} style={{width:30,height:30,borderRadius:8,border:'1px solid var(--border)',cursor:'pointer',padding:2}}/>
@@ -1589,18 +1589,18 @@ export default function Home() {
                 </div>
                 <div className="card" style={{marginTop:16}}>
                   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
-                    <div className="section-label" style={{marginBottom:0}}>✍️ Posts référents</div>
+                    <div className="section-label" style={{marginBottom:0}}>{T('ref_posts_title')}</div>
                     <div style={{display:'flex',alignItems:'center',gap:8}}>
                       <span style={{fontSize:11,color:'var(--text3)'}}>{getRefPosts().length}/5</span>
                       {getRefPosts().length < 5 && (
                         <button className="btn btn-secondary" style={{fontSize:11,padding:'4px 10px'}} onClick={()=>setShowAddRef(!showAddRef)}>
-                          {showAddRef ? '✕ Annuler' : '+ Ajouter'}
+                          {showAddRef ? T('cancel_add_ref') : T('add_ref_btn')}
                         </button>
                       )}
                     </div>
                   </div>
                   <div style={{fontSize:12,color:'var(--text2)',marginBottom:12,lineHeight:1.5}}>
-                    Ajoute jusqu'à 5 de tes meilleurs posts LinkedIn. Claude analysera ton style et l'imitera à chaque génération.
+                    {T('ref_posts_body')}
                   </div>
                   {/* Existing ref posts */}
                   {getRefPosts().map((post: string, idx: number) => (
@@ -1617,18 +1617,18 @@ export default function Home() {
                   {/* Add new ref post */}
                   {showAddRef && (
                     <div style={{border:'1px solid var(--forest)',borderRadius:10,padding:'12px',marginBottom:8,background:'rgba(79,103,84,0.03)'}}>
-                      <div style={{fontSize:11,fontWeight:600,color:'var(--forest)',marginBottom:6}}>Nouveau post référent</div>
+                      <div style={{fontSize:11,fontWeight:600,color:'var(--forest)',marginBottom:6}}>{T('new_ref_post')}</div>
                       <textarea
                         className="form-input"
                         rows={6}
                         value={newRefPost}
                         onChange={e=>setNewRefPost(e.target.value)}
-                        placeholder="Colle ici un de tes anciens posts LinkedIn..."
+                        placeholder={T('ref_post_placeholder')}
                         style={{fontSize:12,fontFamily:'inherit',marginBottom:8}}
                         autoFocus
                       />
                       <div style={{display:'flex',gap:7}}>
-                        <button className="btn btn-ghost" style={{fontSize:12}} onClick={()=>{setShowAddRef(false);setNewRefPost('')}}>Annuler</button>
+                        <button className="btn btn-ghost" style={{fontSize:12}} onClick={()=>{setShowAddRef(false);setNewRefPost('')}}>{T('cancel_btn')}</button>
                         <button className="btn btn-primary" style={{fontSize:12,flex:1,justifyContent:'center'}} onClick={addRefPost} disabled={!newRefPost.trim()}>
                           Ajouter ce post →
                         </button>
