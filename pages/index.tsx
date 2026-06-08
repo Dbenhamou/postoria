@@ -515,7 +515,9 @@ export default function Home() {
             ...p,
             brand_bg: data.colors.bg || p.brand_bg,
             brand_text: data.colors.text || p.brand_text,
-            brand_accent: data.colors.accent || p.brand_accent,
+            brand_accent: data.colors.primary || data.colors.accent || p.brand_accent,
+            brand_color2: data.colors.secondary || p.brand_color2,
+            brand_color3: data.colors.accent || p.brand_color3,
           }))
           showToast('Couleurs de marque détectées ✓')
         } else {

@@ -50,7 +50,7 @@ async function fetchFavicon(baseUrl: string): Promise<string> {
   }
 }
 
-async function extractColors(url: string): Promise<{ bg: string; text: string; accent: string } | null> {
+async function extractColors(url: string): Promise<{ bg: string; text: string; primary: string; secondary: string; accent: string } | null> {
   try {
     const res = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Ecrira/1.0)' },
@@ -68,17 +68,20 @@ async function extractColors(url: string): Promise<{ bg: string; text: string; a
     // Utiliser Claude Haiku pour identifier bg/text/accent
     const colorMsg = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 150,
+      max_tokens: 200,
       messages: [{
         role: 'user',
         content: `Parmi ces couleurs extraites d'un site web: ${uniqueColors.join(', ')}
 
 Identifie :
-- bg : la couleur de fond principale (souvent claire/blanche)
-- text : la couleur de texte principale (souvent sombre)
-- accent : la couleur de marque/CTA distinctive (PAS un gris, PAS #ffffff, PAS #f5f5f5, PAS #eeeeee — une vraie couleur de marque)
+- bg : couleur de fond principale (claire/blanche)
+- text : couleur de texte principale (sombre)
+- primary : couleur de marque dominante (la plus distinctive, PAS gris/blanc)
+- secondary : 2ème couleur de marque (accents, éléments secondaires)
+- accent : 3ème couleur distinctive (CTA, highlights, chiffres clés)
 
-Réponds UNIQUEMENT avec ce JSON: {"bg":"#xxxxxx","text":"#xxxxxx","accent":"#xxxxxx"}`,
+Si moins de 3 vraies couleurs de marque, répète la primary pour secondary et accent.
+Réponds UNIQUEMENT avec ce JSON: {"bg":"#xxxxxx","text":"#xxxxxx","primary":"#xxxxxx","secondary":"#xxxxxx","accent":"#xxxxxx"}`,
       }],
     })
     const raw = (colorMsg.content[0] as { text: string }).text
