@@ -36,11 +36,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const audience = profile?.audience || 'Professionnels LinkedIn'
   const techStack = profile?.tech_stack || ''
   const domain = profile?.domain || ''
-  const lang = profile?.lang === 'en' ? 'Anglais' : 'Français'
+  const isEn = profile?.lang === 'en'
+  const lang = isEn ? 'English' : 'Français'
 
   const news = await fetchNews(sector)
 
-  const systemPrompt = `Tu es un expert en personal branding LinkedIn.
+  const systemPrompt = `${isEn ? 'You are a LinkedIn personal branding expert.' : 'Tu es un expert en personal branding LinkedIn.'}
 Utilisateur : ${role}${company ? ` chez ${company}` : ''}.
 Secteur : ${sector || 'Non précisé'}.
 Audience : ${audience}.
@@ -48,7 +49,7 @@ ${techStack ? `Stack : ${techStack}.` : ''}
 ${domain ? `Domaine entreprise : ${domain}.` : ''}
 Langue : ${lang}.`
 
-  const userPrompt = `${news ? `Actualités du secteur :\n${news}\n\n` : ''}Génère exactement 10 idées de posts LinkedIn pour aujourd'hui.
+  const userPrompt = `${news ? `${isEn ? 'Recent news:' : 'Actualités du secteur :'}\n${news}\n\n` : ''}${isEn ? 'Generate exactly 10 LinkedIn post ideas for today.' : 'Génère exactement 10 idées de posts LinkedIn pour aujourd\'hui.'}
 Couvre : actualité récente, conseils pratiques, tendances du secteur, cas concrets, prises de position.
 Les 2 premières idées doivent être les plus pertinentes et percutantes du moment.
 Adapte chaque idée au secteur et à l'audience de l'utilisateur.
@@ -57,7 +58,7 @@ Format JSON strict (tableau de 10 objets) :
 [{"topic":"étiquette courte","title":"titre accrocheur max 12 mots","hook":"première phrase percutante max 25 mots","recommended":true}]
 
 Les 2 premiers objets ont "recommended":true, les 8 suivants ont "recommended":false.
-Réponds UNIQUEMENT avec le JSON valide.`
+${isEn ? "IMPORTANT: Write ALL content (topic, title, hook) in English. Respond ONLY with valid JSON." : "Réponds UNIQUEMENT avec le JSON valide."}`
 
   try {
     const message = await anthropic.messages.create({

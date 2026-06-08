@@ -43,8 +43,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const contentThemes = profile?.content_themes || ''
   const painPoints = profile?.pain_points || ''
   const techStack = profile?.tech_stack || ''
-  const lang = (profile?.lang || 'fr') === 'en' ? 'English' : 'Français'
-  const langInstruction = (profile?.lang || 'fr') === 'en' ? 'Write the post in English.' : 'Rédige le post en français.'
+  const isEn = (profile?.lang || 'fr') === 'en'
+  const lang = isEn ? 'English' : 'Français'
+  const langInstruction = isEn
+    ? 'IMPORTANT: Write the ENTIRE post in English. Do not use any French words.'
+    : 'Rédige le post en français.'
   const writingStyle = profile?.writing_style || ''
 
   // Parse writing_style — supports JSON array (new) or plain string (legacy)
