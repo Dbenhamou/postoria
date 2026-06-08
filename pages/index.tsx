@@ -176,15 +176,21 @@ function VisualModal({ onClose, postContent, postTopic, profileName, profileRole
 
 // ─── MAIN ──────────────────────────────────────────────────────────────────────
 // Modal upgrade Pro
-function UpgradeModal({ onClose }: { onClose: () => void }) {
+function UpgradeModal({ onClose, lang }: { onClose: () => void, lang: 'fr'|'en' }) {
   const router = useRouter()
+  const TU = (k: string): string => ({
+    upgrade_title: lang==='fr'?'Fonctionnalité Pro':'Pro feature',
+    upgrade_body: lang==='fr'?'Cette fonctionnalité est réservée au plan Pro. Passez au Pro pour accéder aux visuels, au calendrier éditorial et aux posts illimités.':'This feature is reserved for the Pro plan.',
+    see_offers: lang==='fr'?'Voir les offres':'See plans',
+    cancel_btn: lang==='fr'?'Annuler':'Cancel',
+  } as Record<string,string>)[k] || k
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={onClose}>
       <div style={{background:"#FAF9F7",borderRadius:20,padding:"40px 32px",maxWidth:400,width:"90%",textAlign:"center"}} onClick={e=>e.stopPropagation()}>
         <div style={{fontSize:32,marginBottom:12}}>⚡</div>
-        <h2 style={{fontFamily:"Clash Display,sans-serif",fontSize:22,fontWeight:700,color:"#1F2421",marginBottom:8}}>{T('upgrade_title')}</h2>
-        <p style={{color:"#516756",fontSize:14,marginBottom:24,lineHeight:1.6}}>{T('upgrade_body')}</p>
-        <button onClick={()=>router.push("/pricing")} style={{width:"100%",padding:"14px",borderRadius:12,border:"none",background:"#1F2421",color:"#FAF9F7",fontFamily:"Clash Display,sans-serif",fontSize:15,fontWeight:700,cursor:"pointer",marginBottom:8}}>{T('see_offers')}</button>
+        <h2 style={{fontFamily:"Clash Display,sans-serif",fontSize:22,fontWeight:700,color:"#1F2421",marginBottom:8}}>{TU('upgrade_title')}</h2>
+        <p style={{color:"#516756",fontSize:14,marginBottom:24,lineHeight:1.6}}>{TU('upgrade_body')}</p>
+        <button onClick={()=>router.push("/pricing")} style={{width:"100%",padding:"14px",borderRadius:12,border:"none",background:"#1F2421",color:"#FAF9F7",fontFamily:"Clash Display,sans-serif",fontSize:15,fontWeight:700,cursor:"pointer",marginBottom:8}}>{TU('see_offers')}</button>
         <button onClick={onClose} style={{width:"100%",padding:"12px",borderRadius:12,border:"1.5px solid #B7C0B8",background:"transparent",color:"#516756",fontSize:14,cursor:"pointer"}}>{T('cancel_btn')}</button>
       </div>
     </div>
@@ -1784,7 +1790,7 @@ export default function Home() {
         </div>
       )}
       {showVisualModal&&(<VisualModal onClose={()=>setShowVisualModal(false)} postContent={postOutput} postTopic={postTopic} profileName={profile.name} profileRole={profile.role} profileCompany={profile.company} profileSector={profile.sector} brandBg={profile.brand_bg} brandText={profile.brand_text} brandAccent={profile.brand_accent}/>)}
-      {showUpgradeModal&&<UpgradeModal onClose={()=>setShowUpgradeModal(false)}/>}
+      {showUpgradeModal&&<UpgradeModal onClose={()=>setShowUpgradeModal(false)} lang={lang}/>}
       <div className={`toast ${toastVisible?'show':''}`}>{toast}</div>
     </>
   )
