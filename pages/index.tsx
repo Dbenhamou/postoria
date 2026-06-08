@@ -1191,8 +1191,8 @@ export default function Home() {
                               <button className="btn" onClick={()=>{publishPost(false);setShowPublishMenu(false);}} style={{width:'100%',padding:'10px 14px',fontSize:12,color:'var(--text1)',justifyContent:'flex-start',borderRadius:0,borderBottom:'1px solid var(--border)',background:'transparent'}}>
                                 📝 Texte uniquement
                               </button>
-                              <button className="btn" onClick={()=>{publishPost(true);setShowPublishMenu(false);}} disabled={!aiSvgContent} style={{width:'100%',padding:'10px 14px',fontSize:12,color:aiSvgContent?'var(--text1)':' var(--text3)',justifyContent:'flex-start',borderRadius:0,background:'transparent',cursor:aiSvgContent?'pointer':'not-allowed'}}>
-                                🖼 Texte + visuel{!aiSvgContent?' (créez un visuel)':''}
+                              <button className="btn" onClick={()=>{publishPost(true);setShowPublishMenu(false);}} disabled={!aiSvgContent} style={{width:'100%',padding:'10px 14px',fontSize:12,color:aiSvgContent?'var(--text1)':' var(--text3)',justifyContent:'flex-start',borderRadius:0,background:'transparent',cursor:(aiSvgContent||customVisualBase64)?'pointer':'not-allowed'}}>
+                                🖼 Texte + visuel{(!aiSvgContent&&!customVisualBase64)?' (ajoutez un visuel)':''}
                               </button>
                             </div>
                           )}
@@ -1214,7 +1214,7 @@ export default function Home() {
                           <button className="btn" onClick={()=>{setScheduleWithVisual(false);setShowScheduleMenu(false);if(!scheduleDateTime){setScheduleDateTime(new Date().toISOString().split('T')[0]+'T'+getNextQuarterHour())}setShowDatePicker(true);}} style={{width:'100%',padding:'10px 14px',fontSize:12,color:'var(--text1)',justifyContent:'flex-start',borderRadius:0,borderBottom:'1px solid var(--border)',background:'transparent'}}>
                             📝 Texte uniquement
                           </button>
-                          <button className="btn" onClick={()=>{setScheduleWithVisual(true);setShowScheduleMenu(false);if(!scheduleDateTime){setScheduleDateTime(new Date().toISOString().split('T')[0]+'T'+getNextQuarterHour())}setShowDatePicker(true);}} disabled={!aiSvgContent} style={{width:'100%',padding:'10px 14px',fontSize:12,color:aiSvgContent?'var(--text1)':'var(--text3)',justifyContent:'flex-start',borderRadius:0,background:'transparent',cursor:aiSvgContent?'pointer':'not-allowed'}}>
+                          <button className="btn" onClick={()=>{setScheduleWithVisual(true);setShowScheduleMenu(false);if(!scheduleDateTime){setScheduleDateTime(new Date().toISOString().split('T')[0]+'T'+getNextQuarterHour())}setShowDatePicker(true);}} disabled={!aiSvgContent&&!customVisualBase64} style={{width:'100%',padding:'10px 14px',fontSize:12,color:(aiSvgContent||customVisualBase64)?'var(--text1)':'var(--text3)',justifyContent:'flex-start',borderRadius:0,background:'transparent',cursor:aiSvgContent?'pointer':'not-allowed'}}>
                             🖼 Texte + visuel{!aiSvgContent?' (créez un visuel)':''}
                           </button>
                         </div>
