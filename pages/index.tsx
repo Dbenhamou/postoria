@@ -761,7 +761,7 @@ export default function Home() {
         method: 'POST',
         body: JSON.stringify({
           content: postOutput,
-          topic: postTopic || 'Sans titre',
+          topic: postTopic || T('sans_titre'),
           scheduled_at: new Date(scheduleDateTime).toISOString(),
           svg_content: visualToStore,
         }),
