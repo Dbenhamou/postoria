@@ -725,15 +725,10 @@ export default function Home() {
     if (!userId) return
     setScheduling(true)
     try {
-      // Convertir SVG en PNG base64 si visuel disponible
-      let svgBase64: string | null = null
-      if (scheduleWithVisual && aiSvgContent) {
-        try {
-          const svgRes = await authFetch('/api/svg-to-png', { method: 'POST', body: JSON.stringify({ svgContent: aiSvgContent }) })
-          const svgData = await svgRes.json()
-          svgBase64 = svgData.base64 || null
-        } catch { svgBase64 = null }
-      }
+      // SVG généré → brut ; PNG importé → base64 ; sinon null
+      const visualToStore = scheduleWithVisual
+        ? (aiSvgContent || customVisualBase64 || null)
+        : null
 
       const res = await authFetch('/api/schedule', {
         method: 'POST',
@@ -741,8 +736,7 @@ export default function Home() {
           content: postOutput,
           topic: postTopic || 'Sans titre',
           scheduled_at: new Date(scheduleDateTime).toISOString(),
-      
-          svg_content: svgBase64 || null,
+          svg_content: visualToStore,
         }),
       })
       const data = await res.json()
