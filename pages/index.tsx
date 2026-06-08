@@ -85,7 +85,7 @@ function VisualModal({ onClose, postContent, postTopic, profileName, profileRole
   const upd = (k:any) => setS((p:any)=>({...p,...k}))
   const updC = (k:string,v:string) => setS((p:any)=>({...p,colors:{...p.colors,[k]:v}}))
   const mix = (hex:string,a:number) => { const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${a})` }
-  const getDate = () => new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
+  const getDate = () => new Date().toLocaleDateString(lang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'long',year:'numeric'})
   const fontStack = FONTS.find(f=>f.id===s.font)?.stack||"'Clash Display','Inter',sans-serif"
   const sizeMult = ({S:0.8,M:1,L:1.2,XL:1.5} as any)[s.textSize]||1
   const logoSVGfn = (col:string,sz:number) => `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none"><path d="M6 4h8a4 4 0 0 1 0 8H6V4Z" fill="${col}" opacity=".9"/><path d="M6 12h5l4 8H6v-8Z" fill="${col}" opacity=".5"/></svg>`
@@ -819,9 +819,9 @@ export default function Home() {
   const getCalendarTitle = () => {
     if (calView==='semaine') {
       const days = getWeekDays()
-      return `${days[0].getDate()} ${days[0].toLocaleDateString('fr-FR',{month:'short'})} — ${days[6].getDate()} ${days[6].toLocaleDateString('fr-FR',{month:'short',year:'numeric'})}`
+      return `${days[0].getDate()} ${days[0].toLocaleDateString(lang==='fr'?'fr-FR':'en-GB',{month:'short'})} — ${days[6].getDate()} ${days[6].toLocaleDateString(lang==='fr'?'fr-FR':'en-GB',{month:'short',year:'numeric'})}`
     }
-    if (calView==='mois') return calDate.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})
+    if (calView==='mois') return calDate.toLocaleDateString(lang==='fr'?'fr-FR':'en-GB',{month:'long',year:'numeric'})
     return calDate.getFullYear().toString()
   }
 
@@ -897,7 +897,7 @@ export default function Home() {
       </div>
       {loadingIdeas && <div style={{marginBottom:12}}><div className="strip"/></div>}
       {ideas.length === 0 && !loadingIdeas ? (
-        <div className="card empty"><div className="empty-icon">✦</div><div className="empty-title">{T('ideas_empty_title')}</div><div className="empty-body">Cliquez sur "Générer les idées" pour recevoir 10 sujets personnalisés.</div></div>
+        <div className="card empty"><div className="empty-icon">✦</div><div className="empty-title">{T('ideas_empty_title')}</div><div className="empty-body">{T('ideas_empty_body')}</div></div>
       ) : ideas.map((idea, i) => (
         <div key={i} className="idea-card fade" style={{animationDelay:`${i*.06}s`,border:idea.recommended?'1px solid rgba(168,120,79,0.4)':undefined,background:idea.recommended?'rgba(168,120,79,0.04)':undefined}}>
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
