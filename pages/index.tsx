@@ -1086,7 +1086,10 @@ export default function Home() {
                   </div>
                 </div>
                 {loadingPost&&<div style={{marginBottom:10}}><div className="strip"/></div>}
-                <textarea className="post-editor" style={{minHeight:260}} value={postOutput} onChange={e=>setPostOutput(e.target.value)} placeholder={T('post_placeholder')}/>
+                <div style={{position:'relative'}}>
+                <textarea className="post-editor" style={{minHeight:260}} value={postOutput} onChange={e=>setPostOutput(e.target.value.slice(0,3000))} placeholder={T('post_placeholder')} maxLength={3000}/>
+                <div style={{position:'absolute',bottom:8,right:10,fontSize:10,color:postOutput.length>2800?'#c0392b':'var(--text3)',fontFamily:'monospace',pointerEvents:'none'}}>{postOutput.length}/3000</div>
+              </div>
                 {/* Zone amélioration post */}
                 {postOutput && (
                   <div style={{marginTop:8,border:'1px solid var(--border)',borderRadius:12,overflow:'hidden',background:'white'}}>
