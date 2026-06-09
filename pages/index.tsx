@@ -1077,7 +1077,7 @@ export default function Home() {
             {ideasSection}
           </div>
 
-          {/* IDÉES */}}
+          {/* IDÉES */}
           <div className={`page ${page==='idees'?'active':''}`}>
             <div className="eyebrow">{T('inspiration')}</div><div className="page-title">{T('ideas_of_day')}</div><div className="copper-rule"/>
             <div className="page-sub">{T('ideas_sub')}</div>
