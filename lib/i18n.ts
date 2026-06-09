@@ -118,8 +118,8 @@ export const translations = {
     profile_saved: 'Profil enregistré ✓',
     brand_colors: 'Couleurs de marque',
     brand_colors_hint: 'Utilisées par défaut dans le générateur visuel.',
-    stack_style: 'Stack & style',
-    technologies: 'Technologies',
+    stack_style: 'Mots-clés métier',
+    technologies: 'Outils & logiciels',
     linkedin_pub: 'Publication LinkedIn',
     linkedin_connected: '✓ LinkedIn connecté',
     linkedin_not_connected: 'LinkedIn non connecté',
@@ -291,7 +291,7 @@ export const translations = {
     enrich_label_company: 'Entreprise',
     enrich_label_sector: 'Secteur',
     enrich_label_audience: 'Audience',
-    enrich_label_stack: 'Stack',
+    enrich_label_stack: 'Mots-clés',
 
     // UpgradeModal
     upgrade_title: 'Fonctionnalité Pro',
@@ -474,8 +474,8 @@ export const translations = {
     profile_saved: 'Profile saved ✓',
     brand_colors: 'Brand colors',
     brand_colors_hint: 'Used by default in the visual generator.',
-    stack_style: 'Stack & style',
-    technologies: 'Technologies',
+    stack_style: 'Business keywords',
+    technologies: 'Tools & software',
     linkedin_pub: 'LinkedIn publishing',
     linkedin_connected: '✓ LinkedIn connected',
     linkedin_not_connected: 'LinkedIn not connected',
@@ -647,7 +647,7 @@ export const translations = {
     enrich_label_company: 'Company',
     enrich_label_sector: 'Sector',
     enrich_label_audience: 'Audience',
-    enrich_label_stack: 'Stack',
+    enrich_label_stack: 'Keywords',
 
     // UpgradeModal
     upgrade_title: 'Pro feature',
