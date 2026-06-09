@@ -5,7 +5,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-type NotifType = 'post_published' | 'post_error' | 'post_scheduled' | 'ideas_ready' | 'welcome'
+type NotifType = 'post_published' | 'post_error' | 'post_scheduled' | 'ideas_ready' | 'welcome' | 'welcome'
 
 interface NotifPayload {
   userId: string
