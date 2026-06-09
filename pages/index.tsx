@@ -85,6 +85,16 @@ function VisualModal({ onClose, postContent, postTopic, profileName, profileRole
   const upd = (k:any) => setS((p:any)=>({...p,...k}))
   const updC = (k:string,v:string) => setS((p:any)=>({...p,colors:{...p.colors,[k]:v}}))
   const mix = (hex:string,a:number) => { const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${a})` }
+  // ── SVG sanitisation (protection XSS) ──
+  const sanitizeSvg = (svg: string): string => {
+    return svg
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/on\w+\s*=/gi, 'data-removed=')
+      .replace(/javascript\s*:/gi, 'data-js:')
+      .replace(/<use[^>]+href\s*=\s*["']?(?!#)[^"'>\s]+/gi, '<use')
+      .replace(/xlink:href\s*=\s*["']?(?!#)[^"'>\s]+/gi, 'xlink:href="#removed"')
+  }
+
   const getDate = () => new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
   const fontStack = FONTS.find(f=>f.id===s.font)?.stack||"'Clash Display','Inter',sans-serif"
   const sizeMult = ({S:0.8,M:1,L:1.2,XL:1.5} as any)[s.textSize]||1
@@ -557,7 +567,7 @@ export default function Home() {
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current)
     autoSaveTimer.current = setTimeout(async () => {
       const ok = await saveProfile(profile)
-      if (ok) showToast(T('toast_profile_autosaved'))
+      if (ok) {} // auto-save silencieux
     }, 1500)
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current) }
   }, [profile])
@@ -1346,7 +1356,7 @@ export default function Home() {
 
 
                       {/* Aperçu SVG */}
-                      <div style={{width:'100%',overflow:'hidden'}} dangerouslySetInnerHTML={{__html: aiSvgContent.replace(/<svg/, '<svg style="width:100%;height:auto;display:block;max-height:600px"')}}/>
+                      <div style={{width:'100%',overflow:'hidden'}} dangerouslySetInnerHTML={{__html: sanitizeSvg(aiSvgContent).replace(/<svg/, '<svg style="width:100%;height:auto;display:block;max-height:600px"')}}/>
                     </div>
                   )}
                 </div>
@@ -1391,7 +1401,7 @@ export default function Home() {
                       </div>
                       {dayPosts.map((p:any)=>(
                         <div key={p.id} onClick={()=>setSelectedCalPost(p)} style={{background:p.status==='published'?'rgba(81,103,86,0.1)':'rgba(217,200,163,0.2)',border:`1px solid ${p.status==='published'?'rgba(81,103,86,0.3)':'rgba(217,200,163,0.4)'}`,borderRadius:6,padding:'4px 7px',marginBottom:4,cursor:'pointer',fontSize:11,overflow:'hidden'}}>
-                          {p.svg_content && (p.svg_content.trimStart().startsWith('<') ? <div style={{width:'100%',height:48,overflow:'hidden',borderRadius:4,marginBottom:3,pointerEvents:'none'}} dangerouslySetInnerHTML={{__html: p.svg_content.replace(/<svg/, '<svg style="width:100%;height:auto;display:block"')}} /> : <img src={`data:image/png;base64,${p.svg_content}`} alt="" style={{width:'100%',height:48,objectFit:'cover',borderRadius:4,marginBottom:3,display:'block'}} />)}
+                          {p.svg_content && (p.svg_content.trimStart().startsWith('<') ? <div style={{width:'100%',height:48,overflow:'hidden',borderRadius:4,marginBottom:3,pointerEvents:'none'}} dangerouslySetInnerHTML={{__html: sanitizeSvg(p.svg_content).replace(/<svg/, '<svg style="width:100%;height:auto;display:block"')}} /> : <img src={`data:image/png;base64,${p.svg_content}`} alt="" style={{width:'100%',height:48,objectFit:'cover',borderRadius:4,marginBottom:3,display:'block'}} />)}
                           <div style={{fontWeight:500,color:'var(--text1)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{p.topic||'Post'}</div>
                           <div style={{fontSize:10,color:'var(--text3)'}}>{new Date(p.scheduled_at).toLocaleTimeString(lang==='fr'?'fr-FR':'en-GB',{hour:'2-digit',minute:'2-digit'})}</div>
                           <span style={{fontSize:9,fontWeight:600,color:p.status==='published'?'var(--forest)':p.status==='error'?'#c0392b':'#8a7040',textTransform:'uppercase' as const}}>{p.status==='published'?T('status_published'):p.status==='error'?T('status_error'):T('status_pending')}</span>
@@ -1421,7 +1431,7 @@ export default function Home() {
                         {day&&<div style={{fontSize:11,fontWeight:isToday?700:400,color:isToday?'var(--forest)':'var(--text3)',marginBottom:3}}>{day.getDate()}</div>}
                         {dayPosts.slice(0,2).map((p:any)=>(
                           <div key={p.id} onClick={()=>setSelectedCalPost(p)} style={{background:p.status==='published'?'rgba(81,103,86,0.1)':'rgba(217,200,163,0.2)',borderRadius:4,padding:'2px 5px',marginBottom:2,cursor:'pointer',fontSize:10,overflow:'hidden',color:'var(--text1)'}}>
-                            {p.svg_content && (p.svg_content.trimStart().startsWith('<') ? <div style={{width:'100%',height:28,overflow:'hidden',borderRadius:3,marginBottom:2,pointerEvents:'none'}} dangerouslySetInnerHTML={{__html: p.svg_content.replace(/<svg/, '<svg style="width:100%;height:auto;display:block"')}} /> : <img src={`data:image/png;base64,${p.svg_content}`} alt="" style={{width:'100%',height:28,objectFit:'cover',borderRadius:3,marginBottom:2,display:'block'}} />)}
+                            {p.svg_content && (p.svg_content.trimStart().startsWith('<') ? <div style={{width:'100%',height:28,overflow:'hidden',borderRadius:3,marginBottom:2,pointerEvents:'none'}} dangerouslySetInnerHTML={{__html: sanitizeSvg(p.svg_content).replace(/<svg/, '<svg style="width:100%;height:auto;display:block"')}} /> : <img src={`data:image/png;base64,${p.svg_content}`} alt="" style={{width:'100%',height:28,objectFit:'cover',borderRadius:3,marginBottom:2,display:'block'}} />)}
                             <div style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{p.topic||'Post'}</div>
                           </div>
                         ))}
@@ -1479,7 +1489,7 @@ export default function Home() {
                   {selectedCalPost.svg_content && (
                     <div style={{marginBottom:16,borderRadius:8,overflow:'hidden',border:'1px solid var(--border)'}}>
                       {selectedCalPost.svg_content.trimStart().startsWith('<')
-                        ? <div style={{width:'100%',maxHeight:200,overflow:'hidden',pointerEvents:'none'}} dangerouslySetInnerHTML={{__html: selectedCalPost.svg_content.replace(/<svg/, '<svg style="width:100%;height:auto;display:block;max-height:200px"')}} />
+                        ? <div style={{width:'100%',maxHeight:200,overflow:'hidden',pointerEvents:'none'}} dangerouslySetInnerHTML={{__html: sanitizeSvg(selectedCalPost.svg_content).replace(/<svg/, '<svg style="width:100%;height:auto;display:block;max-height:200px"')}} />
                         : <img src={`data:image/png;base64,${selectedCalPost.svg_content}`} style={{width:'100%',display:'block',maxHeight:200,objectFit:'cover'}} alt={T('visual_attached')} />
                       }
                     </div>

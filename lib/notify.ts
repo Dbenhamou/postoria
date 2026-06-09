@@ -13,13 +13,21 @@ interface NotifPayload {
   title: string
   body?: string
   userEmail?: string
+  lang?: string
 }
 
-const EMAIL_SUBJECTS: Record<NotifType, string> = {
+const EMAIL_SUBJECTS_FR: Record<NotifType, string> = {
   post_published: '✅ Votre post a été publié sur LinkedIn',
   post_error: '⚠️ Erreur lors de la publication de votre post',
   post_scheduled: '📅 Votre post est planifié',
   ideas_ready: '✦ Vos idées LinkedIn du jour sont prêtes',
+}
+
+const EMAIL_SUBJECTS_EN: Record<NotifType, string> = {
+  post_published: '✅ Your post has been published on LinkedIn',
+  post_error: '⚠️ Error publishing your scheduled post',
+  post_scheduled: '📅 Your post has been scheduled',
+  ideas_ready: '✦ Your LinkedIn ideas for today are ready',
 }
 
 const EMAIL_BODIES: Record<NotifType, (body?: string) => string> = {
@@ -44,7 +52,8 @@ const EMAIL_BODIES: Record<NotifType, (body?: string) => string> = {
   `,
 }
 
-function buildEmailHtml(type: NotifType, title: string, body?: string): string {
+function buildEmailHtml(type: NotifType, title: string, body?: string, lang?: string): string {
+  const isEn = lang === 'en'
   return `
 <!DOCTYPE html>
 <html>
@@ -62,7 +71,7 @@ function buildEmailHtml(type: NotifType, title: string, body?: string): string {
       </div>
     </div>
     <div style="padding:16px 32px;background:#F5F3EF;border-top:1px solid #E3DED7;font-size:11px;color:#9EA39C;text-align:center;">
-      Ecrira · Vous recevez cet email car vous avez un compte actif.
+      ${isEn ? 'Ecrira · You are receiving this email because you have an active account.' : 'Ecrira · Vous recevez cet email car vous avez un compte actif.'}
     </div>
   </div>
 </body>
@@ -70,7 +79,7 @@ function buildEmailHtml(type: NotifType, title: string, body?: string): string {
   `.trim()
 }
 
-export async function sendNotification({ userId, type, title, body, userEmail }: NotifPayload) {
+export async function sendNotification({ userId, type, title, body, userEmail, lang }: NotifPayload) {
   // 1. Créer la notif en base
   const { error } = await supabase.from('notifications').insert({
     user_id: userId,
@@ -93,8 +102,8 @@ export async function sendNotification({ userId, type, title, body, userEmail }:
       body: JSON.stringify({
         from: 'Ecrira <notifications@ecrira.com>',
         to: [userEmail],
-        subject: EMAIL_SUBJECTS[type],
-        html: buildEmailHtml(type, title, body),
+        subject: (lang === 'en' ? EMAIL_SUBJECTS_EN : EMAIL_SUBJECTS_FR)[type],
+        html: buildEmailHtml(type, title, body, lang),
       }),
     })
     if (!res.ok) {
