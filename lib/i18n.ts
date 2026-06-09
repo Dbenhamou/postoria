@@ -348,6 +348,8 @@ export const translations = {
     toast_post_cancelled: 'Post annulé',
     toast_no_publish: 'Aucun post à publier',
     toast_publish_error: 'Erreur publication',
+    linkedin_preview: 'Aperçu LinkedIn',
+    close_preview: 'Fermer l\'aperçu',
   },
 
   en: {
@@ -699,6 +701,8 @@ export const translations = {
     toast_post_cancelled: 'Post cancelled',
     toast_no_publish: 'No post to publish',
     toast_publish_error: 'Publishing error',
+    linkedin_preview: 'LinkedIn preview',
+    close_preview: 'Close preview',
   },
 }
 

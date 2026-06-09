@@ -242,6 +242,7 @@ export default function Home() {
   const [loadingIdeas, setLoadingIdeas] = useState(false)
   const [loadingPosts, setLoadingPosts] = useState(false)
   const [loadingPost, setLoadingPost] = useState(false)
+  const [showLinkedInPreview, setShowLinkedInPreview] = useState(false)
   const [postTopic, setPostTopic] = useState('')
   const [postFormat, setPostFormat] = useState('educational')
   const [postLength, setPostLength] = useState('medium')
@@ -1090,6 +1091,48 @@ export default function Home() {
                 <textarea className="post-editor" style={{minHeight:260}} value={postOutput} onChange={e=>setPostOutput(e.target.value.slice(0,3000))} placeholder={T('post_placeholder')} maxLength={3000}/>
                 <div style={{position:'absolute',bottom:8,right:10,fontSize:10,color:postOutput.length>2800?'#c0392b':'var(--text3)',fontFamily:'monospace',pointerEvents:'none'}}>{postOutput.length}/3000</div>
               </div>
+                {/* Toggle aperçu LinkedIn */}
+                {postOutput && (
+                  <div style={{marginTop:6,marginBottom:2,display:'flex',justifyContent:'flex-end'}}>
+                    <button
+                      onClick={()=>setShowLinkedInPreview(v=>!v)}
+                      style={{fontSize:11,color:'var(--forest)',background:'none',border:'1px solid rgba(81,103,86,0.3)',borderRadius:8,padding:'4px 10px',cursor:'pointer',display:'flex',alignItems:'center',gap:4}}
+                    >
+                      {showLinkedInPreview ? '✕ ' + T('close_preview') : '👁 ' + T('linkedin_preview')}
+                    </button>
+                  </div>
+                )}
+                {postOutput && showLinkedInPreview && (
+                  <div style={{background:'white',border:'1px solid #e0e0e0',borderRadius:12,padding:16,marginTop:4,marginBottom:8,fontFamily:'system-ui,sans-serif',fontSize:14,lineHeight:1.6,color:'#000'}}>
+                    {/* Header LinkedIn simulé */}
+                    <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
+                      <div style={{width:40,height:40,borderRadius:'50%',background:'var(--forest)',display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:700,fontSize:14,flexShrink:0}}>
+                        {profile.name?profile.name.slice(0,2).toUpperCase():'??'}
+                      </div>
+                      <div>
+                        <div style={{fontWeight:600,fontSize:13,color:'#000'}}>{profile.name||'Votre nom'}</div>
+                        <div style={{fontSize:11,color:'#666'}}>{profile.role}{profile.company?` · ${profile.company}`:''}</div>
+                        <div style={{fontSize:11,color:'#666'}}>À l'instant · 🌐</div>
+                      </div>
+                    </div>
+                    {/* Contenu post */}
+                    <div style={{fontSize:14,color:'#000',lineHeight:1.65,whiteSpace:'pre-wrap' as const}}
+                      dangerouslySetInnerHTML={{__html: sanitizeSvg(
+                        postOutput
+                          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                          .replace(/(#[^\s#<>]+)/g,'<span style="color:#0a66c2;cursor:pointer">$1</span>')
+                          .replace(/(@[^\s@<>]+)/g,'<span style="color:#0a66c2;cursor:pointer">$1</span>')
+                      )}}
+                    />
+                    {/* Reactions LinkedIn */}
+                    <div style={{display:'flex',gap:16,marginTop:14,paddingTop:10,borderTop:'1px solid #e0e0e0',fontSize:12,color:'#666'}}>
+                      <span style={{cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>👍 J'aime</span>
+                      <span style={{cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>💬 Commenter</span>
+                      <span style={{cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>🔁 Republier</span>
+                      <span style={{cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>📤 Envoyer</span>
+                    </div>
+                  </div>
+                )}
                 {/* Zone amélioration post */}
                 {postOutput && (
                   <div style={{marginTop:8,border:'1px solid var(--border)',borderRadius:12,overflow:'hidden',background:'white'}}>
