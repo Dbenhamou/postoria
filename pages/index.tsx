@@ -245,6 +245,8 @@ export default function Home() {
   const [showLinkedInPreview, setShowLinkedInPreview] = useState(false)
   const [usedIdeaIds, setUsedIdeaIds] = useState<Set<string>>(new Set())
   const [draggedPostId, setDraggedPostId] = useState<string|null>(null)
+  const [searchLibrary, setSearchLibrary] = useState('')
+  const [suggestedHashtags, setSuggestedHashtags] = useState<string[]>([])
   const [postTopic, setPostTopic] = useState('')
   const [postFormat, setPostFormat] = useState('educational')
   const [postLength, setPostLength] = useState('medium')
@@ -398,8 +400,8 @@ export default function Home() {
   }
 
   const loadCount = async () => {
-    const { count } = await supabase.from('saved_posts').select('*', { count: 'exact', head: true })
-    if (count !== null) setGeneratedCount(count)
+    const { data } = await supabase.from('profiles').select('posts_count_this_month').eq('id', userId as string).single()
+    if (data?.posts_count_this_month !== undefined) setGeneratedCount(data.posts_count_this_month)
   }
 
   // Auto-refresh ideas every 2h
@@ -734,6 +736,9 @@ export default function Home() {
       const data = await res.json()
       if (data.content) {
         setPostOutput(data.content)
+        // Extraire + suggérer des hashtags
+        const existingTags = (data.content.match(/#[\w\u00C0-\u024F]+/g) || []).map((t:string)=>t)
+        setSuggestedHashtags(existingTags.slice(0,5))
         setImprovementNote('')
         showToast('Post amélioré ✓')
       }
@@ -1048,10 +1053,31 @@ export default function Home() {
               <div className="stat-card"><div className="stat-label">{T('generated_posts')}</div><div className="stat-value">{generatedCount}</div><div className="stat-note">{T('in_total')}</div></div>
               <div className="stat-card"><div className="stat-label">{T('active_sector')}</div><div className="stat-value" style={{fontSize:18,paddingTop:6}}>{profile.sector?.split(' ')[0]||'Cyber'}</div><div className="stat-note">{profile.company||T('my_company')}</div></div>
             </div>
+            {/* Checklist premiers pas */}
+            {(!profile.role || !linkedinConnected || savedPosts.length === 0) && (
+              <div style={{background:'var(--white)',border:'1px solid var(--border)',borderRadius:16,padding:'18px 20px',marginBottom:20,boxShadow:'var(--shadow-sm)'}}>
+                <div style={{fontSize:11,fontWeight:600,color:'var(--text3)',textTransform:'uppercase' as const,letterSpacing:'0.08em',marginBottom:12}}>
+                  {lang==='en'?'Getting started':'Premiers pas'}
+                </div>
+                {[
+                  {done:!!profile.role, label:lang==='en'?'Complete your profile':'Compléter ton profil', action:()=>setPage('profil'), cta:lang==='en'?'Go →':'Aller →'},
+                  {done:linkedinConnected, label:lang==='en'?'Connect LinkedIn':'Connecter LinkedIn', action:connectLinkedIn, cta:lang==='en'?'Connect':'Connecter'},
+                  {done:savedPosts.length>0, label:lang==='en'?'Generate your first post':'Générer ton premier post', action:()=>setPage('rediger'), cta:lang==='en'?'Generate':'Générer'},
+                ].map((step,i)=>(
+                  <div key={i} style={{display:'flex',alignItems:'center',gap:12,padding:'8px 0',borderBottom:i<2?'1px solid var(--border)':'none'}}>
+                    <div style={{width:22,height:22,borderRadius:'50%',background:step.done?'var(--forest)':'var(--sand)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:11,color:step.done?'white':'var(--text3)',fontWeight:700}}>
+                      {step.done?'✓':(i+1)}
+                    </div>
+                    <span style={{flex:1,fontSize:13,color:step.done?'var(--text3)':'var(--text1)',textDecoration:step.done?'line-through':'none'}}>{step.label}</span>
+                    {!step.done && <button onClick={step.action} className="btn btn-secondary" style={{fontSize:11,padding:'4px 10px'}}>{step.cta}</button>}
+                  </div>
+                ))}
+              </div>
+            )}
             {ideasSection}
           </div>
 
-          {/* IDÉES */}
+          {/* IDÉES */}}
           <div className={`page ${page==='idees'?'active':''}`}>
             <div className="eyebrow">{T('inspiration')}</div><div className="page-title">{T('ideas_of_day')}</div><div className="copper-rule"/>
             <div className="page-sub">{T('ideas_sub')}</div>
@@ -1116,7 +1142,21 @@ export default function Home() {
                 <textarea className="post-editor" style={{minHeight:260}} value={postOutput} onChange={e=>setPostOutput(e.target.value.slice(0,3000))} placeholder={T('post_placeholder')} maxLength={3000}/>
                 <div style={{position:'absolute',bottom:8,right:10,fontSize:10,color:postOutput.length>2800?'#c0392b':'var(--text3)',fontFamily:'monospace',pointerEvents:'none'}}>{postOutput.length}/3000</div>
               </div>
-                {/* Toggle aperçu LinkedIn */}
+                {/* Hashtags suggérés */}
+                {suggestedHashtags.length > 0 && (
+                  <div style={{marginTop:6,marginBottom:2,display:'flex',flexWrap:'wrap' as const,gap:5,alignItems:'center'}}>
+                    <span style={{fontSize:11,color:'var(--text3)',flexShrink:0}}>{lang==='en'?'Hashtags:':'Hashtags :'}</span>
+                    {suggestedHashtags.map((tag,i)=>(
+                      <button key={i} onClick={()=>{
+                        if(!postOutput.includes(tag)) setPostOutput(p=>p+'
+'+tag)
+                      }} style={{fontSize:11,padding:'2px 8px',borderRadius:20,border:'1px solid rgba(81,103,86,0.3)',background:'rgba(81,103,86,0.06)',color:'var(--forest)',cursor:'pointer',fontFamily:'inherit'}}>
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {/* Toggle aperçu LinkedIn */}}
                 {postOutput && (
                   <div style={{marginTop:6,marginBottom:2,display:'flex',justifyContent:'flex-end'}}>
                     <button
@@ -1618,6 +1658,19 @@ export default function Home() {
           <div className={`page ${page==='bibliotheque'?'active':''}`}>
             <div className="eyebrow">{T('your_content')}</div><div className="page-title">{T('library')}</div><div className="copper-rule"/>
             <div className="page-sub">{T('library_sub_auto')}</div>
+            {savedPosts.length > 3 && (
+              <div style={{marginBottom:16,position:'relative' as const}}>
+                <input
+                  className="form-input"
+                  placeholder={lang==='en'?'Search posts...':'Rechercher dans les posts...'}
+                  value={searchLibrary}
+                  onChange={e=>setSearchLibrary(e.target.value)}
+                  style={{paddingLeft:34}}
+                />
+                <span style={{position:'absolute' as const,left:11,top:'50%',transform:'translateY(-50%)',fontSize:14,color:'var(--text3)',pointerEvents:'none'}}>🔍</span>
+                {searchLibrary && <button onClick={()=>setSearchLibrary('')} style={{position:'absolute' as const,right:10,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'var(--text3)',fontSize:14}}>✕</button>}
+              </div>
+            )}
             {loadingPosts && <div style={{marginBottom:12}}><div className="strip"/></div>}
             {!loadingPosts && savedPosts.length===0 ? (
               <div className="card empty">
@@ -1628,7 +1681,7 @@ export default function Home() {
                 ✦ {lang==='en'?'Generate my first post':'Générer mon premier post'}
               </button>
             </div>
-            ) : savedPosts.map(p=>(
+            ) : savedPosts.filter(p=>!searchLibrary||p.content.toLowerCase().includes(searchLibrary.toLowerCase())||p.topic.toLowerCase().includes(searchLibrary.toLowerCase())).map(p=>(
               <div key={p.id} className="saved-card fade" style={{position:'relative'}}>
                 {/* Header */}
                 <div className="saved-header">
@@ -1947,9 +2000,17 @@ export default function Home() {
         </div>
         {[lang==='en'?'Unlimited posts':'Posts illimités',lang==='en'?'Advanced AI':'IA avancée',lang==='en'?'Visuals + Calendar':'Visuels + Calendrier',lang==='en'?'Direct LinkedIn publishing':'Publication directe'].map((f,i)=>(<div key={i} style={{fontSize:12,opacity:0.9,display:'flex',alignItems:'center',gap:5,marginBottom:2}}><span>✓</span>{f}</div>))}
       </div>
-      <div style={{border:'1.5px dashed var(--border)',borderRadius:14,padding:'16px 20px',opacity:0.5}}>
-        <div style={{fontFamily:"'Clash Display',sans-serif",fontWeight:700,fontSize:15,color:'var(--text2)',marginBottom:4}}>{T('team_plan_label')}</div>
-        <div style={{fontSize:12,color:'var(--text3)'}}>{T('team_plan_desc')}</div>
+      <div style={{border:'1.5px dashed var(--border)',borderRadius:14,padding:'16px 20px'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+          <div style={{fontFamily:"'Clash Display',sans-serif",fontWeight:700,fontSize:15,color:'var(--text2)'}}>{T('team_plan_label')}</div>
+        </div>
+        <div style={{fontSize:12,color:'var(--text3)',marginBottom:10}}>{T('team_plan_desc')}</div>
+        <button onClick={async()=>{
+          const email = (profile as any).email
+          if(email){await authFetch('/api/waitlist',{method:'POST',body:JSON.stringify({email})}); showToast(lang==='en'?'Added to waitlist ✓':'Inscrit sur la liste d\'attente ✓')}
+        }} style={{fontSize:11,padding:'5px 12px',borderRadius:8,border:'1px solid var(--border)',background:'transparent',color:'var(--text2)',cursor:'pointer',fontFamily:'inherit',width:'100%'}}>
+          {lang==='en'?'Notify me at launch':'M\'avertir au lancement'}
+        </button>
       </div>
     </div>
   </div>
