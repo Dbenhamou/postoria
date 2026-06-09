@@ -85,16 +85,6 @@ function VisualModal({ onClose, postContent, postTopic, profileName, profileRole
   const upd = (k:any) => setS((p:any)=>({...p,...k}))
   const updC = (k:string,v:string) => setS((p:any)=>({...p,colors:{...p.colors,[k]:v}}))
   const mix = (hex:string,a:number) => { const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${a})` }
-  // ── SVG sanitisation (protection XSS) ──
-  const sanitizeSvg = (svg: string): string => {
-    return svg
-      .replace(/<script[\s\S]*?<\/script>/gi, '')
-      .replace(/on\w+\s*=/gi, 'data-removed=')
-      .replace(/javascript\s*:/gi, 'data-js:')
-      .replace(/<use[^>]+href\s*=\s*["']?(?!#)[^"'>\s]+/gi, '<use')
-      .replace(/xlink:href\s*=\s*["']?(?!#)[^"'>\s]+/gi, 'xlink:href="#removed"')
-  }
-
   const getDate = () => new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
   const fontStack = FONTS.find(f=>f.id===s.font)?.stack||"'Clash Display','Inter',sans-serif"
   const sizeMult = ({S:0.8,M:1,L:1.2,XL:1.5} as any)[s.textSize]||1
@@ -186,6 +176,16 @@ function VisualModal({ onClose, postContent, postTopic, profileName, profileRole
 
 // ─── MAIN ──────────────────────────────────────────────────────────────────────
 // Modal upgrade Pro
+// ── SVG sanitisation globale (protection XSS) ──
+function sanitizeSvg(svg: string): string {
+  return svg
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/on\w+\s*=/gi, 'data-removed=')
+    .replace(/javascript\s*:/gi, 'data-js:')
+    .replace(/<use[^>]+href\s*=\s*["']?(?!#)[^"'>\s]+/gi, '<use')
+    .replace(/xlink:href\s*=\s*["']?(?!#)[^"'>\s]+/gi, 'xlink:href="#removed"')
+}
+
 function UpgradeModal({ onClose, lang }: { onClose: () => void, lang: 'fr'|'en' }) {
   const router = useRouter()
   const TU = (k: string): string => ({
