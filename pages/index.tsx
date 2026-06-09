@@ -243,6 +243,7 @@ export default function Home() {
   const [loadingPosts, setLoadingPosts] = useState(false)
   const [loadingPost, setLoadingPost] = useState(false)
   const [showLinkedInPreview, setShowLinkedInPreview] = useState(false)
+  const [usedIdeaIds, setUsedIdeaIds] = useState<Set<string>>(new Set())
   const [draggedPostId, setDraggedPostId] = useState<string|null>(null)
   const [postTopic, setPostTopic] = useState('')
   const [postFormat, setPostFormat] = useState('educational')
@@ -467,8 +468,8 @@ export default function Home() {
         ideasLastRefresh.current = now.getTime()
         setIdeasRefreshCountdown(IDEAS_REFRESH_MS)
         await saveIdeasToSupabase(data.ideas)
-      } else showToast('Erreur : '+(data.error||'inconnue'))
-    } catch { showToast('Erreur réseau') }
+      } else showToast((lang==='en'?'Error: ':'Erreur : ')+(data.error||'unknown'))
+    } catch { showToast(lang==='en'?'Network error':'Erreur réseau') }
     setLoadingIdeas(false)
   }
 
@@ -482,8 +483,8 @@ export default function Home() {
       const data = await res.json()
       if (data.error === 'LIMIT_REACHED') { setShowUpgradeModal(true); setLoadingPost(false); return }
       if (data.content) { setPostOutput(data.content); setGeneratedCount(c => c + 1) }
-      else showToast('Erreur : '+(data.error||'inconnue'))
-    } catch { showToast('Erreur réseau') }
+      else showToast((lang==='en'?'Error: ':'Erreur : ')+(data.error||'unknown'))
+    } catch { showToast(lang==='en'?'Network error':'Erreur réseau') }
     setLoadingPost(false)
   }, [postTopic,postFormat,postLength,postTone,profile])
 
@@ -513,7 +514,7 @@ export default function Home() {
     }
   }
 
-  const copyText = (text:string) => { navigator.clipboard.writeText(text); showToast('Copié ✓') }
+  const copyText = (text:string) => { navigator.clipboard.writeText(text); showToast(lang==='en'?'Copied ✓':'Copié ✓') }
 
   const [enriching, setEnriching] = useState(false)
   const [enrichSuggestions, setEnrichSuggestions] = useState<any>(null)
@@ -545,7 +546,7 @@ export default function Home() {
           showToast('Site dynamique détecté — renseigne les couleurs manuellement')
         }
       } else showToast(data.error || 'Impossible d\'analyser le site')
-    } catch { showToast('Erreur réseau') }
+    } catch { showToast(lang==='en'?'Network error':'Erreur réseau') }
     setEnriching(false)
   }
 
@@ -585,10 +586,10 @@ export default function Home() {
       const params = new URLSearchParams(window.location.search)
       if (params.get('linkedin') === 'success') {
         setLinkedinConnected(true)
-        showToast('✓ LinkedIn connecté !')
+        showToast(lang==='en'?'✓ LinkedIn connected!':'✓ LinkedIn connecté !')
         window.history.replaceState({}, '', '/')
       } else if (params.get('linkedin') === 'error') {
-        showToast('Erreur connexion LinkedIn')
+        showToast(lang==='en'?'LinkedIn connection error':'Erreur connexion LinkedIn')
         window.history.replaceState({}, '', '/')
       }
     }
@@ -679,8 +680,8 @@ export default function Home() {
         setSvgEditAccent(profile?.brand_accent||'#516756')
         setShowSvgEditor(false)
         showToast('Visuel généré ✓')
-      } else showToast('Erreur : ' + (data.error || 'inconnue'))
-    } catch { showToast('Erreur réseau') }
+      } else showToast((lang==='en'?'Error: ':'Erreur : ')+(data.error||'unknown'))
+    } catch { showToast(lang==='en'?'Network error':'Erreur réseau') }
     setGeneratingAiVisual(false)
   }
 
@@ -808,7 +809,7 @@ export default function Home() {
         setPostOutput('')
         setPage('apercu')
       } else showToast(data.error || T('toast_schedule_error'))
-    } catch { showToast('Erreur réseau') }
+    } catch { showToast(lang==='en'?'Network error':'Erreur réseau') }
     setScheduling(false)
   }
 
@@ -931,7 +932,8 @@ export default function Home() {
       {ideas.length === 0 && !loadingIdeas ? (
         <div className="card empty"><div className="empty-icon">✦</div><div className="empty-title">{T('ideas_empty_title')}</div><div className="empty-body">{T('ideas_empty_body')}</div></div>
       ) : ideas.map((idea, i) => (
-        <div key={i} className="idea-card fade" style={{animationDelay:`${i*.06}s`,border:idea.recommended?'1px solid rgba(168,120,79,0.4)':undefined,background:idea.recommended?'rgba(168,120,79,0.04)':undefined}}>
+        <div key={i} className="idea-card fade" style={{animationDelay:`${i*.06}s`,border:idea.recommended?'1px solid rgba(168,120,79,0.4)':undefined,background:idea.recommended?'rgba(168,120,79,0.04)':undefined,opacity:usedIdeaIds.has(idea.title)?0.55:1,position:'relative' as const}}>
+              {usedIdeaIds.has(idea.title)&&<div style={{position:'absolute' as const,top:10,right:10,fontSize:9,fontWeight:600,padding:'2px 7px',borderRadius:20,background:'var(--sand)',color:'var(--text3)',letterSpacing:'0.04em',textTransform:'uppercase' as const}}>{lang==='en'?'Used':'Développée'}</div>}
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
             <span className="idea-tag">{idea.topic}</span>
             {idea.recommended && <span style={{fontSize:10,fontWeight:600,padding:'2px 8px',borderRadius:20,background:'rgba(168,120,79,0.12)',color:'var(--forest)',border:'1px solid rgba(168,120,79,0.25)'}}>{T('recommended')}</span>}
@@ -939,7 +941,7 @@ export default function Home() {
           <div className="idea-title">{idea.title}</div>
           <div className="idea-hook">{idea.hook}</div>
           <div className="idea-actions">
-            <button className="btn btn-primary" style={{fontSize:12,padding:'7px 13px'}} onClick={()=>generatePost(idea.title)}>{T('develop')}</button>
+            <button className="btn btn-primary" style={{fontSize:12,padding:'7px 13px'}} onClick={()=>{generatePost(idea.title);setUsedIdeaIds(p=>new Set([...p,idea.title]))}}>{T('develop')}</button>
             <button className="btn btn-ghost" onClick={()=>copyText(idea.title+'\n\n'+idea.hook)}>{T('copy')}</button>
           </div>
         </div>
@@ -972,7 +974,9 @@ export default function Home() {
         </div>
 
         <aside className="sidebar">
-          <div className="sidebar-logo" style={{justifyContent:'center',cursor:'pointer'}} onClick={()=>setPage('apercu')}><img src="/logo-ecrira-icon.png" alt="Ecrira" style={{height:60,width:'auto',display:'block'}} /></div>
+          <div className="sidebar-logo" style={{cursor:'pointer',padding:'18px 16px 14px'}} onClick={()=>setPage('apercu')}>
+            <img src="/logo-ecrira.png" alt="Ecrira" style={{height:28,width:'auto',display:'block'}} />
+          </div>
           {/* Notifications bell */}
           <div style={{position:'relative' as const,margin:'0 12px 8px'}}>
             <button onClick={(e)=>{e.stopPropagation();setShowNotifPanel(v=>!v);if(unreadCount>0)markAllRead()}} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'8px 12px',borderRadius:10,border:'none',background:'transparent',cursor:'pointer',color:'var(--text2)',fontSize:12,fontWeight:500}}>
@@ -990,7 +994,7 @@ export default function Home() {
                 ) : notifications.map((n:any)=>(
                   <div key={n.id} style={{padding:'10px 14px',borderBottom:'1px solid var(--border)',background:n.read?'transparent':'rgba(81,103,86,0.04)'}}>
                     <div style={{fontSize:12,fontWeight:n.read?400:600,color:'var(--text1)',marginBottom:2}}>{n.title}</div>
-                    {n.body&&<div style={{fontSize:11,color:'var(--text3)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{n.body}</div>}
+                    {n.body&&<div style={{fontSize:11,color:'var(--text2)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const,fontStyle:'italic'}}>{n.body.substring(0,60)}{n.body.length>60?'…':''}</div>}
                     <div style={{fontSize:10,color:'var(--text3)',marginTop:3}}>{new Date(n.created_at).toLocaleDateString(lang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
                   </div>
                 ))}
@@ -1592,7 +1596,7 @@ export default function Home() {
                   <div style={{display:'flex',gap:8}}>
                     <button className="btn btn-secondary" style={{fontSize:12,flex:1,justifyContent:'center'}} onClick={()=>{setPostOutput(selectedCalPost.content);setPostTopic(selectedCalPost.topic);setPage('rediger');setSelectedCalPost(null)}}>{T('edit_post_btn')}</button>
                     {selectedCalPost.status==='pending'&&(
-                      <button className="btn btn-ghost" style={{fontSize:12,color:'#c0392b',flex:1,justifyContent:'center'}} onClick={()=>{cancelScheduled(selectedCalPost.id);setSelectedCalPost(null)}}>{T('cancel_post_btn')}</button>
+                      <button className="btn btn-ghost" style={{fontSize:12,color:'#c0392b',flex:1,justifyContent:'center'}} onClick={()=>{if(window.confirm(lang==='en'?'Cancel this scheduled post?':'Annuler ce post planifié ?')){cancelScheduled(selectedCalPost.id);setSelectedCalPost(null)}}}>{T('cancel_post_btn')}</button>
                     )}
                   </div>
                 </div>
@@ -1616,7 +1620,14 @@ export default function Home() {
             <div className="page-sub">{T('library_sub_auto')}</div>
             {loadingPosts && <div style={{marginBottom:12}}><div className="strip"/></div>}
             {!loadingPosts && savedPosts.length===0 ? (
-              <div className="card empty"><div className="empty-icon">◫</div><div className="empty-title">{T('library_empty_title')}</div><div className="empty-body">{T('library_empty_save')}</div></div>
+              <div className="card empty">
+              <div className="empty-icon">◫</div>
+              <div className="empty-title">{T('library_empty_title')}</div>
+              <div className="empty-body">{T('library_empty_save')}</div>
+              <button className="btn btn-primary" style={{marginTop:16,justifyContent:'center'}} onClick={()=>setPage('rediger')}>
+                ✦ {lang==='en'?'Generate my first post':'Générer mon premier post'}
+              </button>
+            </div>
             ) : savedPosts.map(p=>(
               <div key={p.id} className="saved-card fade" style={{position:'relative'}}>
                 {/* Header */}
@@ -1626,7 +1637,7 @@ export default function Home() {
                     <span style={{fontSize:11,color:'var(--text3)'}}>{p.created_at}</span>
                     <span style={{fontSize:10,color:'var(--text3)',background:'var(--sand)',padding:'1px 6px',borderRadius:10}}>{p.content.length} {T('chars')}</span>
                   </div>
-                  <button className="btn btn-ghost" style={{fontSize:11,color:'#c0392b',borderColor:'transparent'}} onClick={()=>deletePost(p.id)}>{T('delete')}</button>
+                  <button className="btn btn-ghost" style={{fontSize:11,color:'#c0392b',borderColor:'transparent'}} onClick={()=>{if(window.confirm(lang==='en'?'Delete this post?':'Supprimer ce post ?'))deletePost(p.id)}}>{T('delete')}</button>
                 </div>
                 {/* Titre */}
                 <div className="saved-title" style={{marginBottom:6}}>{p.topic}</div>
@@ -1659,7 +1670,7 @@ export default function Home() {
                     <input type="text" className="form-input" value={profile[key]||''} placeholder={key==='domain'?'ex: entreprise.fr':undefined} onChange={e=>setProfile(p=>({...p,[key]:e.target.value}))}/>
                     {key==='domain'&&<>
                       <div style={{display:'flex',alignItems:'center',gap:8,marginTop:6}}>
-                        <div style={{fontSize:11,color:'var(--text3)',flex:1}}>T('domain_hint_text')</div>
+                        <div style={{fontSize:11,color:'var(--text3)',flex:1}}>{T('domain_hint_text')}</div>
                         <button className="btn btn-secondary" style={{fontSize:11,flexShrink:0,whiteSpace:'nowrap' as const}} onClick={enrichProfile} disabled={enriching}>
                           {enriching?<><span className="spinner"/> {T('enriching_btn')}</>:T('enrich_btn')}
                         </button>
