@@ -975,7 +975,7 @@ export default function Home() {
 
         <aside className="sidebar">
           <div className="sidebar-logo" style={{cursor:'pointer',padding:'18px 16px 14px'}} onClick={()=>setPage('apercu')}>
-            <img src="/logo-ecrira.png" alt="Ecrira" style={{height:28,width:'auto',display:'block'}} />
+            <img src="/logo-ecrira-icon.png" alt="Ecrira" style={{height:48,width:'auto',display:'block'}} />
           </div>
           {/* Notifications bell */}
           <div style={{position:'relative' as const,margin:'0 12px 8px'}}>
