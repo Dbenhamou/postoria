@@ -92,6 +92,7 @@ export function useProfile() {
       const defaultName = email ? email.split('@')[0] : 'Utilisateur'
       const newProfile: Profile = { ...DEFAULT_PROFILE, name: defaultName }
       await supabase.from('profiles').upsert({ id: uid, email, ...newProfile })
+      try { await fetch('/api/welcome', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, name: defaultName }) }) } catch {}
       setProfileState(newProfile)
     } else {
       setProfileState({

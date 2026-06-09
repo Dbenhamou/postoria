@@ -5,7 +5,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-type NotifType = 'post_published' | 'post_error' | 'post_scheduled' | 'ideas_ready'
+type NotifType = 'post_published' | 'post_error' | 'post_scheduled' | 'ideas_ready' | 'welcome'
 
 interface NotifPayload {
   userId: string
@@ -21,6 +21,7 @@ const EMAIL_SUBJECTS_FR: Record<NotifType, string> = {
   post_error: '⚠️ Erreur lors de la publication de votre post',
   post_scheduled: '📅 Votre post est planifié',
   ideas_ready: '✦ Vos idées LinkedIn du jour sont prêtes',
+  welcome: '🎉 Bienvenue sur Ecrira !',
 }
 
 const EMAIL_SUBJECTS_EN: Record<NotifType, string> = {
@@ -28,6 +29,7 @@ const EMAIL_SUBJECTS_EN: Record<NotifType, string> = {
   post_error: '⚠️ Error publishing your scheduled post',
   post_scheduled: '📅 Your post has been scheduled',
   ideas_ready: '✦ Your LinkedIn ideas for today are ready',
+  welcome: '🎉 Welcome to Ecrira!',
 }
 
 const EMAIL_BODIES: Record<NotifType, (body?: string) => string> = {
@@ -50,6 +52,16 @@ const EMAIL_BODIES: Record<NotifType, (body?: string) => string> = {
     <p>Vos nouvelles idées de posts LinkedIn pour aujourd'hui sont disponibles.</p>
     <p><a href="https://ecrira.com" style="color:#516756;font-weight:600;">Découvrir les idées →</a></p>
   `,
+  welcome: (body) => `
+    <p>${body ? `Bonjour ${body},` : 'Bonjour,'}</p>
+    <p>Bienvenue sur <strong>Ecrira</strong> — votre assistant LinkedIn propulsé par l'IA.</p>
+    <ul style="margin:16px 0;padding-left:20px;line-height:2;">
+      <li>✦ Générez 10 idées de posts par jour</li>
+      <li>✦ Rédigez un post en 30 secondes</li>
+      <li>✦ Publiez directement sur LinkedIn</li>
+    </ul>
+    <p><a href="https://ecrira.com" style="color:#516756;font-weight:600;">Commencer →</a></p>
+  `,
 }
 
 function buildEmailHtml(type: NotifType, title: string, body?: string, lang?: string): string {
@@ -71,7 +83,7 @@ function buildEmailHtml(type: NotifType, title: string, body?: string, lang?: st
       </div>
     </div>
     <div style="padding:16px 32px;background:#F5F3EF;border-top:1px solid #E3DED7;font-size:11px;color:#9EA39C;text-align:center;">
-      ${isEn ? 'Ecrira · You are receiving this email because you have an active account.' : 'Ecrira · Vous recevez cet email car vous avez un compte actif.'}
+      ${isEn ? 'Ecrira · You are receiving this email because you have an active account.' : 'Ecrira · Vous recevez cet email car vous avez un compte actif.'} &nbsp;·&nbsp; <a href="https://ecrira.com/unsubscribe" style="color:#9EA39C;">${isEn ? 'Unsubscribe' : 'Se désabonner'}</a>
     </div>
   </div>
 </body>
