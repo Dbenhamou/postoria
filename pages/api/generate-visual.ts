@@ -184,7 +184,7 @@ Reponds UNIQUEMENT avec le code SVG complet, commencant par <svg et finissant pa
     // Injecter le logo Ecrira programmatiquement (plus fiable que via le prompt)
     if (showWatermark) {
       // Inject logo bottom right, outside any dark footer
-      const logoImg = `<image x="850" y="1278" width="180" height="66" href="${ECRIRA_LOGO}" opacity="0.85" preserveAspectRatio="xMidYMid meet"/>`
+      const logoImg = `<image x="840" y="1250" width="220" height="82" href="${ECRIRA_LOGO}" opacity="0.85" preserveAspectRatio="xMidYMid meet"/>`
       svgSafe = svgSafe.replace('</svg>', logoImg + '</svg>')
     }
 
