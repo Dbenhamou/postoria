@@ -941,7 +941,7 @@ export default function Home() {
           <div className="idea-title">{idea.title}</div>
           <div className="idea-hook">{idea.hook}</div>
           <div className="idea-actions">
-            <button className="btn btn-primary" style={{fontSize:12,padding:'7px 13px'}} onClick={()=>{generatePost(idea.title);setUsedIdeaIds(p=>new Set([...p,idea.title]))}}>{T('develop')}</button>
+            <button className="btn btn-primary" style={{fontSize:12,padding:'7px 13px'}} onClick={()=>generatePost(idea.title)}>{T('develop')}</button>
             <button className="btn btn-ghost" onClick={()=>copyText(idea.title+'\n\n'+idea.hook)}>{T('copy')}</button>
           </div>
         </div>
