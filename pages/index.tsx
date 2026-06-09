@@ -1765,20 +1765,50 @@ export default function Home() {
                 {onboardingStep===1&&'LinkedIn pré-remplit ton nom et enrichit ton profil.'}
                 {onboardingStep===2&&'Vérifiez et complétez les infos détectées.'}
               </div>
-              <div style={{display:'flex',gap:6,marginTop:16}}>
-                {[0,1,2].map(i=>(<div key={i} style={{width:i===onboardingStep?20:6,height:6,borderRadius:3,background:i===onboardingStep?'white':'rgba(255,255,255,0.3)',transition:'all 0.2s'}}/>))}
+              <div style={{marginTop:16}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:7}}>
+                  <div style={{display:'flex',gap:5}}>
+                    {[0,1,2].map(i=>(<div key={i} style={{width:i===onboardingStep?24:7,height:6,borderRadius:3,background:i<=onboardingStep?'white':'rgba(255,255,255,0.25)',transition:'all 0.25s'}}/>))}
+                  </div>
+                  <span style={{fontSize:11,color:'rgba(255,255,255,0.6)',fontWeight:500,letterSpacing:'0.04em'}}>
+                    {onboardingStep < 3 ? `${onboardingStep+1} / 3` : ''}
+                  </span>
+                </div>
+                <div style={{height:2,background:'rgba(255,255,255,0.15)',borderRadius:1}}>
+                  <div style={{height:'100%',borderRadius:1,background:'white',width:`${onboardingStep===0?0:onboardingStep===1?50:100}%`,transition:'width 0.35s ease'}}/>
+                </div>
               </div>
             </div>
             <div style={{padding:'24px 32px 28px'}}>
               {onboardingStep===0&&(
                 <div>
-                  {[{icon:'✦',title:T('onb_feat1_title'),desc:T('onb_feat1_desc')},{icon:'◎',title:T('onb_feat2_title'),desc:T('onb_feat2_desc')},{icon:'◫',title:T('onb_feat3_title'),desc:T('onb_feat3_desc')}].map((f,i)=>(
-                    <div key={i} style={{display:'flex',gap:14,marginBottom:14}}>
-                      <div style={{width:32,height:32,background:'var(--sand)',borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>{f.icon}</div>
-                      <div><div style={{fontSize:13,fontWeight:500,color:'var(--text1)',marginBottom:2}}>{f.title}</div><div style={{fontSize:12,color:'var(--text2)'}}>{f.desc}</div></div>
+                  <div style={{background:'linear-gradient(135deg,rgba(81,103,86,0.06),rgba(217,200,163,0.08))',borderRadius:14,padding:'14px 16px',marginBottom:16,border:'1px solid var(--border)'}}>
+                    <div style={{fontSize:13,fontWeight:600,color:'var(--text1)',marginBottom:10}}>
+                      {lang==='en'?'What you can do with Ecrira:':'Ce que vous pouvez faire avec Ecrira :'}
                     </div>
-                  ))}
-                  <button className="btn btn-primary" style={{width:'100%',justifyContent:'center',marginTop:12}} onClick={()=>setOnboardingStep(1)}>{T('start')}</button>
+                    {[
+                      {icon:'💡',color:'#f59e0b',title:T('onb_feat1_title'),desc:T('onb_feat1_desc')},
+                      {icon:'⚡',color:'#516756',title:T('onb_feat2_title'),desc:T('onb_feat2_desc')},
+                      {icon:'🖼',color:'#6366f1',title:T('onb_feat3_title'),desc:T('onb_feat3_desc')}
+                    ].map((f,i)=>(
+                      <div key={i} style={{display:'flex',gap:12,marginBottom:i<2?12:0,alignItems:'flex-start'}}>
+                        <div style={{width:34,height:34,background:`${f.color}15`,borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,flexShrink:0,border:`1px solid ${f.color}25`}}>{f.icon}</div>
+                        <div style={{paddingTop:2}}>
+                          <div style={{fontSize:13,fontWeight:600,color:'var(--text1)',marginBottom:2}}>{f.title}</div>
+                          <div style={{fontSize:12,color:'var(--text2)',lineHeight:1.5}}>{f.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{display:'flex',gap:10,alignItems:'center',padding:'10px 14px',background:'rgba(81,103,86,0.05)',borderRadius:10,marginBottom:14,border:'1px solid rgba(81,103,86,0.1)'}}>
+                    <span style={{fontSize:18}}>🚀</span>
+                    <span style={{fontSize:12,color:'var(--text2)',lineHeight:1.5}}>
+                      {lang==='en'?'Setup takes less than 2 minutes. No credit card required to start.':'Configuration en moins de 2 minutes. Aucune carte bancaire requise pour commencer.'}
+                    </span>
+                  </div>
+                  <button className="btn btn-primary" style={{width:'100%',justifyContent:'center',fontSize:14,padding:'12px 20px'}} onClick={()=>setOnboardingStep(1)}>
+                    {lang==='en'?'Get started →':T('start')+' →'}
+                  </button>
                 </div>
               )}
               {onboardingStep===1&&(
@@ -1786,7 +1816,17 @@ export default function Home() {
                   <div style={{background:'rgba(0,119,181,0.05)',border:'1px solid rgba(0,119,181,0.15)',borderRadius:12,padding:'14px 16px',marginBottom:10}}>
                     <div style={{fontSize:13,fontWeight:600,color:'#0077B5',marginBottom:4}}>{T('onb_connect_linkedin')}</div>
                     <div style={{fontSize:12,color:'var(--text2)',marginBottom:10}}>{T('onb_connect_linkedin_desc')}</div>
-                    <button className="btn btn-primary" style={{background:'#0077B5',width:'100%',justifyContent:'center'}} onClick={connectLinkedIn}>{linkedinConnected?'✓ LinkedIn connecté':'Se connecter avec LinkedIn'}</button>
+                    {linkedinConnected ? (
+                      <div style={{display:'flex',alignItems:'center',gap:8,padding:'10px 14px',background:'rgba(0,119,181,0.08)',borderRadius:9,border:'1px solid rgba(0,119,181,0.2)'}}>
+                        <span style={{fontSize:18}}>✅</span>
+                        <span style={{fontSize:13,fontWeight:600,color:'#0077B5'}}>{lang==='en'?'LinkedIn connected':'LinkedIn connecté'}</span>
+                      </div>
+                    ) : (
+                      <button className="btn btn-primary" style={{background:'#0077B5',width:'100%',justifyContent:'center',gap:8}} onClick={connectLinkedIn}>
+                        <svg viewBox="0 0 24 24" fill="currentColor" style={{width:16,height:16}}><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        {lang==='en'?'Connect with LinkedIn':'Se connecter avec LinkedIn'}
+                      </button>
+                    )}
                   </div>
                   <div style={{background:'rgba(79,103,84,0.05)',border:'1px solid rgba(79,103,84,0.15)',borderRadius:12,padding:'14px 16px',marginBottom:14}}>
                     <div style={{fontSize:13,fontWeight:600,color:'var(--forest)',marginBottom:4}}>{T('onb_enrich_site')}</div>
@@ -1817,19 +1857,26 @@ export default function Home() {
       <div style={{fontSize:13,color:'var(--text2)'}}>{T('choose_plan_sub')}</div>
     </div>
     <div style={{display:'flex',flexDirection:'column',gap:12}}>
-      <div style={{border:'1.5px solid var(--border)',borderRadius:14,padding:'16px 20px',cursor:'pointer'}} onClick={finishOnboarding}>
-        <div style={{fontFamily:"'Clash Display',sans-serif",fontWeight:700,fontSize:15,color:'var(--text1)',marginBottom:4}}>{T('free_plan_label')}</div>
-        <div style={{fontSize:12,color:'var(--text2)'}}>{T('free_plan_desc')}</div>
+      <div style={{border:'1.5px solid var(--border)',borderRadius:14,padding:'16px 20px',cursor:'pointer',transition:'border-color 0.2s'}} onClick={finishOnboarding}
+        onMouseEnter={e=>(e.currentTarget.style.borderColor='var(--forest)')} onMouseLeave={e=>(e.currentTarget.style.borderColor='var(--border)')}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+          <div style={{fontFamily:"'Clash Display',sans-serif",fontWeight:700,fontSize:15,color:'var(--text1)'}}>{T('free_plan_label')}</div>
+          <span style={{fontSize:11,background:'var(--sand)',color:'var(--text2)',padding:'2px 8px',borderRadius:20,fontWeight:500}}>{lang==='en'?'Free forever':'Gratuit'}</span>
+        </div>
+        {['5 posts','IA basique','Style personnalisé'].map((f,i)=>(<div key={i} style={{fontSize:12,color:'var(--text2)',display:'flex',alignItems:'center',gap:5,marginBottom:2}}><span style={{color:'var(--forest)'}}>✓</span>{f}</div>))}
       </div>
-      <div style={{border:'2px solid var(--forest)',borderRadius:14,padding:'16px 20px',cursor:'pointer',background:'var(--forest)',color:'white'}} onClick={async()=>{
+      <div style={{border:'2px solid var(--forest)',borderRadius:14,padding:'16px 20px',cursor:'pointer',background:'var(--forest)',color:'white',position:'relative',overflow:'hidden'}} onClick={async()=>{
         if(!userId) return;
         const res = await fetch('/api/stripe/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,email:(profile as any)?.email ?? ''})});
         const data = await res.json();
         if(data.url) window.location.href = data.url;
         else console.error('Checkout error:', data);
       }}>
-        <div style={{fontFamily:"'Clash Display',sans-serif",fontWeight:700,fontSize:15,marginBottom:4}}>{T('pro_plan_label')}</div>
-        <div style={{fontSize:12,opacity:0.85}}>{T('pro_plan_desc')}</div>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+          <div style={{fontFamily:"'Clash Display',sans-serif",fontWeight:700,fontSize:15}}>{T('pro_plan_label')}</div>
+          <span style={{fontSize:10,background:'rgba(255,255,255,0.2)',padding:'2px 8px',borderRadius:20,fontWeight:600,letterSpacing:'0.05em'}}>POPULAIRE</span>
+        </div>
+        {[lang==='en'?'Unlimited posts':'Posts illimités',lang==='en'?'Advanced AI':'IA avancée',lang==='en'?'Visuals + Calendar':'Visuels + Calendrier',lang==='en'?'Direct LinkedIn publishing':'Publication directe'].map((f,i)=>(<div key={i} style={{fontSize:12,opacity:0.9,display:'flex',alignItems:'center',gap:5,marginBottom:2}}><span>✓</span>{f}</div>))}
       </div>
       <div style={{border:'1.5px dashed var(--border)',borderRadius:14,padding:'16px 20px',opacity:0.5}}>
         <div style={{fontFamily:"'Clash Display',sans-serif",fontWeight:700,fontSize:15,color:'var(--text2)',marginBottom:4}}>{T('team_plan_label')}</div>
