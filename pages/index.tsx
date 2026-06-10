@@ -963,7 +963,7 @@ export default function Home() {
 
   return (
     <>
-      <Head><title>Ecrira</title><link rel="icon" href="/favicon-32.png" type="image/png"/><link rel="icon" href="/favicon.ico" type="image/x-icon"/><link rel="apple-touch-icon" href="/logo-ecrira-icon.png"/><meta name="theme-color" content="#516756"/></Head>
+      <Head><title>Ecrira</title><link rel="icon" href="/favicon-32.png" type="image/png"/><script defer data-domain="ecrira.com" src="https://plausible.io/js/pa-JoffvncprLIz4FmqjAnDr.js"></script><link rel="icon" href="/favicon.ico" type="image/x-icon"/><link rel="apple-touch-icon" href="/logo-ecrira-icon.png"/><meta name="theme-color" content="#516756"/></Head>
       <div className="app">
         {/* Mobile header */}
         <div className="mobile-header">
