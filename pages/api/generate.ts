@@ -48,6 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const langInstruction = isEn
     ? 'IMPORTANT: Write the ENTIRE post in English. Do not use any French words.'
     : 'Rédige le post en français.'
+  const variantInstruction = variant ? `\nVariante ${variant}/3 : utilise un angle différent des autres variantes.` : ''
   const writingStyle = profile?.writing_style || ''
 
   // Parse writing_style — supports JSON array (new) or plain string (legacy)
@@ -97,7 +98,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     + (profileTone ? 'Ton éditorial : ' + profileTone + '.\n' : '')
     + (techStack ? 'Outils/Stack : ' + techStack + '.\n' : '')
     + 'IMPORTANT : Utilise le vocabulaire exact du secteur, des références concrètes au métier, et adresse-toi directement à l\'audience cible.\n'
-    + 'Langue : ' + lang + '. ' + langInstruction + '\n\n'
+    + 'Langue : ' + lang + '. ' + langInstruction + variantInstruction + '\n\n'
     + styleSection + '\n\n'
     + "- N'utilise JAMAIS de Markdown : pas de **, pas de __, pas de ##, pas de *\n"
     + '- Le texte doit etre brut, pret a coller sur LinkedIn tel quel\n\n'

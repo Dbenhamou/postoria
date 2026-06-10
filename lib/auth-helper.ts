@@ -24,6 +24,13 @@ export function getClientIp(req: NextApiRequest): string {
   )
 }
 
+export function checkOrigin(req: any): boolean {
+  const origin = req.headers.origin || req.headers.referer || ''
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ecrira.com'
+  if (!origin) return true
+  return origin.startsWith(appUrl) || origin.startsWith('http://localhost')
+}
+
 export async function requireAuth(req: NextApiRequest, res: NextApiResponse): Promise<string | null> {
   // Rate limiting
   const ip = getClientIp(req)
