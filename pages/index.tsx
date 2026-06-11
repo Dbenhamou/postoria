@@ -2052,7 +2052,7 @@ export default function Home() {
       </div>
       <div style={{border:'2px solid var(--forest)',borderRadius:14,padding:'16px 20px',cursor:'pointer',background:'var(--forest)',color:'white',position:'relative',overflow:'hidden'}} onClick={async()=>{
         if(!userId) return;
-        const res = await fetch('/api/stripe/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,email:(profile as any)?.email ?? ''})});
+        const res = await authFetch('/api/stripe/checkout',{method:'POST',body:JSON.stringify({userId,email:(profile as any)?.email ?? ''})});
         const data = await res.json();
         if(data.url) window.location.href = data.url;
         else console.error('Checkout error:', data);
