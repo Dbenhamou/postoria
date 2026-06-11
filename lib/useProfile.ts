@@ -94,7 +94,7 @@ export function useProfile() {
       const newProfile: Profile = { ...DEFAULT_PROFILE, name: defaultName }
       const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
       await supabase.from('profiles').upsert({ id: uid, email, ...newProfile, plan: 'trial', trial_ends_at: trialEnd })
-      try { await fetch('/api/welcome', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, name: defaultName }) }) } catch {}
+
       // Séquence email onboarding
       try { await fetch('/api/onboarding-sequence', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, name: defaultName }) }) } catch {}
       setProfileState(newProfile)
