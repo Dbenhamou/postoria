@@ -69,7 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (error) return res.status(500).json({ error: error.message })
   // Notification planification
   try {
-    const schedDate = new Date(scheduled_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})
+    const schedDate = new Date(scheduled_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris'})
     const { data: profile } = await supabase.from('profiles').select('email').eq('id', userId).single()
     await sendNotification({ userId, type: 'post_scheduled', title: 'Post planifié 📅', body: schedDate, userEmail: profile?.email })
   } catch(e) { console.error('[notify] schedule error:', e) }
