@@ -231,25 +231,47 @@ export default function Landing() {
               )}
 
               {activePage === 'rediger' && (
-                <div>
+                <div style={{overflow:'auto',height:'100%'}}>
                   <div style={{fontSize:10,fontWeight:600,color:'#B7C0B8',letterSpacing:'0.08em',marginBottom:4}}>CRÉATION</div>
                   <div style={{fontSize:22,fontWeight:700,color:'#1F2421',letterSpacing:'-0.5px'}}>Rédiger</div>
-                  <div style={{width:32,height:2,background:'#D9C8A3',margin:'10px 0 16px'}}/>
-                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+                  <div style={{width:32,height:2,background:'#D9C8A3',margin:'10px 0 12px'}}/>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
                     <div style={cardStyle}>
-                      <div style={{fontSize:10,fontWeight:600,color:'#9EA39C',letterSpacing:'0.07em',marginBottom:8}}>SUJET</div>
-                      <div style={{padding:'9px 12px',borderRadius:8,border:'1px solid #E3DED7',background:'#FAF9F7',fontSize:12,color:'#1F2421',marginBottom:10}}>Le management bienveillant en scale-up</div>
-                      <div style={{fontSize:10,fontWeight:600,color:'#9EA39C',letterSpacing:'0.07em',marginBottom:6}}>FORMAT</div>
-                      <div style={{display:'flex',gap:5,flexWrap:'wrap' as const,marginBottom:10}}>
-                        {['Storytelling','Liste','Conseil','Prise de position'].map((f,i)=>(
-                          <span key={i} style={{padding:'3px 10px',borderRadius:20,fontSize:11,border:'1px solid '+(i===0?'rgba(81,103,86,0.3)':'#E3DED7'),background:i===0?'rgba(81,103,86,0.08)':'transparent',color:i===0?'#516756':'#6B7069',fontWeight:i===0?500:400}}>{f}</span>
+                      <div style={{fontSize:10,fontWeight:600,color:'#9EA39C',letterSpacing:'0.07em',marginBottom:6}}>SUJET</div>
+                      <div style={{padding:'7px 10px',borderRadius:8,border:'1px solid #E3DED7',background:'#FAF9F7',fontSize:11,color:'#1F2421',marginBottom:8}}>Management bienveillant en scale-up</div>
+                      <div style={{fontSize:10,fontWeight:600,color:'#9EA39C',letterSpacing:'0.07em',marginBottom:4}}>FORMAT</div>
+                      <div style={{display:'flex',gap:4,flexWrap:'wrap' as const,marginBottom:8}}>
+                        {['Storytelling','Liste','Conseil'].map((f,i)=>(
+                          <span key={i} style={{padding:'2px 8px',borderRadius:20,fontSize:10,border:'1px solid '+(i===0?'rgba(81,103,86,0.3)':'#E3DED7'),background:i===0?'rgba(81,103,86,0.08)':'transparent',color:i===0?'#516756':'#6B7069'}}>{f}</span>
                         ))}
                       </div>
-                      <button style={{width:'100%',padding:'9px',background:'#516756',border:'none',borderRadius:8,color:'white',fontSize:12,fontWeight:600,cursor:'default',fontFamily:'inherit'}}>✦ Générer le post</button>
+                      <button style={{width:'100%',padding:'7px',background:'#516756',border:'none',borderRadius:8,color:'white',fontSize:11,fontWeight:600,cursor:'default',fontFamily:'inherit',marginBottom:8}}>✦ Générer le post</button>
+                      <div style={{borderTop:'1px solid #E3DED7',paddingTop:8,marginTop:2}}>
+                        <div style={{fontSize:10,fontWeight:600,color:'#9EA39C',letterSpacing:'0.07em',marginBottom:6}}>VISUEL LINKEDIN</div>
+                        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:4,marginBottom:6}}>
+                          {['Classique','Timeline','Stats','Citation'].map((t,i)=>(
+                            <div key={i} style={{padding:'4px 6px',borderRadius:6,border:'1px solid '+(i===0?'rgba(81,103,86,0.3)':'#E3DED7'),background:i===0?'rgba(81,103,86,0.06)':'transparent',fontSize:9,color:i===0?'#516756':'#6B7069',textAlign:'center' as const,cursor:'default'}}>{t}</div>
+                          ))}
+                        </div>
+                        <button style={{width:'100%',padding:'6px',background:'rgba(81,103,86,0.08)',border:'1px solid rgba(81,103,86,0.2)',borderRadius:8,color:'#516756',fontSize:10,fontWeight:600,cursor:'default',fontFamily:'inherit'}}>🖼 Générer le visuel</button>
+                      </div>
                     </div>
-                    <div style={cardStyle}>
-                      <div style={{fontSize:10,fontWeight:600,color:'#9EA39C',letterSpacing:'0.07em',marginBottom:8}}>APERÇU</div>
-                      <div style={{fontSize:11,color:'#1F2421',lineHeight:1.8,whiteSpace:'pre-line' as const}}>{"On parle souvent de bienveillance.\n\nMais rarement de ce que ça implique.\n\nEn 3 ans, j'ai fait 2 erreurs majeures :\nConfondre bienveillance et laxisme.\nÉviter les conversations difficiles.\n\nCe que j'ai appris ?\nLa vraie bienveillance, c'est dire la vérité avec respect.\nPas éviter les conflits.\nLes traverser ensemble."}</div>
+                    <div>
+                      <div style={{...cardStyle,marginBottom:8}}>
+                        <div style={{fontSize:10,fontWeight:600,color:'#9EA39C',letterSpacing:'0.07em',marginBottom:6}}>APERÇU POST</div>
+                        <div style={{fontSize:10,color:'#1F2421',lineHeight:1.8,whiteSpace:'pre-line' as const}}>{"On parle souvent de bienveillance.\n\nMais rarement de ce que ça implique.\n\nEn 3 ans, 2 erreurs majeures :\nConfondre bienveillance et laxisme.\nÉviter les conversations difficiles.\n\nLa vraie bienveillance ?\nDire la vérité avec respect."}</div>
+                      </div>
+                      <div style={{...cardStyle,background:'linear-gradient(135deg,#0078c7,#302082)',border:'none'}}>
+                        <div style={{fontSize:10,fontWeight:600,color:'rgba(255,255,255,0.6)',letterSpacing:'0.07em',marginBottom:6}}>APERÇU VISUEL</div>
+                        <div style={{background:'rgba(255,255,255,0.1)',borderRadius:6,padding:'8px',textAlign:'center' as const}}>
+                          <div style={{fontSize:9,color:'rgba(255,255,255,0.5)',marginBottom:4}}>MANAGEMENT</div>
+                          <div style={{fontSize:11,fontWeight:700,color:'white',lineHeight:1.3,marginBottom:4}}>Management bienveillant</div>
+                          <div style={{fontSize:8,color:'rgba(255,255,255,0.6)'}}>Scale-up · Antoine Bernard</div>
+                          <div style={{marginTop:6,display:'flex',justifyContent:'flex-end'}}>
+                            <div style={{fontSize:7,color:'rgba(255,255,255,0.4)',fontWeight:600,letterSpacing:'0.1em'}}>ECRIRA</div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -259,17 +281,49 @@ export default function Landing() {
                 <div>
                   <div style={{fontSize:10,fontWeight:600,color:'#B7C0B8',letterSpacing:'0.08em',marginBottom:4}}>PLANIFICATION</div>
                   <div style={{fontSize:22,fontWeight:700,color:'#1F2421',letterSpacing:'-0.5px'}}>Calendrier</div>
-                  <div style={{width:32,height:2,background:'#D9C8A3',margin:'10px 0 16px'}}/>
+                  <div style={{width:32,height:2,background:'#D9C8A3',margin:'10px 0 12px'}}/>
                   <div style={cardStyle}>
-                    <div style={{fontSize:10,fontWeight:600,color:'#9EA39C',letterSpacing:'0.07em',marginBottom:10}}>JUIN 2026</div>
-                    <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:4}}>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
+                      <div style={{fontSize:10,fontWeight:600,color:'#9EA39C',letterSpacing:'0.07em'}}>JUIN 2026</div>
+                      <div style={{display:'flex',gap:4}}>
+                        {['Semaine','Mois'].map((v,i)=>(
+                          <span key={v} style={{padding:'2px 8px',borderRadius:6,fontSize:9,border:'1px solid '+(i===0?'rgba(81,103,86,0.3)':'#E3DED7'),background:i===0?'rgba(81,103,86,0.08)':'transparent',color:i===0?'#516756':'#9EA39C',cursor:'default',fontWeight:i===0?600:400}}>{v}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:3}}>
                       {['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d=>(
-                        <div key={d} style={{fontSize:10,color:'#B7C0B8',textAlign:'center',padding:'4px 0',fontWeight:600}}>{d}</div>
+                        <div key={d} style={{fontSize:9,color:'#B7C0B8',textAlign:'center',padding:'3px 0',fontWeight:600}}>{d}</div>
                       ))}
-                      {[2,3,4,5,6,7,8,9,10,11,12,13,14,15].map((d)=>(
-                        <div key={d} style={{borderRadius:6,padding:'6px 4px',textAlign:'center',minHeight:48,border:'1px solid '+([3,5,10,12].includes(d)?'rgba(81,103,86,0.3)':'#E3DED7'),background:[3,5,10,12].includes(d)?'rgba(81,103,86,0.04)':'white'}}>
-                          <div style={{fontSize:10,fontWeight:600,color:'#1F2421',marginBottom:2}}>{d}</div>
-                          {[3,5,10,12].includes(d) && <div style={{width:6,height:6,borderRadius:'50%',background:'#516756',margin:'0 auto'}}/>}
+                      {[2,3,4,5,6,7,8,9,10,11,12,13,14,15].map((d)=>{
+                        const posts: Record<number,{label:string,color:string}> = {
+                          3:{label:'Management bienveillant',color:'#516756'},
+                          5:{label:'Recrutement : 3 erreurs',color:'#0078c7'},
+                          10:{label:'Déléguer sans perdre',color:'#516756'},
+                          12:{label:"Culture d'entreprise",color:'#8B4513'},
+                        }
+                        const post = posts[d]
+                        return (
+                          <div key={d} style={{borderRadius:6,padding:'4px 3px',minHeight:52,border:'1px solid '+(post?'rgba(81,103,86,0.25)':'#E3DED7'),background:post?'rgba(81,103,86,0.03)':'white'}}>
+                            <div style={{fontSize:9,fontWeight:600,color:'#1F2421',marginBottom:2,textAlign:'center' as const}}>{d}</div>
+                            {post && <div style={{fontSize:8,color:post.color,lineHeight:1.3,fontWeight:500,padding:'0 1px',overflow:'hidden'}}>{post.label}</div>}
+                          </div>
+                        )
+                      })}
+                    </div>
+                    <div style={{marginTop:10,borderTop:'1px solid #E3DED7',paddingTop:8}}>
+                      <div style={{fontSize:9,fontWeight:600,color:'#9EA39C',letterSpacing:'0.07em',marginBottom:6}}>POSTS PLANIFIÉS</div>
+                      {[
+                        {day:'Mar 3',title:'Management bienveillant en scale-up',time:'09:00',status:'Planifié'},
+                        {day:'Jeu 5',title:'Recrutement : les 3 erreurs à éviter',time:'11:30',status:'Planifié'},
+                      ].map((p,i)=>(
+                        <div key={i} style={{display:'flex',alignItems:'center',gap:6,padding:'5px 0',borderBottom:i===0?'1px solid #E3DED7':'none'}}>
+                          <div style={{width:6,height:6,borderRadius:'50%',background:'#516756',flexShrink:0}}/>
+                          <div style={{flex:1}}>
+                            <div style={{fontSize:10,fontWeight:500,color:'#1F2421'}}>{p.title}</div>
+                            <div style={{fontSize:9,color:'#9EA39C'}}>{p.day} · {p.time}</div>
+                          </div>
+                          <span style={{fontSize:8,padding:'2px 6px',borderRadius:10,background:'rgba(81,103,86,0.08)',color:'#516756',fontWeight:600}}>{p.status}</span>
                         </div>
                       ))}
                     </div>
