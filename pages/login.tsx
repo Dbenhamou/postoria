@@ -64,7 +64,7 @@ export default function Login() {
     <>
       <Head>
         <link rel="icon" href="/logo-ecrira-icon.png" type="image/png"/>
-        <link rel="apple-touch-icon" href="/logo-ecrira-icon.png"/><title>Ecrira · Connexion</title></Head>
+        <link rel="apple-touch-icon" href="/logo-ecrira-icon.png"/><title>Ecrira — Publiez sur LinkedIn en 30 secondes</title><meta name="description" content="Connectez-vous à Ecrira et générez vos posts LinkedIn en 30 secondes."/></Head>
       <div style={{
         minHeight: '100vh',
         background: '#FAF9F7',
