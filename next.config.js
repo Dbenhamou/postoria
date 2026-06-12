@@ -22,14 +22,7 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
   async redirects() {
-    return [
-      {
-        source: '/',
-        destination: '/landing',
-        permanent: false,
-        has: [{ type: 'cookie', key: 'sb-ymfhprtowcdosqorphhc-auth-token', missing: true }],
-      },
-    ]
+    return []
   },
   async headers() {
     return [
