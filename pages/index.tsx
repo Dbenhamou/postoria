@@ -1819,7 +1819,7 @@ export default function Home() {
             <div className="grid2">
               <div className="card">
                 <div className="section-label">{T('pro_identity')}</div>
-                {([[T('field_first_name'),'name'],[T('field_role'),'role'],[T('field_company'),'company'],[T('field_sector'),'sector'],[T('field_audience'),'audience'],[T('field_domain'),'domain']] as [string,keyof typeof profile][]).map(([label,key])=>(
+                {([[T('field_first_name'),'name'],[T('field_role'),'role'],[T('field_company'),'company'],[T('field_audience'),'audience'],[T('field_domain'),'domain']] as [string,keyof typeof profile][]).map(([label,key])=>(
                   <div className="form-group" key={key}>
                     <label className="form-label">{label}</label>
                     <input type="text" className="form-input" value={profile[key]||''} placeholder={key==='domain'?'ex: entreprise.fr':undefined} onChange={e=>setProfile(p=>({...p,[key]:e.target.value}))}/>
@@ -1850,6 +1850,18 @@ export default function Home() {
                     </>}
                   </div>
                 ))}
+                <div className="form-group">
+                  <label className="form-label">{T('field_sector')}</label>
+                  <div style={{display:'flex',flexWrap:'wrap' as const,gap:6,marginBottom:8}}>
+                    {(profile.sector||'').split(',').map(s=>s.trim()).filter(Boolean).map((tag,i)=>(
+                      <span key={i} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'3px 10px',background:'rgba(81,103,86,0.08)',border:'1px solid rgba(81,103,86,0.2)',borderRadius:20,fontSize:12,color:'var(--forest)'}}>
+                        {tag}
+                        <button onClick={()=>{const tags=(profile.sector||'').split(',').map((s:string)=>s.trim()).filter(Boolean);tags.splice(i,1);setProfile((p:any)=>({...p,sector:tags.join(', ')}))}} style={{background:'none',border:'none',cursor:'pointer',padding:0,fontSize:14,lineHeight:1,color:'var(--text3)',fontFamily:'inherit'}}>×</button>
+                      </span>
+                    ))}
+                  </div>
+                  <input type="text" className="form-input" placeholder={lang==='en'?'Add a sector, press Enter':'Ajouter un secteur, Entrée'} style={{fontSize:12}} onKeyDown={(e:any)=>{if(e.key==='Enter'&&e.target.value.trim()){e.preventDefault();const val=e.target.value.trim();const existing=(profile.sector||'').split(',').map((s:string)=>s.trim()).filter(Boolean);if(!existing.includes(val)){setProfile((p:any)=>({...p,sector:[...existing,val].join(', ')}))}e.target.value=''}}}/>
+                </div>
                 <div className="form-group"><label className="form-label">{T('field_language')}</label><select className="form-input" value={profile.lang} onChange={e=>setProfile(p=>({...p,lang:e.target.value}))}><option value="fr">Français</option><option value="en">English</option></select></div>
                 <div className="form-group">
                   <label className="form-label">{T('linkedin_pub')}</label>
@@ -1877,10 +1889,21 @@ export default function Home() {
                 </div>
                 <div className="card">
                   <div className="section-label">{T('stack_style')}</div>
-                  <div className="form-group"><label className="form-label">{T('technologies')}</label><input type="text" className="form-input" value={profile.tech_stack||''} onChange={e=>setProfile(p=>({...p,tech_stack:e.target.value}))}/></div>
-                  <div style={{marginTop:8,display:'flex',gap:6,flexWrap:'wrap'}}>
-                    {postTone && <span className="badge badge-forest">{postTone.charAt(0).toUpperCase()+postTone.slice(1)}</span>}
-                    {profile.sector && <span className="badge badge-copper">{profile.sector}</span>}
+                  <div className="form-group">
+                    <label className="form-label">Tags</label>
+                    <div style={{display:'flex',flexWrap:'wrap' as const,gap:6,marginBottom:8}}>
+                      {(profile.tech_stack||'').split(',').map(s=>s.trim()).filter(Boolean).map((tag,i)=>(
+                        <span key={i} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'3px 10px',background:'rgba(81,103,86,0.08)',border:'1px solid rgba(81,103,86,0.2)',borderRadius:20,fontSize:12,color:'var(--forest)'}}>
+                          {tag}
+                          <button onClick={()=>{const tags=(profile.tech_stack||'').split(',').map((s:string)=>s.trim()).filter(Boolean);tags.splice(i,1);setProfile((p:any)=>({...p,tech_stack:tags.join(', ')}))}} style={{background:'none',border:'none',cursor:'pointer',padding:0,fontSize:14,lineHeight:1,color:'var(--text3)',fontFamily:'inherit'}}>×</button>
+                        </span>
+                      ))}
+                    </div>
+                    <div style={{display:'flex',gap:6}}>
+                      <input type="text" className="form-input" placeholder={lang==='en'?'Add a tag, press Enter':'Ajouter un tag, Entrée'} style={{fontSize:12}} onKeyDown={(e:any)=>{if(e.key==='Enter'&&e.target.value.trim()){e.preventDefault();const val=e.target.value.trim();const existing=(profile.tech_stack||'').split(',').map((s:string)=>s.trim()).filter(Boolean);if(!existing.includes(val)){setProfile((p:any)=>({...p,tech_stack:[...existing,val].join(', ')}))}e.target.value=''}}}/>
+                    </div>
+                  </div>
+                  <div style={{marginTop:8,display:'flex',gap:6,flexWrap:'wrap' as const}}>
                   <div className="form-group" style={{marginTop:16}}>
                     <label className="form-label">{lang==='en'?'Tone':'Tutoiement / Vouvoiement'}</label>
                     <div style={{display:'flex',gap:8,marginTop:4}}>
