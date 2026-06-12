@@ -347,7 +347,7 @@ export default function Home() {
   // Rediriger vers landing si non connecté
   useEffect(() => {
     if (!loading && !userId) {
-      router.push('/landing')
+      window.location.href = '/landing'
     }
   }, [loading, userId])
 
