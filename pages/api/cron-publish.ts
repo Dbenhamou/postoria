@@ -50,12 +50,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Convertir SVG brut → PNG via resvg
         let pngBuffer: Buffer | null = null
         try {
-          const { Resvg } = await import('@resvg/resvg-js')
-          const resvg = new Resvg(post.svg_content, { fitTo: { mode: 'width', value: 1080 } })
-          const pngData = resvg.render()
-          pngBuffer = Buffer.from(pngData.asPng())
-        } catch (resvgErr) {
-          console.error('[cron] resvg conversion failed:', resvgErr)
+          const apiKey = process.env.BROWSERLESS_API_KEY
+          if (apiKey) {
+            const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0}body{width:1080px;height:1350px;overflow:hidden}</style></head><body>${post.svg_content}</body></html>`
+            const browserlessRes = await fetch(`https://production-sfo.browserless.io/screenshot?token=${apiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                html,
+                options: { type: 'png', clip: { x: 0, y: 0, width: 1080, height: 1350 } },
+                viewport: { width: 1080, height: 1350 },
+                waitForTimeout: 2000,
+              }),
+            })
+            if (browserlessRes.ok) {
+              pngBuffer = Buffer.from(await browserlessRes.arrayBuffer())
+            } else {
+              console.error('[cron] Browserless error:', await browserlessRes.text())
+            }
+          }
+        } catch (browserlessErr) {
+          console.error('[cron] Browserless conversion failed:', browserlessErr)
         }
 
         if (!pngBuffer) {
