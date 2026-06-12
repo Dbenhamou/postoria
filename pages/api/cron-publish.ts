@@ -61,7 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const page = await browser.newPage()
           await page.setViewport({ width: 1080, height: 1350 })
           const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>*{margin:0;padding:0}body{width:1080px;height:1350px;overflow:hidden}</style></head><body>${post.svg_content}</body></html>`
-          await page.setContent(html, { waitUntil: 'networkidle0' })
+          await page.setContent(html, { waitUntil: 'load' })
           const screenshot = await page.screenshot({ type: 'png', clip: { x: 0, y: 0, width: 1080, height: 1350 } })
           await browser.close()
           pngBuffer = Buffer.from(screenshot)
