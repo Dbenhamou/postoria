@@ -344,6 +344,13 @@ export default function Home() {
     if (!loading && userId && !profile.role && !isPro && !fromUpgrade) setShowOnboarding(true)
   }, [loading, userId, profile.role])
 
+  // Rediriger vers landing si non connecté
+  useEffect(() => {
+    if (!loading && !userId) {
+      router.push('/landing')
+    }
+  }, [loading, userId])
+
   // ── Supabase: load posts ──
   const loadPosts = async () => {
     setLoadingPosts(true)
