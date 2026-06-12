@@ -23,11 +23,11 @@ export default function Login() {
   useEffect(() => {
     // Redirect if already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) router.replace('/')
+      if (session) router.replace('/app')
     })
     // Listen for OAuth callback
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) router.replace('/')
+      if (event === 'SIGNED_IN' && session) router.replace('/app')
     })
     return () => subscription.unsubscribe()
   }, [router])

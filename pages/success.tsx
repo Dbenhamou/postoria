@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 export default function Success() {
   const router = useRouter()
-  useEffect(() => { const t = setTimeout(() => router.push('/'), 5000); return () => clearTimeout(t) }, [router])
+  useEffect(() => { const t = setTimeout(() => router.push('/app'), 5000); return () => clearTimeout(t) }, [router])
   return (
     <>
       <Head><title>Abonnement activé — Ecrira</title></Head>

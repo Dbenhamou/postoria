@@ -70,7 +70,7 @@ export default function Landing() {
 
         {/* NAV */}
         <div style={{position:'sticky',top:0,zIndex:100,background:'rgba(250,249,247,0.95)',backdropFilter:'blur(8px)',borderBottom:'1px solid #E3DED7',padding:'14px 32px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <img src="/logo-ecrira.png" alt="Ecrira" style={{height:28,width:'auto'}}/>
+          <img src="/logo-ecrira.png" alt="Ecrira" style={{height:46,width:'auto'}}/>
           <div style={{display:'flex',gap:10}}>
             <button onClick={()=>router.push('/login')} style={{padding:'7px 16px',borderRadius:8,border:'1px solid rgba(81,103,86,0.3)',background:'transparent',color:'#516756',fontSize:13,cursor:'pointer',fontFamily:'inherit'}}>Se connecter</button>
             <button onClick={()=>router.push('/login')} style={{padding:'7px 16px',borderRadius:8,background:'#516756',border:'none',fontSize:13,color:'white',cursor:'pointer',fontWeight:500,fontFamily:'inherit'}}>Essai gratuit 7 jours →</button>

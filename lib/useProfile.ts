@@ -63,7 +63,7 @@ export function useProfile() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         setLoading(false)
-        router.replace('/landing')
+        router.replace('/app')
         return
       }
       setUserId(session.user.id)
@@ -74,7 +74,7 @@ export function useProfile() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
         setLoading(false)
-        router.replace('/landing')
+        router.replace('/app')
         return
       }
       if (event === 'SIGNED_IN' && session) {
