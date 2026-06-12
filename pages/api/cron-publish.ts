@@ -59,10 +59,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         if (!pngBuffer) {
-          // Fallback sans image
-          await supabase.from('scheduled_posts').update({ status: 'error' }).eq('id', post.id)
-          failed++
-          continue
+          // Fallback : publier sans image plutôt que passer en erreur
+          console.error('[cron] resvg failed, publishing without image for post', post.id)
         }
 
         // Upload image LinkedIn
