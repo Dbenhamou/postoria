@@ -230,6 +230,8 @@ export default function Home() {
   const [ideas, setIdeas] = useState<Idea[]>([])
   const [ideasGeneratedAt, setIdeasGeneratedAt] = useState<Date | null>(null)
   const [savedPosts, setSavedPosts] = useState<Post[]>([])
+  const [savedIdeas, setSavedIdeas] = useState<Idea[]>([])
+  const [libraryTab, setLibraryTab] = useState<'posts'|'ideas'>('posts')
   const [generatedCount, setGeneratedCount] = useState(0)
   const [scheduledPosts, setScheduledPosts] = useState<any[]>([])
   const [calView, setCalView] = useState<'semaine'|'mois'|'annee'>('mois')
@@ -396,6 +398,9 @@ export default function Home() {
         return Math.abs(diff) < 60000 * 5 // within 5 min = same batch
       })
       setIdeas(batch.map((d: any) => ({ topic: d.topic, title: d.title, hook: d.hook, recommended: d.recommended })))
+      // Charger idées sauvegardées
+      const { data: savedIdeasData } = await supabase.from('saved_ideas').select('*').eq('user_id', userId||'').order('created_at', { ascending: false })
+      if (savedIdeasData) setSavedIdeas(savedIdeasData.map((d: any) => ({ topic: d.topic, title: d.title, hook: d.hook })))
       const generatedAt = new Date(latestDate)
       setIdeasGeneratedAt(generatedAt)
       ideasLastRefresh.current = generatedAt.getTime()
@@ -587,6 +592,23 @@ export default function Home() {
   }, [postTopic,postFormat,postLength,postTone,profile,batchTopics,activeBatchTab])
 
   // ── Supabase: save post ──
+  const saveIdea = async (idea: Idea) => {
+    if (!userId) return
+    const already = savedIdeas.some(s => s.title === idea.title)
+    if (already) { showToast(lang==='en'?'Already saved':'Déjà sauvegardée'); return }
+    const { error } = await supabase.from('saved_ideas').insert({ user_id: userId, title: idea.title, hook: idea.hook, topic: idea.topic })
+    if (!error) {
+      setSavedIdeas(prev => [...prev, idea])
+      showToast(lang==='en'?'Idea saved ✓':'Idée sauvegardée ✓')
+    } else showToast(T('toast_save_error'))
+  }
+
+  const deleteSavedIdea = async (id?: string, title?: string) => {
+    if (!userId) return
+    await supabase.from('saved_ideas').delete().eq('user_id', userId).eq('title', title||'')
+    setSavedIdeas(prev => prev.filter(s => s.title !== title))
+  }
+
   const savePost = async () => {
     if (!postOutput.trim() || !userId) return
     const displayDate = new Date().toLocaleDateString(profile.lang==='en'?'en-GB':'fr-FR')
@@ -1103,6 +1125,7 @@ export default function Home() {
                   <div className="idea-actions">
                     <button className="btn btn-primary" style={{fontSize:12,padding:'7px 13px'}} onClick={()=>{setPostTopic(idea.title);setPostOutput('');setPage('rediger')}}>{T('develop')}</button>
                     <button className="btn btn-ghost" onClick={()=>copyText(idea.title+'\n\n'+idea.hook)}>{T('copy')}</button>
+                    <button className="btn btn-ghost" style={{fontSize:11}} onClick={()=>saveIdea(idea)}>{savedIdeas.some(s=>s.title===idea.title)?'★':'☆'} {lang==='en'?'Save':'Sauver'}</button>
                   </div>
                 </div>
               </div>
@@ -1865,8 +1888,36 @@ export default function Home() {
           {/* BIBLIOTHÈQUE */}
           <div className={`page ${page==='bibliotheque'?'active':''}`}>
             <div className="eyebrow">{T('your_content')}</div><div className="page-title">{T('library')}</div><div className="copper-rule"/>
-            <div className="page-sub">{T('library_sub_auto')}</div>
-            {savedPosts.length > 3 && (
+            <div style={{display:'flex',gap:8,marginBottom:16}}>
+              <button onClick={()=>setLibraryTab('posts')} style={{padding:'6px 16px',borderRadius:8,border:`1px solid ${libraryTab==='posts'?'var(--forest)':'var(--border)'}`,background:libraryTab==='posts'?'rgba(81,103,86,0.08)':'transparent',color:libraryTab==='posts'?'var(--forest)':'var(--text2)',fontSize:12,cursor:'pointer',fontWeight:libraryTab==='posts'?600:400,fontFamily:'inherit'}}>
+                {lang==='en'?'Posts':'Posts'} ({savedPosts.length})
+              </button>
+              <button onClick={()=>setLibraryTab('ideas')} style={{padding:'6px 16px',borderRadius:8,border:`1px solid ${libraryTab==='ideas'?'var(--forest)':'var(--border)'}`,background:libraryTab==='ideas'?'rgba(81,103,86,0.08)':'transparent',color:libraryTab==='ideas'?'var(--forest)':'var(--text2)',fontSize:12,cursor:'pointer',fontWeight:libraryTab==='ideas'?600:400,fontFamily:'inherit'}}>
+                {lang==='en'?'Ideas':'Idées'} ({savedIdeas.length})
+              </button>
+            </div>
+            {libraryTab==='ideas' && (
+              <div>
+                {savedIdeas.length===0 ? (
+                  <div className="card empty"><div className="empty-icon">☆</div><div className="empty-title">{lang==='en'?'No saved ideas yet':'Aucune idée sauvegardée'}</div><div className="empty-body">{lang==='en'?'Star ideas to save them here':'Cliquez sur ☆ pour sauvegarder vos idées'}</div></div>
+                ) : savedIdeas.map((idea,i)=>(
+                  <div key={i} className="idea-card">
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                      <span className="idea-tag">{idea.topic}</span>
+                    </div>
+                    <div className="idea-title">{idea.title}</div>
+                    <div className="idea-hook">{idea.hook}</div>
+                    <div className="idea-actions">
+                      <button className="btn btn-primary" style={{fontSize:12,padding:'7px 13px'}} onClick={()=>{setPostTopic(idea.title);setPostOutput('');setPage('rediger')}}>{T('develop')}</button>
+                      <button className="btn btn-ghost" onClick={()=>copyText(idea.title+'\n\n'+(idea.hook||''))}>{T('copy')}</button>
+                      <button className="btn btn-ghost" style={{fontSize:11,color:'#c0392b'}} onClick={()=>deleteSavedIdea(undefined,idea.title)}>🗑</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {libraryTab==='posts' && <div className="page-sub">{T('library_sub_auto')}</div>}
+            {libraryTab==='posts' && <>{savedPosts.length > 3 && (
               <div style={{marginBottom:16,position:'relative' as const}}>
                 <input
                   className="form-input"
@@ -1915,6 +1966,8 @@ export default function Home() {
                 </div>
               </div>
             ))}
+            </>
+          }
           </div>
 
           {/* PROFIL */}
