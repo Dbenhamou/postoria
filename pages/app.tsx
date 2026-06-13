@@ -254,6 +254,9 @@ export default function Home() {
   const [batchPosts, setBatchPosts] = useState<{topic:string,content:string}[]>([])
   const [batchIndex, setBatchIndex] = useState(0)
   const [batchLoading, setBatchLoading] = useState(false)
+  const [batchTopics, setBatchTopics] = useState<string[]>([])
+  const [activeBatchTab, setActiveBatchTab] = useState(0)
+  const [batchTabOutputs, setBatchTabOutputs] = useState<Record<number,string>>({})
   const [postVariants, setPostVariants] = useState<string[]>([])
   const [activeVariant, setActiveVariant] = useState(0)
   const [usedIdeaIds, setUsedIdeaIds] = useState<Set<string>>(new Set())
@@ -1037,7 +1040,17 @@ export default function Home() {
               <span style={{fontSize:13,color:'var(--forest)',fontWeight:500}}>{selectedIdeaIds.size} {lang==='en'?'idea(s) selected':'idée(s) sélectionnée(s)'}</span>
               <div style={{display:'flex',gap:8}}>
                 <button className="btn btn-ghost" style={{fontSize:11}} onClick={()=>setSelectedIdeaIds(new Set())}>{lang==='en'?'Deselect all':'Tout désélectionner'}</button>
-                <button className="btn btn-primary" style={{fontSize:12}} onClick={()=>setShowBatchModal(true)}>✦ {lang==='en'?`Develop ${selectedIdeaIds.size} post(s)`:`Développer ${selectedIdeaIds.size} post(s)`}</button>
+                <button className="btn btn-primary" style={{fontSize:12}} onClick={()=>{
+                  const topics = ideas.filter((_,i)=>selectedIdeaIds.has(i)).map(idea=>idea.title)
+                  setBatchTopics(topics)
+                  setActiveBatchTab(0)
+                  setBatchTabOutputs({})
+                  setPostTopic(topics[0])
+                  setPostOutput('')
+                  setPostVariants([])
+                  setSelectedIdeaIds(new Set())
+                  setPage('rediger')
+                }}>✦ {lang==='en'?`Open ${selectedIdeaIds.size} idea(s) in editor`:`Ouvrir ${selectedIdeaIds.size} idée(s) dans Rédiger`}</button>
               </div>
             </div>
           )}
@@ -1278,6 +1291,25 @@ export default function Home() {
                 <div style={{display:'flex',gap:6}}><button className="btn btn-primary" style={{flex:1,justifyContent:'center'}} onClick={()=>{ if(!canGenerate){ setShowUpgradeModal(true); return; } generatePost(); }} disabled={loadingPost||!canGenerate}>{loadingPost?<><span className="spinner"/> {T('generating')}</>:canGenerate?`✦ Générer le post${!isPro?' ('+Math.max(0,5-postsThisMonth)+T('posts_remaining')+')':''}`:T('limit_reached')}</button>{isPro&&<button className="btn btn-secondary" style={{fontSize:12,padding:'0 12px',flexShrink:0}} onClick={()=>{ if(!canGenerate){setShowUpgradeModal(true);return;} generate3Variants(); }} disabled={loadingPost}>×3</button>}</div>
               </div>
 
+              {/* ONGLETS BATCH */}
+              {batchTopics.length > 1 && (
+                <div style={{marginBottom:12,display:'flex',gap:6,flexWrap:'wrap' as const,padding:'10px 12px',background:'rgba(81,103,86,0.04)',borderRadius:10,border:'1px solid rgba(81,103,86,0.12)'}}>
+                  <span style={{fontSize:11,fontWeight:600,color:'var(--text3)',alignSelf:'center',marginRight:4}}>{lang==='en'?'Ideas:':'Idées :'}</span>
+                  {batchTopics.map((topic,i)=>(
+                    <button key={i} onClick={()=>{
+                      setBatchTabOutputs(prev=>({...prev,[activeBatchTab]:postOutput}))
+                      setActiveBatchTab(i)
+                      setPostTopic(topic)
+                      setPostOutput(batchTabOutputs[i]||'')
+                      setPostVariants([])
+                    }} style={{fontSize:11,padding:'4px 12px',borderRadius:8,border:`1px solid ${activeBatchTab===i?'var(--forest)':'var(--border)'}`,background:activeBatchTab===i?'rgba(81,103,86,0.08)':'white',color:activeBatchTab===i?'var(--forest)':'var(--text2)',cursor:'pointer',fontWeight:activeBatchTab===i?600:400,maxWidth:160,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>
+                      {i+1}. {topic.length > 20 ? topic.slice(0,20)+'…' : topic}
+                      {batchTabOutputs[i] && <span style={{marginLeft:4,fontSize:9,color:'var(--forest)'}}>✓</span>}
+                    </button>
+                  ))}
+                  <button onClick={()=>{setBatchTopics([]);setBatchTabOutputs({});setActiveBatchTab(0)}} style={{fontSize:10,padding:'4px 8px',borderRadius:6,border:'1px solid var(--border)',background:'transparent',color:'var(--text3)',cursor:'pointer',fontFamily:'inherit',marginLeft:'auto'}}>✕ Fermer</button>
+                </div>
+              )}
               {/* RIGHT: Résultat */}
               <div className="card" style={{padding:'16px 18px'}}>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
