@@ -246,6 +246,14 @@ export default function Home() {
   const [showLinkedInPreview, setShowLinkedInPreview] = useState(false)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [previewExpanded, setPreviewExpanded] = useState(false)
+  const [selectedIdeaIds, setSelectedIdeaIds] = useState<Set<number>>(new Set())
+  const [showBatchModal, setShowBatchModal] = useState(false)
+  const [batchFormat, setBatchFormat] = useState('storytelling')
+  const [batchLength, setBatchLength] = useState('medium')
+  const [batchTone, setBatchTone] = useState('expert')
+  const [batchPosts, setBatchPosts] = useState<{topic:string,content:string}[]>([])
+  const [batchIndex, setBatchIndex] = useState(0)
+  const [batchLoading, setBatchLoading] = useState(false)
   const [postVariants, setPostVariants] = useState<string[]>([])
   const [activeVariant, setActiveVariant] = useState(0)
   const [usedIdeaIds, setUsedIdeaIds] = useState<Set<string>>(new Set())
@@ -477,6 +485,27 @@ export default function Home() {
   }
 
   const isProfileComplete = () => !!(profile.name && (profile.sector || (profile as any).domain || (profile as any).website))
+
+  const generateBatch = async () => {
+    if (selectedIdeaIds.size === 0) return
+    setBatchLoading(true)
+    setBatchPosts([])
+    setBatchIndex(0)
+    const selectedTopics = ideas.filter((_,i) => selectedIdeaIds.has(i)).map(idea => idea.title)
+    const results: {topic:string,content:string}[] = []
+    for (const topic of selectedTopics) {
+      try {
+        const res = await authFetch('/api/generate', {
+          method: 'POST',
+          body: JSON.stringify({ topic, format: batchFormat, length: batchLength, tone: batchTone, profile: {...profile, lang} })
+        })
+        const data = await res.json()
+        if (data.content) results.push({ topic, content: data.content })
+      } catch {}
+    }
+    setBatchPosts(results)
+    setBatchLoading(false)
+  }
 
   const generateIdeas = async () => {
     if (!isProfileComplete()) {
@@ -1001,21 +1030,39 @@ export default function Home() {
       {loadingIdeas && <div style={{marginBottom:12}}><div className="strip"/></div>}
       {ideas.length === 0 && !loadingIdeas ? (
         <div className="card empty"><div className="empty-icon">✦</div><div className="empty-title">{T('ideas_empty_title')}</div><div className="empty-body">{T('ideas_empty_body')}</div></div>
-      ) : ideas.map((idea, i) => (
-        <div key={i} className="idea-card fade" style={{animationDelay:`${i*.06}s`,border:idea.recommended?'1px solid rgba(168,120,79,0.4)':undefined,background:idea.recommended?'rgba(168,120,79,0.04)':undefined,opacity:usedIdeaIds.has(idea.title)?0.55:1,position:'relative' as const}}>
+      ) : (
+        <>
+          {selectedIdeaIds.size > 0 && (
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 14px',background:'rgba(81,103,86,0.06)',borderRadius:10,border:'1px solid rgba(81,103,86,0.15)',marginBottom:12}}>
+              <span style={{fontSize:13,color:'var(--forest)',fontWeight:500}}>{selectedIdeaIds.size} {lang==='en'?'idea(s) selected':'idée(s) sélectionnée(s)'}</span>
+              <div style={{display:'flex',gap:8}}>
+                <button className="btn btn-ghost" style={{fontSize:11}} onClick={()=>setSelectedIdeaIds(new Set())}>{lang==='en'?'Deselect all':'Tout désélectionner'}</button>
+                <button className="btn btn-primary" style={{fontSize:12}} onClick={()=>setShowBatchModal(true)}>✦ {lang==='en'?`Develop ${selectedIdeaIds.size} post(s)`:`Développer ${selectedIdeaIds.size} post(s)`}</button>
+              </div>
+            </div>
+          )}
+          {ideas.map((idea, i) => (
+            <div key={i} className="idea-card fade" style={{animationDelay:`${i*.06}s`,border:selectedIdeaIds.has(i)?'1px solid var(--forest)':idea.recommended?'1px solid rgba(168,120,79,0.4)':undefined,background:selectedIdeaIds.has(i)?'rgba(81,103,86,0.04)':idea.recommended?'rgba(168,120,79,0.04)':undefined,opacity:usedIdeaIds.has(idea.title)?0.55:1,position:'relative' as const}}>
               {usedIdeaIds.has(idea.title)&&<div style={{position:'absolute' as const,top:10,right:10,fontSize:9,fontWeight:600,padding:'2px 7px',borderRadius:20,background:'var(--sand)',color:'var(--text3)',letterSpacing:'0.04em',textTransform:'uppercase' as const}}>{lang==='en'?'Used':'Développée'}</div>}
-          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
-            <span className="idea-tag">{idea.topic}</span>
-            {idea.recommended && <span style={{fontSize:10,fontWeight:600,padding:'2px 8px',borderRadius:20,background:'rgba(168,120,79,0.12)',color:'var(--forest)',border:'1px solid rgba(168,120,79,0.25)'}}>{T('recommended')}</span>}
-          </div>
-          <div className="idea-title">{idea.title}</div>
-          <div className="idea-hook">{idea.hook}</div>
-          <div className="idea-actions">
-            <button className="btn btn-primary" style={{fontSize:12,padding:'7px 13px'}} onClick={()=>{setPostTopic(idea.title);setPostOutput('');setPage('rediger')}}>{T('develop')}</button>
-            <button className="btn btn-ghost" onClick={()=>copyText(idea.title+'\n\n'+idea.hook)}>{T('copy')}</button>
-          </div>
-        </div>
-      ))}
+              <div style={{display:'flex',alignItems:'flex-start',gap:10}}>
+                <input type="checkbox" checked={selectedIdeaIds.has(i)} onChange={e=>{const s=new Set(selectedIdeaIds);e.target.checked?s.add(i):s.delete(i);setSelectedIdeaIds(s)}} style={{marginTop:3,accentColor:'var(--forest)',width:14,height:14,flexShrink:0,cursor:'pointer'}}/>
+                <div style={{flex:1}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                    <span className="idea-tag">{idea.topic}</span>
+                    {idea.recommended && <span style={{fontSize:10,fontWeight:600,padding:'2px 8px',borderRadius:20,background:'rgba(168,120,79,0.12)',color:'var(--forest)',border:'1px solid rgba(168,120,79,0.25)'}}>{T('recommended')}</span>}
+                  </div>
+                  <div className="idea-title">{idea.title}</div>
+                  <div className="idea-hook">{idea.hook}</div>
+                  <div className="idea-actions">
+                    <button className="btn btn-primary" style={{fontSize:12,padding:'7px 13px'}} onClick={()=>{setPostTopic(idea.title);setPostOutput('');setPage('rediger')}}>{T('develop')}</button>
+                    <button className="btn btn-ghost" onClick={()=>copyText(idea.title+'\n\n'+idea.hook)}>{T('copy')}</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
     </>
   )
 
@@ -2184,6 +2231,76 @@ export default function Home() {
         </div>
       )}
       {/* MODAL APERÇU LINKEDIN */}
+      {/* MODAL BATCH IDÉES */}
+      {showBatchModal && (
+        <div onClick={()=>{if(!batchLoading)setShowBatchModal(false)}} style={{position:'fixed',inset:0,zIndex:700,background:'rgba(0,0,0,0.6)',display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(4px)',padding:20}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--white)',borderRadius:20,width:'100%',maxWidth:520,boxShadow:'0 24px 64px rgba(0,0,0,0.2)',overflow:'hidden'}}>
+            <div style={{background:'var(--forest)',padding:'20px 24px'}}>
+              <div style={{fontSize:16,fontWeight:700,color:'white',marginBottom:4}}>{lang==='en'?`Generate ${selectedIdeaIds.size} post(s)`:`Générer ${selectedIdeaIds.size} post(s)`}</div>
+              <div style={{fontSize:12,color:'rgba(255,255,255,0.7)'}}>Choisissez le format, la longueur et le ton</div>
+            </div>
+            {batchPosts.length === 0 && !batchLoading ? (
+              <div style={{padding:'20px 24px 24px'}}>
+                <div className="form-group" style={{marginBottom:12}}>
+                  <label className="form-label">{lang==='en'?'Format':'Format'}</label>
+                  <select className="form-input" value={batchFormat} onChange={e=>setBatchFormat(e.target.value)}>
+                    {['storytelling','liste','conseils','prise_de_position','inspiration','etude_de_cas'].map(f=>(
+                      <option key={f} value={f}>{f.charAt(0).toUpperCase()+f.slice(1).replace(/_/g,' ')}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group" style={{marginBottom:12}}>
+                  <label className="form-label">{lang==='en'?'Length':'Longueur'}</label>
+                  <div style={{display:'flex',gap:8}}>
+                    {(['short','medium','long'] as const).map(l=>(
+                      <button key={l} onClick={()=>setBatchLength(l)} style={{flex:1,padding:'8px',borderRadius:8,border:`1px solid ${batchLength===l?'var(--forest)':'var(--border)'}`,background:batchLength===l?'rgba(81,103,86,0.08)':'transparent',color:batchLength===l?'var(--forest)':'var(--text2)',fontSize:12,cursor:'pointer',fontFamily:'inherit',fontWeight:batchLength===l?600:400}}>
+                        {l==='short'?(lang==='en'?'Short':'Court'):l==='medium'?(lang==='en'?'Medium':'Moyen'):(lang==='en'?'Long':'Long')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="form-group" style={{marginBottom:20}}>
+                  <label className="form-label">{lang==='en'?'Tone':'Ton'}</label>
+                  <div style={{display:'flex',gap:6,flexWrap:'wrap' as const}}>
+                    {['expert','accessible','direct','storyteller'].map(t=>(
+                      <button key={t} onClick={()=>setBatchTone(t)} className={`chip ${batchTone===t?'on':''}`} style={{fontSize:11,padding:'4px 12px'}}>{t.charAt(0).toUpperCase()+t.slice(1)}</button>
+                    ))}
+                  </div>
+                </div>
+                <button className="btn btn-primary" style={{width:'100%',justifyContent:'center'}} onClick={generateBatch}>
+                  ✦ {lang==='en'?'Generate all posts':'Générer tous les posts'}
+                </button>
+              </div>
+            ) : batchLoading ? (
+              <div style={{padding:'40px 24px',textAlign:'center' as const}}>
+                <div className="spinner" style={{margin:'0 auto 12px'}}/>
+                <div style={{fontSize:13,color:'var(--text2)'}}>{lang==='en'?'Generating your posts…':'Génération de vos posts en cours…'}</div>
+              </div>
+            ) : (
+              <div style={{padding:'20px 24px 24px'}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+                  <div style={{fontSize:12,color:'var(--text2)'}}>Post {batchIndex+1} / {batchPosts.length}</div>
+                  <div style={{display:'flex',gap:6}}>
+                    <button onClick={()=>setBatchIndex(i=>Math.max(0,i-1))} disabled={batchIndex===0} className="btn btn-ghost" style={{fontSize:11,padding:'4px 10px'}}>←</button>
+                    <button onClick={()=>setBatchIndex(i=>Math.min(batchPosts.length-1,i+1))} disabled={batchIndex===batchPosts.length-1} className="btn btn-ghost" style={{fontSize:11,padding:'4px 10px'}}>→</button>
+                  </div>
+                </div>
+                <div style={{fontWeight:600,fontSize:13,color:'var(--text1)',marginBottom:8}}>{batchPosts[batchIndex]?.topic}</div>
+                <div style={{background:'var(--ivory)',borderRadius:8,border:'1px solid var(--border)',padding:12,fontSize:13,color:'var(--text1)',lineHeight:1.7,whiteSpace:'pre-wrap' as const,maxHeight:200,overflow:'auto',marginBottom:12}}>{batchPosts[batchIndex]?.content}</div>
+                <div style={{display:'flex',gap:8}}>
+                  <button className="btn btn-primary" style={{flex:1,justifyContent:'center',fontSize:12}} onClick={()=>{setPostOutput(batchPosts[batchIndex].content);setPostTopic(batchPosts[batchIndex].topic);setShowBatchModal(false);setPage('rediger')}}>
+                    {lang==='en'?'Edit & publish':'Éditer & publier'}
+                  </button>
+                  <button className="btn btn-ghost" style={{fontSize:12}} onClick={async()=>{setPostOutput(batchPosts[batchIndex].content);setPostTopic(batchPosts[batchIndex].topic);await new Promise(r=>setTimeout(r,100));savePost();showToast(lang==='en'?'Saved ✓':'Sauvegardé ✓')}}>
+                    {lang==='en'?'Save':'Sauvegarder'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {showPreviewModal && (
         <div onClick={()=>setShowPreviewModal(false)} style={{position:'fixed',inset:0,zIndex:700,background:'rgba(0,0,0,0.6)',display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(4px)',padding:20}}>
           <div onClick={e=>e.stopPropagation()} style={{background:'white',borderRadius:16,width:'100%',maxWidth:560,maxHeight:'90vh',overflow:'hidden',boxShadow:'0 24px 64px rgba(0,0,0,0.2)',display:'flex',flexDirection:'column' as const}}>
