@@ -243,6 +243,7 @@ export default function Home() {
   const [loadingIdeas, setLoadingIdeas] = useState(false)
   const [loadingPosts, setLoadingPosts] = useState(false)
   const [loadingPost, setLoadingPost] = useState(false)
+  const [loadingByTab, setLoadingByTab] = useState<Record<number,boolean>>({})
   const [showLinkedInPreview, setShowLinkedInPreview] = useState(false)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [previewExpanded, setPreviewExpanded] = useState(false)
@@ -556,7 +557,13 @@ export default function Home() {
     const t = topic || postTopic
     if (!t.trim()) { showToast(T('toast_enter_topic')); return }
     if (topic) setPostTopic(topic)
-    setPage('rediger'); setLoadingPost(true); setPostOutput('')
+    setPage('rediger')
+    if (batchTopics.length > 1) {
+      setLoadingByTab(prev => ({...prev, [activeBatchTab]: true}))
+    } else {
+      setLoadingPost(true)
+    }
+    setPostOutput('')
     try {
       const res = await authFetch('/api/generate', { method:'POST', body:JSON.stringify({topic:t,format:postFormat,length:postLength,tone:postTone,profile: {...profile, lang}}) })
       const data = await res.json()
@@ -571,7 +578,11 @@ export default function Home() {
       }
       else showToast((lang==='en'?'Error: ':'Erreur : ')+(data.error||'unknown'))
     } catch { showToast(lang==='en'?'Network error':'Erreur réseau') }
-    setLoadingPost(false)
+    if (batchTopics.length > 1) {
+      setLoadingByTab(prev => ({...prev, [activeBatchTab]: false}))
+    } else {
+      setLoadingPost(false)
+    }
   }, [postTopic,postFormat,postLength,postTone,profile])
 
   // ── Supabase: save post ──
@@ -1341,7 +1352,7 @@ export default function Home() {
                     <button className="btn btn-ghost" style={{fontSize:11,opacity:postOutput?1:0.4}} onClick={()=>postOutput&&copyText(postOutput)} disabled={!postOutput}>{T('copy_btn')}</button>
                   </div>
                 </div>
-                {loadingPost&&<div style={{marginBottom:10}}><div className="strip"/></div>}
+                {(batchTopics.length>1?loadingByTab[activeBatchTab]:loadingPost)&&<div style={{marginBottom:10}}><div className="strip"/></div>}
                 <div style={{position:'relative'}}>
                 <textarea className="post-editor" style={{minHeight:260}} value={postOutput} onChange={e=>setPostOutput(e.target.value.slice(0,3000))} placeholder={T('post_placeholder')} maxLength={3000}/>
                 <div style={{position:'absolute',bottom:8,right:10,fontSize:10,color:postOutput.length>2800?'#c0392b':'var(--text3)',fontFamily:'monospace',pointerEvents:'none'}}>{postOutput.length}/3000</div>
