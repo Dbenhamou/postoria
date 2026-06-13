@@ -1294,7 +1294,7 @@ export default function Home() {
               </div>
                 {postVariants.length > 1 && (
                   <div style={{display:'flex',gap:6,marginBottom:6}}>
-                    {postVariants.map((_,i)=>(<button key={i} onClick={()=>{setActiveVariant(i);setPostOutput(postVariants[i])}} style={{fontSize:11,padding:'3px 10px',borderRadius:8,border:`1px solid ${activeVariant===i?'var(--forest)':'var(--border)'}`,background:activeVariant===i?'rgba(81,103,86,0.08)':'transparent',color:activeVariant===i?'var(--forest)':'var(--text2)',cursor:'pointer'}}>v{i+1}</button>))}
+                    {postVariants.map((_,i)=>(<button key={i} onClick={()=>{setActiveVariant(i);setPostOutput(postVariants[i])}} style={{fontSize:11,padding:'4px 12px',borderRadius:8,border:`1px solid ${activeVariant===i?'var(--forest)':'var(--border)'}`,background:activeVariant===i?'rgba(81,103,86,0.08)':'transparent',color:activeVariant===i?'var(--forest)':'var(--text2)',cursor:'pointer',fontWeight:activeVariant===i?600:400}}>Post {i+1}</button>))}
                   </div>
                 )}
                 {/* Hashtags suggérés */}
@@ -2288,8 +2288,16 @@ export default function Home() {
                 <div style={{fontWeight:600,fontSize:13,color:'var(--text1)',marginBottom:8}}>{batchPosts[batchIndex]?.topic}</div>
                 <div style={{background:'var(--ivory)',borderRadius:8,border:'1px solid var(--border)',padding:12,fontSize:13,color:'var(--text1)',lineHeight:1.7,whiteSpace:'pre-wrap' as const,maxHeight:200,overflow:'auto',marginBottom:12}}>{batchPosts[batchIndex]?.content}</div>
                 <div style={{display:'flex',gap:8}}>
-                  <button className="btn btn-primary" style={{flex:1,justifyContent:'center',fontSize:12}} onClick={()=>{setPostOutput(batchPosts[batchIndex].content);setPostTopic(batchPosts[batchIndex].topic);setShowBatchModal(false);setPage('rediger')}}>
-                    {lang==='en'?'Edit & publish':'Éditer & publier'}
+                  <button className="btn btn-primary" style={{flex:1,justifyContent:'center',fontSize:12}} onClick={()=>{
+                    const contents = batchPosts.map(p=>p.content)
+                    setPostVariants(contents)
+                    setPostOutput(contents[0])
+                    setActiveVariant(0)
+                    setPostTopic(batchPosts[0].topic)
+                    setShowBatchModal(false)
+                    setPage('rediger')
+                  }}>
+                    {lang==='en'?'Open in editor':'Ouvrir dans l'éditeur'}
                   </button>
                   <button className="btn btn-ghost" style={{fontSize:12}} onClick={async()=>{setPostOutput(batchPosts[batchIndex].content);setPostTopic(batchPosts[batchIndex].topic);await new Promise(r=>setTimeout(r,100));savePost();showToast(lang==='en'?'Saved ✓':'Sauvegardé ✓')}}>
                     {lang==='en'?'Save':'Sauvegarder'}
