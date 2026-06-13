@@ -261,17 +261,7 @@ export default function Landing() {
                         <div style={{fontSize:10,fontWeight:600,color:'#9EA39C',letterSpacing:'0.07em',marginBottom:6}}>APERÇU POST</div>
                         <div style={{fontSize:10,color:'#1F2421',lineHeight:1.8,whiteSpace:'pre-line' as const}}>{"On parle souvent de bienveillance.\n\nMais rarement de ce que ça implique.\n\nEn 3 ans, 2 erreurs majeures :\nConfondre bienveillance et laxisme.\nÉviter les conversations difficiles.\n\nLa vraie bienveillance ?\nDire la vérité avec respect."}</div>
                       </div>
-                      <div style={{...cardStyle,background:'linear-gradient(135deg,#0078c7,#302082)',border:'none'}}>
-                        <div style={{fontSize:10,fontWeight:600,color:'rgba(255,255,255,0.6)',letterSpacing:'0.07em',marginBottom:6}}>APERÇU VISUEL</div>
-                        <div style={{background:'rgba(255,255,255,0.1)',borderRadius:6,padding:'8px',textAlign:'center' as const}}>
-                          <div style={{fontSize:9,color:'rgba(255,255,255,0.5)',marginBottom:4}}>MANAGEMENT</div>
-                          <div style={{fontSize:11,fontWeight:700,color:'white',lineHeight:1.3,marginBottom:4}}>Management bienveillant</div>
-                          <div style={{fontSize:8,color:'rgba(255,255,255,0.6)'}}>Scale-up · Antoine Bernard</div>
-                          <div style={{marginTop:6,display:'flex',justifyContent:'flex-end'}}>
-                            <div style={{fontSize:7,color:'rgba(255,255,255,0.4)',fontWeight:600,letterSpacing:'0.1em'}}>ECRIRA</div>
-                          </div>
-                        </div>
-                      </div>
+
                     </div>
                   </div>
                 </div>
@@ -296,17 +286,11 @@ export default function Landing() {
                         <div key={d} style={{fontSize:9,color:'#B7C0B8',textAlign:'center',padding:'3px 0',fontWeight:600}}>{d}</div>
                       ))}
                       {[2,3,4,5,6,7,8,9,10,11,12,13,14,15].map((d)=>{
-                        const posts: Record<number,{label:string,color:string}> = {
-                          3:{label:'Management bienveillant',color:'#516756'},
-                          5:{label:'Recrutement : 3 erreurs',color:'#0078c7'},
-                          10:{label:'Déléguer sans perdre',color:'#516756'},
-                          12:{label:"Culture d'entreprise",color:'#8B4513'},
-                        }
-                        const post = posts[d]
+                        const hasPost = [3,5,10,12].includes(d)
                         return (
-                          <div key={d} style={{borderRadius:6,padding:'4px 3px',minHeight:52,border:'1px solid '+(post?'rgba(81,103,86,0.25)':'#E3DED7'),background:post?'rgba(81,103,86,0.03)':'white'}}>
-                            <div style={{fontSize:9,fontWeight:600,color:'#1F2421',marginBottom:2,textAlign:'center' as const}}>{d}</div>
-                            {post && <div style={{fontSize:8,color:post.color,lineHeight:1.3,fontWeight:500,padding:'0 1px',overflow:'hidden'}}>{post.label}</div>}
+                          <div key={d} style={{borderRadius:6,padding:'4px 3px',minHeight:52,border:'1px solid '+(hasPost?'rgba(81,103,86,0.25)':'#E3DED7'),background:hasPost?'rgba(81,103,86,0.03)':'white'}}>
+                            <div style={{fontSize:9,fontWeight:600,color:'#1F2421',marginBottom:4,textAlign:'center' as const}}>{d}</div>
+                            {hasPost && <div style={{width:6,height:6,borderRadius:'50%',background:'#516756',margin:'0 auto'}}/>}
                           </div>
                         )
                       })}
