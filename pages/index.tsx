@@ -137,9 +137,9 @@ export default function Landing() {
         </div>
 
         {/* APP MOCKUP */}
-        <div style={{padding:'0 24px 72px',maxWidth:960,margin:'0 auto',overflow:'hidden'}}>
+        <div style={{padding:'0 0 72px',maxWidth:960,margin:'0 auto'}}>
           <div style={{textAlign:'center',fontSize:11,fontWeight:600,color:'#B7C0B8',letterSpacing:'0.1em',marginBottom:16}}>APERÇU DE LA PLATEFORME — CLIQUEZ POUR NAVIGUER</div>
-          <div style={{borderRadius:16,border:'1px solid #E3DED7',overflow:'hidden',boxShadow:'0 20px 60px rgba(31,36,33,0.1)',display:'flex',height:520,maxWidth:'100%'}}>
+          <div style={{overflowX:'auto',padding:'0 24px',WebkitOverflowScrolling:'touch' as any}}><div style={{borderRadius:16,border:'1px solid #E3DED7',overflow:'hidden',boxShadow:'0 20px 60px rgba(31,36,33,0.1)',display:'flex',height:520,minWidth:680}}>
             <div style={{width:160,minWidth:120,background:'#1F2421',display:'flex',flexDirection:'column',flexShrink:0}}>
               <div style={{padding:'18px 16px 14px',borderBottom:'1px solid rgba(255,255,255,0.06)',display:'flex',alignItems:'center',gap:8}}>
                 <img src="/logo-ecrira-icon.png" alt="Ecrira" style={{width:28,height:28,borderRadius:7}}/>
@@ -339,7 +339,7 @@ export default function Landing() {
               )}
             </div>
           </div>
-        </div>
+        </div></div>
 
         {/* DEMO */}
         <div id="demo-section" style={{padding:'64px 32px',background:'white',borderTop:'1px solid #E3DED7',borderBottom:'1px solid #E3DED7'}}>
