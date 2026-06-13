@@ -244,6 +244,8 @@ export default function Home() {
   const [loadingPosts, setLoadingPosts] = useState(false)
   const [loadingPost, setLoadingPost] = useState(false)
   const [showLinkedInPreview, setShowLinkedInPreview] = useState(false)
+  const [showPreviewModal, setShowPreviewModal] = useState(false)
+  const [previewExpanded, setPreviewExpanded] = useState(false)
   const [postVariants, setPostVariants] = useState<string[]>([])
   const [activeVariant, setActiveVariant] = useState(0)
   const [usedIdeaIds, setUsedIdeaIds] = useState<Set<string>>(new Set())
@@ -1009,7 +1011,7 @@ export default function Home() {
           <div className="idea-title">{idea.title}</div>
           <div className="idea-hook">{idea.hook}</div>
           <div className="idea-actions">
-            <button className="btn btn-primary" style={{fontSize:12,padding:'7px 13px'}} onClick={()=>generatePost(idea.title)}>{T('develop')}</button>
+            <button className="btn btn-primary" style={{fontSize:12,padding:'7px 13px'}} onClick={()=>{setPostTopic(idea.title);setPostOutput('');setPage('rediger')}}>{T('develop')}</button>
             <button className="btn btn-ghost" onClick={()=>copyText(idea.title+'\n\n'+idea.hook)}>{T('copy')}</button>
           </div>
         </div>
@@ -1265,54 +1267,14 @@ export default function Home() {
                 {postOutput && (
                   <div style={{marginTop:6,marginBottom:2,display:'flex',justifyContent:'flex-end'}}>
                     <button
-                      onClick={()=>setShowLinkedInPreview(v=>!v)}
+                      onClick={()=>{setShowPreviewModal(true);setPreviewExpanded(false)}}
                       style={{fontSize:11,color:'var(--forest)',background:'none',border:'1px solid rgba(81,103,86,0.3)',borderRadius:8,padding:'4px 10px',cursor:'pointer',display:'flex',alignItems:'center',gap:4}}
                     >
-                      {showLinkedInPreview ? '✕ ' + T('close_preview') : '👁 ' + T('linkedin_preview')}
+                      {'👁 ' + T('linkedin_preview')}
                     </button>
                   </div>
                 )}
-                {postOutput && showLinkedInPreview && (
-                  <div style={{background:'white',border:'1px solid #e0e0e0',borderRadius:12,padding:16,marginTop:4,marginBottom:8,fontFamily:'system-ui,sans-serif',fontSize:14,lineHeight:1.6,color:'#000'}}>
-                    {/* Header LinkedIn simulé */}
-                    <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
-                      {(profile as any).linkedin_picture
-                        ? <img src={(profile as any).linkedin_picture} alt="" style={{width:40,height:40,borderRadius:'50%',objectFit:'cover',flexShrink:0}} />
-                        : <div style={{width:40,height:40,borderRadius:'50%',background:'var(--forest)',display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:700,fontSize:14,flexShrink:0}}>{profile.name?profile.name.slice(0,2).toUpperCase():'??'}</div>
-                      }
-                      <div>
-                        <div style={{fontWeight:600,fontSize:13,color:'#000'}}>{profile.name||'Votre nom'}</div>
-                        <div style={{fontSize:11,color:'#666'}}>{profile.role}{profile.company?` · ${profile.company}`:''}</div>
-                        <div style={{fontSize:11,color:'#666'}}>À l'instant · 🌐</div>
-                      </div>
-                    </div>
-                    {/* Contenu post */}
-                    <div style={{fontSize:14,color:'#000',lineHeight:1.65,whiteSpace:'pre-wrap' as const}}
-                      dangerouslySetInnerHTML={{__html: sanitizeSvg(
-                        postOutput
-                          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-                          .replace(/(#[^\s#<>]+)/g,'<span style="color:#0a66c2;cursor:pointer">$1</span>')
-                          .replace(/(@[^\s@<>]+)/g,'<span style="color:#0a66c2;cursor:pointer">$1</span>')
-                      )}}
-                    />
-                    {/* Visuel dans aperçu */}
-                    {(aiSvgContent || customVisualBase64) && (
-                      <div style={{marginTop:10,borderRadius:8,overflow:'hidden'}}>
-                        {aiSvgContent
-                          ? <div style={{width:'100%',pointerEvents:'none'}} dangerouslySetInnerHTML={{__html: sanitizeSvg(aiSvgContent).replace(/<svg/, '<svg style="width:100%;height:auto;display:block"')}} />
-                          : <img src={`data:image/png;base64,${customVisualBase64}`} alt="" style={{width:'100%',display:'block'}} />
-                        }
-                      </div>
-                    )}
-                    {/* Reactions LinkedIn */}
-                    <div style={{display:'flex',gap:16,marginTop:14,paddingTop:10,borderTop:'1px solid #e0e0e0',fontSize:12,color:'#666'}}>
-                      <span style={{cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>👍 J'aime</span>
-                      <span style={{cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>💬 Commenter</span>
-                      <span style={{cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>🔁 Republier</span>
-                      <span style={{cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>📤 Envoyer</span>
-                    </div>
-                  </div>
-                )}
+
                 {/* Zone amélioration post */}
                 {postOutput && (
                   <div style={{marginTop:8,border:'1px solid var(--border)',borderRadius:12,overflow:'hidden',background:'white'}}>
@@ -2221,6 +2183,77 @@ export default function Home() {
           </div>
         </div>
       )}
+      {/* MODAL APERÇU LINKEDIN */}
+      {showPreviewModal && (
+        <div onClick={()=>setShowPreviewModal(false)} style={{position:'fixed',inset:0,zIndex:700,background:'rgba(0,0,0,0.6)',display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(4px)',padding:20}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'white',borderRadius:16,width:'100%',maxWidth:560,maxHeight:'90vh',overflow:'hidden',boxShadow:'0 24px 64px rgba(0,0,0,0.2)',display:'flex',flexDirection:'column' as const}}>
+            {/* Header modal */}
+            <div style={{padding:'14px 16px',borderBottom:'1px solid #e0e0e0',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <svg viewBox="0 0 24 24" fill="#0a66c2" style={{width:20,height:20}}><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                <span style={{fontSize:13,fontWeight:600,color:'#1F2421'}}>Aperçu LinkedIn</span>
+              </div>
+              <button onClick={()=>setShowPreviewModal(false)} style={{background:'none',border:'none',cursor:'pointer',fontSize:18,color:'#666',lineHeight:1}}>✕</button>
+            </div>
+            {/* Contenu scrollable */}
+            <div style={{overflow:'auto',flex:1,padding:16,background:'#f3f2ef'}}>
+              <div style={{background:'white',borderRadius:8,padding:16,boxShadow:'0 1px 3px rgba(0,0,0,0.08)',fontFamily:'system-ui,sans-serif'}}>
+                {/* Header post LinkedIn */}
+                <div style={{display:'flex',alignItems:'flex-start',gap:10,marginBottom:12}}>
+                  {(profile as any).linkedin_picture
+                    ? <img src={(profile as any).linkedin_picture} alt="" style={{width:48,height:48,borderRadius:'50%',objectFit:'cover',flexShrink:0}}/>
+                    : <div style={{width:48,height:48,borderRadius:'50%',background:'#516756',display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:700,fontSize:16,flexShrink:0}}>{profile.name?profile.name.slice(0,2).toUpperCase():'??'}</div>
+                  }
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:600,fontSize:14,color:'#000'}}>{profile.name||'Votre nom'}</div>
+                    <div style={{fontSize:12,color:'#666',marginBottom:2}}>{profile.role}{profile.company?` · ${profile.company}`:''}</div>
+                    <div style={{fontSize:11,color:'#666',display:'flex',alignItems:'center',gap:4}}>À l&apos;instant · <svg viewBox="0 0 16 16" fill="#666" style={{width:12,height:12}}><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14.5A6.5 6.5 0 118 1.5a6.5 6.5 0 010 13z"/></svg></div>
+                  </div>
+                  <button style={{background:'none',border:'none',cursor:'default',fontSize:18,color:'#666'}}>···</button>
+                </div>
+                {/* Contenu post avec voir plus */}
+                <div style={{fontSize:14,color:'#000',lineHeight:1.65,marginBottom:10}}>
+                  {(() => {
+                    const lines = postOutput.split('\n')
+                    const preview = lines.slice(0, 3).join('\n')
+                    const hasMore = lines.length > 3
+                    if (!hasMore || previewExpanded) {
+                      return <div style={{whiteSpace:'pre-wrap' as const}} dangerouslySetInnerHTML={{__html: sanitizeSvg(postOutput.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/(#[^\s#<>]+)/g,'<span style="color:#0a66c2">$1</span>').replace(/(@[^\s@<>]+)/g,'<span style="color:#0a66c2">$1</span>'))}}/>
+                    }
+                    return (
+                      <>
+                        <div style={{whiteSpace:'pre-wrap' as const}} dangerouslySetInnerHTML={{__html: sanitizeSvg(preview.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/(#[^\s#<>]+)/g,'<span style="color:#0a66c2">$1</span>').replace(/(@[^\s@<>]+)/g,'<span style="color:#0a66c2">$1</span>'))}}/>
+                        <span onClick={()=>setPreviewExpanded(true)} style={{color:'#666',cursor:'pointer',fontSize:13}}>...voir plus</span>
+                      </>
+                    )
+                  })()}
+                </div>
+                {/* Visuel si présent */}
+                {(aiSvgContent || customVisualBase64) && (
+                  <div style={{marginBottom:10,borderRadius:6,overflow:'hidden',border:'1px solid #e0e0e0'}}>
+                    {aiSvgContent
+                      ? <div style={{width:'100%',pointerEvents:'none'}} dangerouslySetInnerHTML={{__html: sanitizeSvg(aiSvgContent).replace(/<svg/, '<svg style="width:100%;height:auto;display:block"')}}/>
+                      : <img src={`data:image/png;base64,${customVisualBase64}`} alt="" style={{width:'100%',display:'block'}}/>
+                    }
+                  </div>
+                )}
+                {/* Compteurs */}
+                <div style={{display:'flex',justifyContent:'space-between',fontSize:12,color:'#666',padding:'8px 0',borderBottom:'1px solid #e0e0e0',marginBottom:4}}>
+                  <span>👍 ❤️ 💡 24</span>
+                  <span>3 commentaires</span>
+                </div>
+                {/* Actions */}
+                <div style={{display:'flex',justifyContent:'space-around',paddingTop:4}}>
+                  {["👍 J'aime","💬 Commenter","🔁 Republier","📤 Envoyer"].map((a,i)=>(
+                    <button key={i} style={{background:'none',border:'none',cursor:'default',fontSize:12,color:'#666',padding:'6px 8px',borderRadius:4,display:'flex',alignItems:'center',gap:4,fontFamily:'inherit'}}>{a}</button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showVisualModal&&(<VisualModal onClose={()=>setShowVisualModal(false)} postContent={postOutput} postTopic={postTopic} profileName={profile.name} profileRole={profile.role} profileCompany={profile.company} profileSector={profile.sector} brandBg={profile.brand_bg} brandText={profile.brand_text} brandAccent={profile.brand_accent}/>)}
       {showUpgradeModal&&<UpgradeModal onClose={()=>setShowUpgradeModal(false)} lang={lang}/>}
       <div className={`toast ${toastVisible?'show':''}`}>{toast}</div>
