@@ -584,7 +584,7 @@ export default function Home() {
     } else {
       setLoadingPost(false)
     }
-  }, [postTopic,postFormat,postLength,postTone,profile])
+  }, [postTopic,postFormat,postLength,postTone,profile,batchTopics,activeBatchTab])
 
   // ── Supabase: save post ──
   const savePost = async () => {
