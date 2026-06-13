@@ -111,7 +111,7 @@ export default function Landing() {
         <script defer data-domain="ecrira.com" src="https://plausible.io/js/pa-JoffvncprLIz4FmqjAnDr.js"></script>
       </Head>
 
-      <div style={{fontFamily:"'Inter',system-ui,sans-serif", background:'#FAF9F7', minHeight:'100vh'}}>
+      <div style={{fontFamily:"'Inter',system-ui,sans-serif", background:'#FAF9F7', minHeight:'100vh', overflowX:'hidden'}}>
 
         {/* NAV */}
         <div style={{position:'sticky',top:0,zIndex:100,background:'rgba(250,249,247,0.95)',backdropFilter:'blur(8px)',borderBottom:'1px solid #E3DED7',padding:'14px 32px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -137,10 +137,10 @@ export default function Landing() {
         </div>
 
         {/* APP MOCKUP */}
-        <div style={{padding:'0 24px 72px',maxWidth:960,margin:'0 auto'}}>
+        <div style={{padding:'0 24px 72px',maxWidth:960,margin:'0 auto',overflow:'hidden'}}>
           <div style={{textAlign:'center',fontSize:11,fontWeight:600,color:'#B7C0B8',letterSpacing:'0.1em',marginBottom:16}}>APERÇU DE LA PLATEFORME — CLIQUEZ POUR NAVIGUER</div>
-          <div style={{borderRadius:16,border:'1px solid #E3DED7',overflow:'hidden',boxShadow:'0 20px 60px rgba(31,36,33,0.1)',display:'flex',height:520}}>
-            <div style={{width:200,background:'#1F2421',display:'flex',flexDirection:'column',flexShrink:0}}>
+          <div style={{borderRadius:16,border:'1px solid #E3DED7',overflow:'hidden',boxShadow:'0 20px 60px rgba(31,36,33,0.1)',display:'flex',height:520,maxWidth:'100%'}}>
+            <div style={{width:160,minWidth:120,background:'#1F2421',display:'flex',flexDirection:'column',flexShrink:0}}>
               <div style={{padding:'18px 16px 14px',borderBottom:'1px solid rgba(255,255,255,0.06)',display:'flex',alignItems:'center',gap:8}}>
                 <img src="/logo-ecrira-icon.png" alt="Ecrira" style={{width:28,height:28,borderRadius:7}}/>
                 <span style={{fontSize:14,fontWeight:600,color:'white',letterSpacing:'-0.2px'}}>Ecrira</span>
