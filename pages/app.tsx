@@ -2297,7 +2297,7 @@ export default function Home() {
                     setShowBatchModal(false)
                     setPage('rediger')
                   }}>
-                    {lang==='en'?'Open in editor':'Ouvrir dans l'éditeur'}
+                    {lang==='en'?'Open in editor':"Ouvrir dans l'éditeur"}
                   </button>
                   <button className="btn btn-ghost" style={{fontSize:12}} onClick={async()=>{setPostOutput(batchPosts[batchIndex].content);setPostTopic(batchPosts[batchIndex].topic);await new Promise(r=>setTimeout(r,100));savePost();showToast(lang==='en'?'Saved ✓':'Sauvegardé ✓')}}>
                     {lang==='en'?'Save':'Sauvegarder'}
