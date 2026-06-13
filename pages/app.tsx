@@ -781,6 +781,10 @@ export default function Home() {
         const url = URL.createObjectURL(blob)
         setAiVisualUrl(url)
         setAiSvgContent(data.svgContent)
+        // Sauvegarder dans l'onglet batch actif si batch en cours
+        if (batchTopics.length > 1) {
+          setBatchTabVisuals(prev => ({...prev, [activeBatchTab]: {svg: data.svgContent, url}}))
+        }
         // Init editor with known values
         setSvgEditTitle(visualCustomTitle || postTopic || '')
         setSvgEditPoints(visualCustomPoints ? visualCustomPoints.split('\n').filter((p:string)=>p.trim()).slice(0,3) : [])
