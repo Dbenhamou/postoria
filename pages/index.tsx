@@ -175,7 +175,7 @@ export default function Landing() {
           .btn-hover { transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s; }
           .btn-hover:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(81,103,86,0.3); }
           .faq-hover:hover { background: rgba(81,103,86,0.03); }
-          @media (max-width:640px) { .grid-4 { grid-template-columns:repeat(2,1fr)!important; } .grid-3 { grid-template-columns:1fr!important; } .hero-h1 { font-size:32px!important; } .mockup-wrap { display:none!important; } .story-grid { grid-template-columns:1fr!important; } .story-grid > div:nth-child(2) { display:none; } }
+          @media (max-width:640px) { .grid-4 { grid-template-columns:repeat(2,1fr)!important; } .grid-3 { grid-template-columns:1fr!important; } .hero-h1 { font-size:32px!important; } .mockup-wrap { display:none!important; } .story-grid { grid-template-columns:1fr!important; } .story-grid > div:nth-child(2) { display:none; } .nav-links { display:none!important; } .nav-btn-connect { display:none!important; } .nav-btn-trial { font-size:12px!important; padding:7px 10px!important; } }
         `}</style>
       </Head>
 
@@ -184,12 +184,11 @@ export default function Landing() {
         {/* ─── NAV ─────────────────────────────────────────────────── */}
         <nav style={{position:'sticky',top:0,zIndex:100,background:'rgba(250,249,247,0.95)',backdropFilter:'blur(8px)',borderBottom:`1px solid ${BD}`,padding:'0 32px',display:'flex',alignItems:'center',justifyContent:'space-between',height:60}}>
           <img src="/logo-ecrira.png" alt="Ecrira" style={{height:46,width:'auto'}}/>
-          <div style={{display:'flex',alignItems:'center',gap:24}}>
-            <a href="#fonctionnalites" style={{fontSize:13,color:'#6B7069',textDecoration:'none',display:'none'}}>Fonctionnalités</a>
-            <a href="#tarifs" style={{fontSize:13,color:'#6B7069',textDecoration:'none'}}>Tarifs</a>
-            <a href="#faq" style={{fontSize:13,color:'#6B7069',textDecoration:'none'}}>FAQ</a>
-            <button onClick={()=>setShowAuthModal(true)} style={{padding:'7px 16px',borderRadius:8,border:`1px solid rgba(81,103,86,0.3)`,background:'transparent',color:F,fontSize:13,cursor:'pointer',fontFamily:'inherit'}}>Se connecter</button>
-            <button onClick={()=>{setAuthMode('signup');setShowAuthModal(true)}} style={{padding:'7px 16px',borderRadius:8,background:F,border:'none',fontSize:13,color:'white',cursor:'pointer',fontWeight:500,fontFamily:'inherit'}}>Essai gratuit 7 jours →</button>
+          <div style={{display:'flex',alignItems:'center',gap:16}}>
+            <a href="#tarifs" className="nav-links" style={{fontSize:13,color:'#6B7069',textDecoration:'none'}}>Tarifs</a>
+            <a href="#faq" className="nav-links" style={{fontSize:13,color:'#6B7069',textDecoration:'none'}}>FAQ</a>
+            <button onClick={()=>setShowAuthModal(true)} className="nav-btn-connect" style={{padding:'7px 16px',borderRadius:8,border:`1px solid rgba(81,103,86,0.3)`,background:'transparent',color:F,fontSize:13,cursor:'pointer',fontFamily:'inherit'}}>Se connecter</button>
+            <button onClick={()=>{setAuthMode('signup');setShowAuthModal(true)}} className="nav-btn-trial" style={{padding:'7px 14px',borderRadius:8,background:F,border:'none',fontSize:13,color:'white',cursor:'pointer',fontWeight:500,fontFamily:'inherit',whiteSpace:'nowrap' as const}}>Essai gratuit 7 jours →</button>
           </div>
         </nav>
 
@@ -207,7 +206,7 @@ export default function Landing() {
           </h1>
           <p style={{fontSize:16,color:'#6B7069',lineHeight:1.7,maxWidth:520,margin:'0 auto 12px',animation:'fadeUp 0.6s 1s both'}}>
             Ecrira écrit vos posts LinkedIn, crée vos visuels et planifie tout depuis votre activité.<br/>
-            <strong style={{color:CH}}>L'alternative au ghostwriting, en 10x moins cher.</strong>
+            <strong style={{color:CH}}>L'alternative au ghostwriting,&nbsp;en&nbsp;10x&nbsp;moins&nbsp;cher.</strong>
           </p>
           <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12,marginBottom:16,animation:'fadeUp 0.6s 1.1s both',flexWrap:'wrap' as const}}>
             <button onClick={scrollToDemo} className="btn-pulse btn-hover" style={{padding:'14px 32px',borderRadius:12,background:F,border:'none',fontSize:15,color:'white',fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>Générer mon 1er post gratuit</button>
