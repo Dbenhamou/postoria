@@ -161,7 +161,7 @@ export default function Landing() {
           @keyframes wordIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
           @keyframes pulse { 0%,100% { box-shadow:0 0 0 0 rgba(81,103,86,0.4); } 70% { box-shadow:0 0 0 8px rgba(81,103,86,0); } }
           @keyframes spin { to { transform:rotate(360deg); } }
-          .hero-word { display:inline-block; opacity:0; animation:wordIn 0.4s forwards; }
+          .hero-word { display:inline; opacity:0; animation:wordIn 0.4s forwards; }
           .animate-up { opacity:0; transform:translateY(24px); transition:opacity 0.5s, transform 0.5s; }
           .animate-up.visible { opacity:1; transform:translateY(0); }
           .card-stagger:nth-child(1) { transition-delay:0s; }
