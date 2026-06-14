@@ -1196,24 +1196,7 @@ export default function Home() {
             )}
           </div>
           <nav className="sidebar-nav">{navItems.map(item=>(<button key={item.id} className={`nav-link ${page===item.id?'active':''}`} onClick={()=>{ if(item.id==="calendrier"&&!isPro){ setShowUpgradeModal(true); return; } setPage(item.id); }}>{item.icon}{item.label}</button>))}</nav>
-          {/* Checklist sidebar persistante */}
-          {(!profile.role || !linkedinConnected || generatedCount === 0) && (
-            <div style={{margin:'0 12px 12px',padding:'12px',background:'rgba(81,103,86,0.06)',borderRadius:12,border:'1px solid rgba(81,103,86,0.12)'}}>
-              <div style={{fontSize:10,fontWeight:600,color:'var(--forest)',textTransform:'uppercase' as const,letterSpacing:'0.08em',marginBottom:8}}>{lang==='en'?'Getting started':'Premiers pas'}</div>
-              {[
-                {done:!!profile.role,label:lang==='en'?'Complete profile':'Compléter profil',action:()=>setPage('profil')},
-                {done:linkedinConnected,label:'Connecter LinkedIn',action:connectLinkedIn},
-                {done:generatedCount>0,label:lang==='en'?'First post':'Premier post',action:()=>setPage('rediger')},
-              ].map((item,i)=>(
-                <div key={i} onClick={!item.done?item.action:undefined} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0',cursor:item.done?'default':'pointer',opacity:item.done?0.5:1}}>
-                  <div style={{width:16,height:16,borderRadius:'50%',border:`1.5px solid ${item.done?'var(--forest)':'var(--border)'}`,background:item.done?'var(--forest)':'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                    {item.done&&<svg viewBox="0 0 10 10" width="8" height="8"><path d="M2 5l2 2 4-4" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/></svg>}
-                  </div>
-                  <span style={{fontSize:11,color:item.done?'var(--text3)':'var(--text1)',textDecoration:item.done?'line-through':'none'}}>{item.label}</span>
-                </div>
-              ))}
-            </div>
-          )}
+
           <div className="sidebar-footer">
             <div className="user-row" onClick={()=>setPage('profil')}>
               {(profile as any).linkedin_picture ? <img src={(profile as any).linkedin_picture} alt="" style={{width:28,height:28,borderRadius:'50%',objectFit:'cover'}} /> : <div className="user-avatar">{profile.name?profile.name.slice(0,2).toUpperCase():'??'}</div>}
@@ -1271,7 +1254,6 @@ export default function Home() {
                 : <div style={{width:30,height:30,borderRadius:'50%',background:'var(--forest)',display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontSize:11,fontWeight:700,cursor:'pointer'}} onClick={()=>setPage('profil')}>{profile.name?profile.name.slice(0,2).toUpperCase():'??'}</div>
               }
             </div>
-          </div>
           <div className={`page ${page==='apercu'?'active':''}`}>
             <div className="eyebrow">{T('dashboard')}</div>
             <div className="page-title">{T('hello')}{profile.name?`, ${profile.name}`:''}.</div>
@@ -1287,7 +1269,7 @@ export default function Home() {
               <div className="stat-card"><div className="stat-label">{T('active_sector')}</div><div className="stat-value" style={{fontSize:18,paddingTop:6}}>{profile.sector?.split(' ')[0]||'Cyber'}</div><div className="stat-note">{profile.company||T('my_company')}</div></div>
             </div>
             {/* Checklist premiers pas */}
-            {(!profile.role || !linkedinConnected || savedPosts.length === 0) && (
+            {(!profile.role || !linkedinConnected || generatedCount === 0) && (
               <div style={{background:'var(--white)',border:'1px solid var(--border)',borderRadius:16,padding:'18px 20px',marginBottom:20,boxShadow:'var(--shadow-sm)'}}>
                 <div style={{fontSize:11,fontWeight:600,color:'var(--text3)',textTransform:'uppercase' as const,letterSpacing:'0.08em',marginBottom:12}}>
                   {lang==='en'?'Getting started':'Premiers pas'}
