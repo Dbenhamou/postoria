@@ -248,6 +248,7 @@ export default function Home() {
   const [loadingByTab, setLoadingByTab] = useState<Record<number,boolean>>({})
   const [showLinkedInPreview, setShowLinkedInPreview] = useState(false)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [previewExpanded, setPreviewExpanded] = useState(false)
   const [selectedIdeaIds, setSelectedIdeaIds] = useState<Set<number>>(new Set())
   const [showBatchModal, setShowBatchModal] = useState(false)
@@ -1167,9 +1168,15 @@ export default function Home() {
           </div>
         </div>
 
-        <aside className="sidebar">
-          <div className="sidebar-logo" style={{cursor:'pointer',padding:'18px 16px 14px'}} onClick={()=>setPage('apercu')}>
-            <img src="/logo-ecrira-icon.png" alt="Ecrira" style={{height:48,width:'auto',display:'block'}} />
+        <aside className="sidebar" style={{width:sidebarCollapsed?60:220,transition:'width 0.2s',overflow:'hidden'}}>
+          <div className="sidebar-logo" style={{cursor:'pointer',padding:'18px 16px 14px',justifyContent:'space-between'}} >
+            <div style={{display:'flex',alignItems:'center',gap:8,flex:1}} onClick={()=>setPage('apercu')}>
+              <img src="/logo-ecrira-icon.png" alt="Ecrira" style={{height:32,width:'auto',display:'block',flexShrink:0}} />
+              {!sidebarCollapsed && <span style={{fontSize:14,fontWeight:600,color:'var(--text1)',letterSpacing:'-0.2px'}}>Ecrira</span>}
+            </div>
+            <button onClick={(e)=>{e.stopPropagation();setSidebarCollapsed(v=>!v)}} style={{background:'none',border:'none',cursor:'pointer',padding:4,borderRadius:6,color:'var(--text3)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{width:16,height:16}}><path d={sidebarCollapsed?"M9 18l6-6-6-6":"M15 18l-6-6 6-6"}/></svg>
+            </button>
           </div>
           {/* Notifications bell */}
           <div style={{position:'relative' as const,margin:'0 12px 8px'}}>
@@ -1195,7 +1202,7 @@ export default function Home() {
               </div>
             )}
           </div>
-          <nav className="sidebar-nav">{navItems.map(item=>(<button key={item.id} className={`nav-link ${page===item.id?'active':''}`} onClick={()=>{ if(item.id==="calendrier"&&!isPro){ setShowUpgradeModal(true); return; } setPage(item.id); }}>{item.icon}{item.label}</button>))}</nav>
+          <nav className="sidebar-nav">{navItems.map(item=>(<button key={item.id} className={`nav-link ${page===item.id?'active':''}`} onClick={()=>{ if(item.id==="calendrier"&&!isPro){ setShowUpgradeModal(true); return; } setPage(item.id); }}>{item.icon}{!sidebarCollapsed && item.label}</button>))}</nav>
           {/* Checklist sidebar persistante */}
           {(!profile.role || !linkedinConnected || generatedCount === 0) && (
             <div style={{margin:'0 12px 12px',padding:'12px',background:'rgba(81,103,86,0.06)',borderRadius:12,border:'1px solid rgba(81,103,86,0.12)'}}>
@@ -1259,13 +1266,16 @@ export default function Home() {
           </div>
           {/* APERÇU */}
           <div style={{height:52,borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 24px',background:'var(--white)',flexShrink:0}}>
-            <span style={{fontSize:11,fontWeight:600,color:'var(--text3)',letterSpacing:'0.08em',textTransform:'uppercase' as const}}>
-              {navItems.find((n:any)=>n.id===page)?.label||''}
-            </span>
+            <div style={{display:'flex',alignItems:'center',gap:10}}>
+              <span style={{fontSize:11,fontWeight:600,color:'var(--text3)',letterSpacing:'0.08em',textTransform:'uppercase' as const}}>
+                {navItems.find((n:any)=>n.id===page)?.label||''}
+              </span>
+              <span onClick={()=>window.location.href='/pricing'} style={{fontSize:9,fontWeight:700,padding:'2px 7px',borderRadius:20,background:plan==='trial'?'#D9A840':isPro?'var(--forest)':'rgba(0,0,0,0.08)',color:plan==='trial'||isPro?'white':'var(--text2)',letterSpacing:'0.5px',textTransform:'uppercase' as const,cursor:'pointer'}}>{plan==='trial'?`TRIAL ${trialDaysLeft}j`:isPro?'Pro':'Free'}</span>
+            </div>
             <div style={{display:'flex',alignItems:'center',gap:10}}>
               {(profile as any).linkedin_picture
-                ? <img src={(profile as any).linkedin_picture} alt="" style={{width:28,height:28,borderRadius:'50%',objectFit:'cover',cursor:'pointer'}} onClick={()=>setPage('profil')}/>
-                : <div style={{width:28,height:28,borderRadius:'50%',background:'var(--forest)',display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontSize:10,fontWeight:700,cursor:'pointer'}} onClick={()=>setPage('profil')}>{profile.name?profile.name.slice(0,2).toUpperCase():'??'}</div>
+                ? <img src={(profile as any).linkedin_picture} alt="" style={{width:30,height:30,borderRadius:'50%',objectFit:'cover',cursor:'pointer',border:'2px solid var(--border)'}} onClick={()=>setPage('profil')}/>
+                : <div style={{width:30,height:30,borderRadius:'50%',background:'var(--forest)',display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontSize:11,fontWeight:700,cursor:'pointer'}} onClick={()=>setPage('profil')}>{profile.name?profile.name.slice(0,2).toUpperCase():'??'}</div>
               }
             </div>
           </div>
